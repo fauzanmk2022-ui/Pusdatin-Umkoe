@@ -20,20 +20,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body { background-color: var(--bg-body); color: var(--text-dark); display: flex; height: 100vh; overflow: hidden; }
 
-        .sidebar { width: 250px; background: white; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; flex-shrink: 0; }
+        /* --- SIDEBAR CUSTOMIZED TO IMAGE --- */
+        .sidebar { width: 260px; background: white; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; flex-shrink: 0; }
         .sidebar-profile { background: linear-gradient(135deg, var(--topbar-blue), var(--sidebar-dark)); padding: 25px 15px; display: flex; align-items: center; gap: 15px; color: white; }
         .profile-img { width: 50px; height: 50px; background: white; border-radius: 50%; padding: 5px; display: flex; justify-content: center; align-items: center; }
         .profile-img img { width: 100%; object-fit: contain;}
         .profile-info h4 { font-size: 0.9rem; margin-bottom: 3px; font-weight: 700; letter-spacing: 0.5px;}
         .profile-info p { font-size: 0.7rem; line-height: 1.3; opacity: 0.9; }
 
-        .sidebar-menu { list-style: none; padding: 15px 0; overflow-y: auto; }
-        .sidebar-menu li { padding: 5px 15px; }
-        .sidebar-menu a { display: flex; align-items: center; gap: 15px; padding: 12px 20px; text-decoration: none; color: #555; font-size: 0.9rem; font-weight: 500; border-radius: 8px; transition: 0.3s; }
-        .sidebar-menu a:hover { background: #f8f9fa; color: var(--topbar-blue); }
-        .sidebar-menu a.active { background: #eef2ff; border-left: 4px solid var(--topbar-blue); color: var(--topbar-blue); font-weight: 700; }
-        .sidebar-menu i { width: 20px; text-align: center; font-size: 1.1rem; }
+        .sidebar-menu { list-style: none; padding: 10px 0; overflow-y: auto; }
+        .sidebar-menu li { padding: 2px 10px; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 15px; text-decoration: none; color: #444; font-size: 0.95rem; font-weight: 500; border-radius: 8px; transition: 0.3s; border-bottom: 1px solid transparent; }
+        
+        /* Menu States Colors from Image */
+        .sidebar-menu a:hover { background: #f0f2f5; }
+        .sidebar-menu a.active { background: #f0f2f5; color: #1a1d5c; font-weight: 700; }
+        
+        .sidebar-menu i { width: 24px; text-align: center; font-size: 1.2rem; }
+        .icon-draft { color: #4a89dc; }
+        .icon-diusulkan { color: #20c997; }
+        .icon-disetujui { color: #28a745; }
+        .icon-ditolak { color: #dc3545; }
+        .icon-perbaikan { color: #ffc107; }
 
+        /* --- MAIN CONTENT --- */
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         .topbar { background: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: var(--topbar-blue); }
@@ -82,10 +92,11 @@
         </div>
 
         <ul class="sidebar-menu">
-            <li><a href="#" class="tab-link active" data-tab="Semua"><i class="fas fa-list-ul"></i> Semua Data</a></li>
-            <li><a href="#" class="tab-link" data-tab="Dalam proses"><i class="fas fa-spinner"></i> Sedang Diproses</a></li>
-            <li><a href="#" class="tab-link" data-tab="Selesai"><i class="fas fa-check-circle"></i> Selesai Diproses</a></li>
-            <li><a href="#" class="tab-link" data-tab="Belum selesai"><i class="fas fa-exclamation-triangle"></i> Perlu Perbaikan</a></li>
+            <li><a href="#" class="tab-link active" data-tab="Semua"><i class="fas fa-list-ul icon-draft"></i> Draft</a></li>
+            <li><a href="#" class="tab-link" data-tab="Data sudah diajukan"><i class="fas fa-share-square icon-diusulkan"></i> Diusulkan</a></li>
+            <li><a href="#" class="tab-link" data-tab="Selesai"><i class="fas fa-check-circle icon-disetujui"></i> Disetujui</a></li>
+            <li><a href="#" class="tab-link" data-tab="Ditolak"><i class="fas fa-times-circle icon-ditolak"></i> Ditolak</a></li>
+            <li><a href="#" class="tab-link" data-tab="Perbaikan"><i class="fas fa-exclamation-circle icon-perbaikan"></i> Perlu Perbaikan</a></li>
         </ul>
     </aside>
 
@@ -97,7 +108,7 @@
 
         <section class="content">
             <div class="page-header">
-                <h2>Cek Progres Data Mahasiswa</h2>
+                <h2 id="currentTabTitle">Draft Progres Data Mahasiswa</h2>
                 <p>Masukkan Nama atau NIM Anda untuk melihat status pemutakhiran data di PDDIKTI.</p>
             </div>
 
@@ -115,10 +126,10 @@
                                     <th style="width: 5%;">No</th>
                                     <th style="width: 20%;">Nama Mahasiswa</th>
                                     <th style="width: 10%;">NIM</th>
-                                    <th style="width: 15%;">Keterangan Perubahan</th>
+                                    <th style="width: 15%;">Keterangan</th>
                                     <th style="width: 12%;">Status Dokumen</th>
-                                    <th style="width: 16%;">Catatan Tambahan</th>
-                                    <th style="width: 12%;">Tanggal Update</th>
+                                    <th style="width: 16%;">Catatan PUSDATIN</th>
+                                    <th style="width: 12%;">Update</th>
                                     <th style="width: 10%;">Status Akhir</th>
                                 </tr>
                             </thead>
@@ -133,7 +144,6 @@
     </main>
 
 <script>
-    // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxl_3eSaAA6rdKlv5HLM_3wG0ov8fVLneqX7k_arWka0BhZ6Pz1uTC5WYaKFohTQx6ncg/exec"; 
 
     let database = [];
@@ -141,7 +151,7 @@
 
     async function loadDataFromSheet() {
         try {
-            document.getElementById("tableBody").innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-spinner fa-spin"></i> Menghubungkan ke server DIKTI...</td></tr>`;
+            document.getElementById("tableBody").innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-spinner fa-spin"></i> Menghubungkan ke server PUSDATIN...</td></tr>`;
             
             let response = await fetch(SCRIPT_URL + "?timestamp=" + new Date().getTime());
             database = await response.json();
@@ -155,12 +165,13 @@
     
     loadDataFromSheet();
 
-    function getBadgeClass(text) {
-        if(text === "Selesai" || text === "Valid" || text === "PDM sudah disetujui") return "bg-success";
-        if(text === "Dalam proses" || text === "Belum selesai") return "bg-warning";
-        if(text === "Tidak valid") return "bg-danger";
-        return "bg-light-blue";
-    }
+  function getBadgeClass(text) {
+    // Tambahkan kondisi untuk "Invalid" dan "Tidak valid"
+    if(text === "Selesai" || text === "Valid" || text === "PDM sudah disetujui") return "bg-success";
+    if(text === "Dalam proses" || text === "Data sudah diajukan") return "bg-warning";
+    if(text === "Tidak valid" || text === "Ditolak" || text === "Invalid") return "bg-danger";
+    return "bg-light-blue";
+}
 
     function renderTable(keyword = "") {
         const tbody = document.getElementById("tableBody");
@@ -171,27 +182,38 @@
             return;
         }
 
-        const filteredData = database.filter(item => {
-            // === LOGIKA FILTER BARU ===
-            let matchTab = false;
-            
-            if (currentTab === "Semua") {
-                matchTab = true;
-            } else if (currentTab === "Belum selesai") {
-                // Tampilkan di tab Perlu Perbaikan JIKA status akhir belum selesai ATAU dokumennya tidak valid
-                matchTab = (item.status === "Belum selesai" || item.doc === "Tidak valid");
-            } else {
-                matchTab = (item.status === currentTab);
-            }
+       const filteredData = database.filter(item => {
+    let matchTab = false;
+    
+    // 1. Logika Filter Berdasarkan Tab yang Dipilih
+    if (currentTab === "Semua") {
+        // Draft: Menampilkan semua data tanpa terkecuali
+        matchTab = true; 
+    } 
+    else if (currentTab === "Data sudah diajukan") {
+        // Diusulkan: Hanya yang keterangannya "Data sudah diajukan"
+        matchTab = (item.ket === "Data sudah diajukan");
+    } 
+    else if (currentTab === "Selesai") {
+        // Disetujui: Hanya yang status akhirnya "Selesai"
+        matchTab = (item.status === "Selesai");
+    } 
+    else if (currentTab === "Ditolak") {
+        // Ditolak: Menampilkan data yang statusnya "Ditolak" ATAU dokumennya "Tidak valid"/"Invalid"
+        matchTab = (item.status === "Ditolak" || item.doc === "Tidak valid" || item.doc === "Invalid");
+    } 
+    else if (currentTab === "Perbaikan") {
+        // Perlu Perbaikan: Menampilkan data yang SAMA dengan menu Ditolak
+        matchTab = (item.status === "Ditolak" || item.doc === "Tidak valid" || item.doc === "Invalid");
+    }
 
-            // Pengecekan pencarian teks
-            const namaValid = item.nama ? String(item.nama).toLowerCase() : "";
-            const nimValid = item.nim ? String(item.nim) : "";
-            
-            const matchKey = namaValid.includes(keyword.toLowerCase()) || nimValid.includes(keyword);
-            
-            return matchTab && matchKey;
-        });
+    // 2. Logika Pencarian (Nama atau NIM)
+    const namaValid = item.nama ? String(item.nama).toLowerCase() : "";
+    const nimValid = item.nim ? String(item.nim) : "";
+    const matchKey = namaValid.includes(keyword.toLowerCase()) || nimValid.includes(keyword);
+    
+    return matchTab && matchKey;
+});
 
         if (filteredData.length === 0) {
             tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><i class="fas fa-folder-open"></i> Data tidak ditemukan untuk kategori pencarian ini.</td></tr>`;
@@ -200,11 +222,9 @@
 
         filteredData.forEach((item, index) => {
             let dateObj = new Date(item.tgl);
-            let formattedDate = ("0" + dateObj.getDate()).slice(-2) + " " + dateObj.toLocaleString('id-ID', { month: 'short' }) + " " + dateObj.getFullYear();
-            if(isNaN(dateObj)) formattedDate = item.tgl; 
+            let formattedDate = isNaN(dateObj) ? item.tgl : ("0" + dateObj.getDate()).slice(-2) + " " + dateObj.toLocaleString('id-ID', { month: 'short' }) + " " + dateObj.getFullYear();
 
             let strCatatan = (item.catatan && item.catatan.trim() !== "") ? item.catatan : "-";
-
             let tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${index + 1}</td>
@@ -212,7 +232,7 @@
                 <td>${item.nim}</td>
                 <td><span class="badge ${getBadgeClass(item.ket)}">${item.ket}</span></td>
                 <td><span class="badge ${getBadgeClass(item.doc)}">${item.doc}</span></td>
-                <td style="font-size: 0.85rem; color: #dc2626; font-style: italic;">${strCatatan}</td>
+                <td style="font-size: 0.8rem; color: #dc2626; font-style: italic;">${strCatatan}</td>
                 <td style="font-weight: 500;">${formattedDate}</td>
                 <td><span class="badge ${getBadgeClass(item.status)}">${item.status}</span></td>
             `;
@@ -233,9 +253,15 @@
             document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
             this.classList.add('active');
             currentTab = this.getAttribute('data-tab');
+            
+            // Ubah Title Header
+            const tabName = this.innerText.trim();
+            document.getElementById('currentTabTitle').innerText = tabName + " Progres Data Mahasiswa";
+            
             filterData(); 
         });
     });
 </script>
 </body>
+</html>
 </html>
