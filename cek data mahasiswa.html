@@ -182,32 +182,40 @@
             return;
         }
 
-       const filteredData = database.filter(item => {
+     const filteredData = database.filter(item => {
+    // 1. Definisikan kondisi status agar mudah dibaca
+    const isInvalid = (item.status === "Ditolak" || item.doc === "Tidak valid" || item.doc === "Invalid");
+    const isSelesai  = (item.status === "Selesai" || item.doc === "Valid" || item.status === "PDM sudah disetujui");
+    const isDiusulkan = (item.ket === "Data sudah diajukan");
+    const isProses   = (item.status === "Dalam proses" || item.ket === "Dalam proses");
+
     let matchTab = false;
     
-    // 1. Logika Filter Berdasarkan Tab yang Dipilih
+    // 2. Logika Pemisahan Menu (Eksklusif)
     if (currentTab === "Semua") {
-        // Draft: Menampilkan semua data tanpa terkecuali
-        matchTab = true; 
+        // Draft: HANYA menampilkan data yang statusnya masih 'Dalam proses'.
+        // Data yang sudah 'Invalid', 'Diusulkan', atau 'Selesai' otomatis hilang dari sini.
+        matchTab = isProses && !isInvalid && !isSelesai;
     } 
     else if (currentTab === "Data sudah diajukan") {
-        // Diusulkan: Hanya yang keterangannya "Data sudah diajukan"
-        matchTab = (item.ket === "Data sudah diajukan");
+        // Diusulkan: HANYA menampilkan data yang baru diajukan (isDiusulkan).
+        // Begitu admin mengubah statusnya menjadi proses, selesai, atau invalid, data hilang dari sini.
+        matchTab = isDiusulkan && !isInvalid && !isSelesai;
     } 
     else if (currentTab === "Selesai") {
-        // Disetujui: Hanya yang status akhirnya "Selesai"
-        matchTab = (item.status === "Selesai");
+        // Disetujui: HANYA menampilkan data yang sudah benar-benar 'Valid' atau 'Selesai'.
+        matchTab = isSelesai && !isInvalid;
     } 
     else if (currentTab === "Ditolak") {
-        // Ditolak: Menampilkan data yang statusnya "Ditolak" ATAU dokumennya "Tidak valid"/"Invalid"
-        matchTab = (item.status === "Ditolak" || item.doc === "Tidak valid" || item.doc === "Invalid");
+        // Ditolak: Menampilkan data yang Invalid/Ditolak.
+        matchTab = isInvalid;
     } 
     else if (currentTab === "Perbaikan") {
-        // Perlu Perbaikan: Menampilkan data yang SAMA dengan menu Ditolak
-        matchTab = (item.status === "Ditolak" || item.doc === "Tidak valid" || item.doc === "Invalid");
+        // Perlu Perbaikan: Cermin dari menu Ditolak.
+        matchTab = isInvalid;
     }
 
-    // 2. Logika Pencarian (Nama atau NIM)
+    // 3. Logika Pencarian
     const namaValid = item.nama ? String(item.nama).toLowerCase() : "";
     const nimValid = item.nim ? String(item.nim) : "";
     const matchKey = namaValid.includes(keyword.toLowerCase()) || nimValid.includes(keyword);
