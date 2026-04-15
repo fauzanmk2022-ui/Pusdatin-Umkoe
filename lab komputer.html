@@ -83,35 +83,68 @@
         .rules-list li { display: flex; gap: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e2e8f0; }
         .rules-list i { color: #ef4444; font-size: 1.2rem; }
 
+        /* --- PAGINATION STYLING --- */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .pagination-container button {
+            background: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-container button:hover:not(:disabled) { background: var(--primary); color: white; }
+        .pagination-container button:disabled { opacity: 0.3; cursor: not-allowed; border-color: #cbd5e1; color: #94a3b8; }
+        #pageInfo { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
+
+        /* --- PRINT TABLE (HIDDEN ON WEB) --- */
+        #printTableFull { display: none; }
+
         @media (max-width: 992px) { .grid-layout { grid-template-columns: 1fr; } }
 
         /* --- CSS KHUSUS CETAK (PRINT) --- */
         @media print {
             body { background: white; }
-            header, .lab-hero, .btn-back, .btn-print, .badge-status, #fasilitas, .card:not(.card-full) { 
+            header, .lab-hero, .btn-back, .btn-print, .badge-status, #fasilitas, .card:not(.card-full), .pagination-container { 
                 display: none !important; 
             }
-            .container { margin: 0; padding: 0; max-width: 100%; }
-            .card-full { 
-                box-shadow: none !important; 
-                border: none !important; 
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .section-title { 
-                color: black !important; 
-                font-size: 1.5rem; 
-                margin-bottom: 20px;
-                border-bottom: 2px solid #000;
-                padding-bottom: 10px;
-            }
-            .section-title i { display: none; }
-            table { width: 100%; border: 1px solid #000; }
-            th, td { border: 1px solid #000 !important; color: black !important; padding: 10px !important; }
-            th { background: #eee !important; }
-            .jadwal-badge { background: transparent !important; color: black !important; padding: 0 !important; }
+            #printableTable { display: none !important; } /* Sembunyikan tabel pagination */
             
-            /* Tambahkan info kop surat saat cetak */
+            #printTableFull { 
+                display: table !important; /* Munculkan tabel penuh saat cetak */
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .container { margin: 0; padding: 0; max-width: 100%; }
+            .card-full { box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; }
+            .section-title { color: black !important; font-size: 1.5rem; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+            .section-title i { display: none; }
+            
+            #printTableFull th, #printTableFull td { 
+                border: 1px solid #000 !important; 
+                color: black !important; 
+                padding: 10px !important; 
+                font-size: 10pt !important;
+            }
+            #printTableFull th { background: #eee !important; }
+            
             .card-full::before {
                 content: "UNIVERSITAS MUHAMMADIYAH KUPANG - PUSDATIN\A JADWAL PRAKTIKUM LABORATORIUM KOMPUTER\A";
                 white-space: pre;
@@ -181,6 +214,19 @@
                             <tr><td colspan="5" style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin"></i> Menghubungkan ke database PUSDATIN...</td></tr>
                         </tbody>
                     </table>
+
+                    <table id="printTableFull">
+                        <thead>
+                            <tr><th>Hari</th><th>Waktu</th><th>Mata Kuliah / Kegiatan</th><th>Program Studi</th><th>Dosen Pengampu</th></tr>
+                        </thead>
+                        <tbody id="tbodyPrintFull"></tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-container">
+                    <button id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i> Sebelumnya</button>
+                    <span id="pageInfo">Halaman 1 dari 1</span>
+                    <button id="nextBtn" onclick="changePage(1)">Selanjutnya <i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -189,11 +235,17 @@
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGz5YxurtaxYI5OmmgCqBniyqhvxNZ9ETDDftk0LyZzpc1YXtsJzy8JrRMicJEz1bm/exec";
+        
+        let currentSchedulePage = 1;
+        const recordsPerPage = 10;
+        let totalScheduleData = [];
 
         async function loadLabData() {
             try {
                 let response = await fetch(SCRIPT_URL + "?timestamp=" + new Date().getTime());
                 let result = await response.json();
+
+                totalScheduleData = result.jadwal || [];
 
                 const labData = JSON.parse(localStorage.getItem('dbLab_UMK')) || {
                     heroT: "Laboratorium Komputer Terpadu", heroD: "Fasilitas komputasi modern untuk civitas akademika UMK.",
@@ -222,29 +274,51 @@
                 const softContainer = document.getElementById('dispLabSoftware');
                 softContainer.innerHTML = labData.soft.split(',').map(s => `<div class="tag"><i class="fas fa-check-circle"></i> ${s.trim()}</div>`).join('');
 
-                const tbody = document.getElementById('tbodySchedule');
-                tbody.innerHTML = '';
-
-                if (result.jadwal && result.jadwal.length > 0) {
-                    result.jadwal.forEach(item => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><strong>${item.hari}</strong></td>
-                                <td><span class="jadwal-badge">${item.waktu}</span></td>
-                                <td>${item.matkul}</td>
-                                <td>${item.prodi}</td>
-                                <td>${item.dosen}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">Belum ada jadwal praktikum diinput untuk minggu ini.</td></tr>`;
-                }
+                renderSchedule();
 
             } catch (error) {
                 console.error("Error:", error);
-                document.getElementById('tbodySchedule').innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat jadwal. Pastikan Backend (Google Script) sudah dideploy.</td></tr>`;
+                document.getElementById('tbodySchedule').innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat jadwal.</td></tr>`;
             }
+        }
+
+        function renderSchedule() {
+            const tbody = document.getElementById('tbodySchedule');
+            const tbodyPrint = document.getElementById('tbodyPrintFull');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageInfo = document.getElementById('pageInfo');
+            
+            // 1. Render untuk Tampilan Web
+            tbody.innerHTML = '';
+            const startIndex = (currentSchedulePage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const paginatedItems = totalScheduleData.slice(startIndex, endIndex);
+            
+            if (paginatedItems.length > 0) {
+                paginatedItems.forEach(item => {
+                    tbody.innerHTML += `<tr><td><strong>${item.hari}</strong></td><td><span class="jadwal-badge">${item.waktu}</span></td><td>${item.matkul || '-'}</td><td>${item.prodi || '-'}</td><td>${item.dosen || '-'}</td></tr>`;
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">Belum ada jadwal.</td></tr>`;
+            }
+            
+            // 2. Render untuk Tampilan Cetak (Full)
+            tbodyPrint.innerHTML = '';
+            totalScheduleData.forEach(item => {
+                tbodyPrint.innerHTML += `<tr><td>${item.hari}</td><td>${item.waktu}</td><td>${item.matkul || '-'}</td><td>${item.prodi || '-'}</td><td>${item.dosen || '-'}</td></tr>`;
+            });
+            
+            const totalPages = Math.ceil(totalScheduleData.length / recordsPerPage) || 1;
+            pageInfo.innerText = `Halaman ${currentSchedulePage} dari ${totalPages}`;
+            prevBtn.disabled = currentSchedulePage === 1;
+            nextBtn.disabled = currentSchedulePage === totalPages;
+        }
+
+        function changePage(direction) {
+            currentSchedulePage += direction;
+            renderSchedule();
+            document.getElementById('jadwal').scrollIntoView({ behavior: 'smooth' });
         }
 
         window.onload = loadLabData;
