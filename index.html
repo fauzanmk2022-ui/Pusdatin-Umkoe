@@ -25,6 +25,7 @@
         body {
             background: var(--bg-light);
             color: #333;
+            overflow-x: hidden;
         }
 
         /* --- Header & Nav --- */
@@ -41,11 +42,21 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
         }
 
-        .logo-container { display: flex; align-items: center; gap: 12px; }
+        .logo-container { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1100; }
         .logo-box { background: #f0f2ff; padding: 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
         .logo-box img { height: 42px; }
         .logo-text span { display: block; font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin-bottom: 2px; }
         .logo-text b { font-size: 1.15rem; color: var(--primary); font-weight: 800; white-space: nowrap; }
+
+        /* --- Hamburger Menu --- */
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+            z-index: 1100;
+            padding: 10px;
+        }
 
         /* --- Navigation Logic --- */
         .nav-wrapper { display: flex; align-items: center; }
@@ -61,7 +72,7 @@
         .nav-links li a.active { background: white; color: var(--primary); box-shadow: 0 10px 25px rgba(93, 95, 239, 0.15); transform: translateY(-2px); }
         .nav-links li a:hover:not(.active) { color: var(--secondary); background: #f8f9ff; }
 
-        /* --- Level 1 Dropdown Style --- */
+        /* --- Dropdown Styles --- */
         .dropdown-content {
             position: absolute; top: 100%; left: 0; background-color: white;
             min-width: 240px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
@@ -77,31 +88,22 @@
             background: transparent !important; box-shadow: none !important; width: 100%; cursor: pointer;
         }
 
-        .dropdown-content a i:first-child { width: 20px; }
-
-        .dropdown-content a:hover, .sub-dropdown:hover > a {
-            background-color: #f4f7fe !important; color: var(--primary) !important; padding-left: 20px !important;
-        }
-
-        /* --- Level 2 Sub-Dropdown (Menu PDM Bertingkat) --- */
         .sub-dropdown { position: relative; }
-        
         .sub-dropdown-content {
             position: absolute; top: 0; left: 100%; margin-left: 5px;
             background-color: white; min-width: 200px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             border-radius: 15px; padding: 10px; opacity: 0; visibility: hidden;
             transform: translateX(15px); transition: var(--transition); border: 1px solid #edf2f7;
         }
-
         .sub-dropdown:hover .sub-dropdown-content { opacity: 1; visibility: visible; transform: translateX(0); }
 
         .btn-masuk {
             background: var(--primary); color: white; padding: 12px 32px; border-radius: 12px;
             text-decoration: none; font-weight: 700; transition: var(--transition); box-shadow: 0 6px 15px rgba(45, 50, 138, 0.2);
+            margin-left: 15px;
         }
-        .btn-masuk:hover { background: var(--secondary); box-shadow: 0 10px 20px rgba(93, 95, 239, 0.3); transform: translateY(-2px); }
 
-        /* --- Hero --- */
+        /* --- Hero Section --- */
         .hero {
             padding: 160px 8% 80px; min-height: 100vh;
             background: linear-gradient(135deg, rgba(45, 50, 138, 0.92), rgba(63, 64, 149, 0.75)),
@@ -109,129 +111,84 @@
             background-size: cover; background-position: center;
             display: grid; grid-template-columns: 1.1fr 0.9fr; align-items: center; gap: 60px; color: white;
         }
-
         .hero-content h1 { font-size: 3.8rem; font-weight: 800; margin-bottom: 24px; line-height: 1.1; }
         .hero-content p { font-size: 1.15rem; margin-bottom: 40px; opacity: 0.9; line-height: 1.8; max-width: 600px; }
         .hero-btns { display: flex; gap: 15px; }
+        .btn-hero-white { background: white; color: var(--primary); padding: 18px 36px; border-radius: 16px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 12px; transition: var(--transition); }
+        .btn-hero-outline { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 18px 36px; border-radius: 16px; text-decoration: none; font-weight: 600; transition: var(--transition); }
 
-        .btn-hero-white { background: white; color: var(--primary); padding: 18px 36px; border-radius: 16px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); transition: var(--transition);}
-        .btn-hero-white:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        
-        .btn-hero-outline { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 18px 36px; border-radius: 16px; text-decoration: none; font-weight: 600; transition: var(--transition);}
-        .btn-hero-outline:hover { background: rgba(255, 255, 255, 0.2); }
+        /* Right Section Services */
+        .hero-right { display: flex; flex-direction: column; gap: 25px; }
+        .system-status { align-self: flex-end; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: #fff; }
+        .status-dot { width: 12px; height: 12px; background: #20c997; border-radius: 50%; box-shadow: 0 0 10px #20c997; animation: pulse 1.5s infinite; }
+        .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .service-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); padding: 30px 25px; border-radius: 24px; text-align: center; color: white; transition: var(--transition); }
+        .service-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.15); }
+        .service-icon { font-size: 2rem; color: var(--accent); margin-bottom: 15px; }
 
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* ================= DESAIN BARU BAGIAN KANAN (RIGHT SECTION) ================= */
-        .hero-right {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            position: relative;
-        }
-
-        /* Live System Status (Indikator Berkedip) */
-        .system-status {
-            align-self: flex-end;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.5px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            animation: float 4s ease-in-out infinite;
-        }
-
-        .status-dot {
-            width: 12px; height: 12px; background: #20c997; border-radius: 50%;
-            box-shadow: 0 0 10px #20c997, 0 0 20px #20c997;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* 2x2 Services Grid Interaktif */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .services-grid a { text-decoration: none; }
-
-        .service-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 30px 25px;
-            border-radius: 24px;
-            text-align: center;
-            transition: var(--transition);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            position: relative;
-            overflow: hidden;
-            height: 100%;
-        }
-
-        /* Efek Kilauan Cahaya saat di-hover */
-        .service-card::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
-            transform: skewX(-20deg); transition: 0.6s;
-        }
-
-        .service-card:hover::before { left: 150%; }
-        
-        .service-card:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--accent);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-        }
-
-        .service-icon {
-            width: 65px; height: 65px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2rem; color: var(--accent);
-            transition: var(--transition);
-        }
-
-        .service-card:hover .service-icon {
-            background: var(--accent); color: var(--primary);
-            transform: scale(1.15) rotate(5deg);
-        }
-
-        .service-title { font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: 0.5px;}
-        .service-desc { font-size: 0.85rem; color: rgba(255,255,255,0.75); line-height: 1.5; }
-
-        /* Animasi Keyframes */
-        @keyframes pulse { 
-            0% { transform: scale(0.95); opacity: 0.8; } 
-            50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 15px #20c997, 0 0 30px #20c997; } 
-            100% { transform: scale(0.95); opacity: 0.8; } 
-        }
-        @keyframes float { 
-            0% { transform: translateY(0px); } 
-            50% { transform: translateY(-8px); } 
-            100% { transform: translateY(0px); } 
-        }
-
+        /* ================= MOBILE RESPONSIVE REPAIR ================= */
         @media (max-width: 1200px) {
-            .nav-wrapper { display: none; }
+            .mobile-menu-btn { display: block; }
+            
+            .nav-wrapper {
+                position: fixed;
+                top: 0;
+                right: -100%; /* Sembunyi di kanan */
+                width: 80%;
+                max-width: 350px;
+                height: 100vh;
+                background: white;
+                box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+                transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                padding: 100px 30px 40px;
+                flex-direction: column;
+                align-items: flex-start;
+                z-index: 1050;
+            }
+
+            .nav-wrapper.active {
+                right: 0; /* Muncul */
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .nav-links > li { width: 100%; }
+            .nav-links li a { width: 100%; padding: 15px; font-size: 1rem; border-radius: 10px; }
+
+            /* Mobile Dropdowns */
+            .dropdown-content, .sub-dropdown-content {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                border: none;
+                padding-left: 20px;
+                display: none; /* Sembunyi default di mobile */
+                width: 100%;
+            }
+
+            .nav-links li.active-mobile > .dropdown-content,
+            .sub-dropdown.active-mobile > .sub-dropdown-content {
+                display: block;
+            }
+
+            .btn-masuk {
+                margin: 20px 0 0 0;
+                width: 100%;
+                text-align: center;
+            }
+
             .hero { grid-template-columns: 1fr; text-align: center; padding-top: 140px; }
-            .hero-btns { justify-content: center; }
-            .hero-content p { margin-left: auto; margin-right: auto; }
+            .hero-btns { justify-content: center; flex-wrap: wrap; }
+            .hero-content h1 { font-size: 2.5rem; }
             .system-status { align-self: center; margin-bottom: 20px; }
         }
 
@@ -253,17 +210,20 @@
             </div>
         </div>
 
-        <nav class="nav-wrapper">
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <nav class="nav-wrapper" id="navWrapper">
             <ul class="nav-links">
                 <li><a href="#" class="active">Beranda</a></li>
                 <li><a href="#">Satu Data</a></li>
                 
-                <li>
-                    <a href="#">E-Layanan <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
+                <li class="has-dropdown">
+                    <a href="javascript:void(0)">E-Layanan <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
                     <div class="dropdown-content">
-                        
                         <div class="sub-dropdown">
-                            <a href="#">
+                            <a href="javascript:void(0)">
                                 <span><i class="fas fa-user-edit"></i> PDM Mahasiswa</span>
                                 <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
                             </a>
@@ -272,19 +232,37 @@
                                 <a href="pdm nim.html"><span><i class="fas fa-id-badge"></i> NIM</span></a>
                             </div>
                         </div>
-
                         <a href="cek data mahasiswa.html"><span><i class="fas fa-search"></i> Cek Data Mahasiswa</span></a>
-
                         <a href="#"><span><i class="fas fa-user-tie"></i> Cek Data Dosen</span></a>
                     </div>
                 </li>
 
-                <li><a href="#">Infrastruktur</a></li>
+                <li class="has-dropdown">
+                    <a href="javascript:void(0)">Infrastruktur <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
+                    <div class="dropdown-content">
+                        <a href="info infrastruktur.html"><span><i class="fas fa-network-wired"></i> Status Jaringan</span></a>
+                        <a href="#"><span><i class="fas fa-server"></i> Data Center</span></a>
+                        
+                        <div class="sub-dropdown">
+                            <a href="javascript:void(0)">
+                                <span><i class="fas fa-flask"></i> Laboratorium</span>
+                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+                            </a>
+                            <div class="sub-dropdown-content">
+                                <a href="lab komputer.html"><span><i class="fas fa-desktop"></i> Lab Komputer</span></a>
+                                <a href="#"><span><i class="fas fa-language"></i> Lab Bahasa</span></a>
+                                <a href="#"><span><i class="fas fa-microscope"></i> Lab Biologi</span></a>
+                            </div>
+                        </div>
+                        
+                        <a href="#"><span><i class="fas fa-wifi"></i> Hotspot Area</span></a>
+                    </div>
+                </li>
+
                 <li><a href="#">Statistik</a></li>
             </ul>
+            <a href="admin data mahasiswa.html" class="btn-masuk">Login</a>
         </nav>
-
-        <a href="admin data mahasiswa.html" class="btn-masuk">Login</a>
     </header>
 
     <section class="hero">
@@ -298,49 +276,62 @@
         </div>
 
         <div class="hero-right">
-            
             <div class="system-status">
                 <div class="status-dot"></div>
                 Semua Sistem Berjalan Normal
             </div>
 
             <div class="services-grid">
-                
-                <a href="#">
-                    <div class="service-card">
-                        <div class="service-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <div class="service-title">SIAKAD</div>
-                        <div class="service-desc">Sistem Informasi Akademik Terpadu UMK</div>
-                    </div>
-                </a>
-
-                <a href="cek data mahasiswa.html">
-                    <div class="service-card">
-                        <div class="service-icon"><i class="fas fa-user-edit"></i></div>
-                        <div class="service-title">PDM DIKTI</div>
-                        <div class="service-desc">Pemutakhiran & Pelacakan Data Mahasiswa</div>
-                    </div>
-                </a>
-
-                <a href="#">
-                    <div class="service-card">
-                        <div class="service-icon"><i class="fas fa-wifi"></i></div>
-                        <div class="service-title">Hotspot Area</div>
-                        <div class="service-desc">Layanan Akses Internet & Jaringan Kampus</div>
-                    </div>
-                </a>
-
-                <a href="#">
-                    <div class="service-card">
-                        <div class="service-icon"><i class="fas fa-laptop-medical"></i></div>
-                        <div class="service-title">Helpdesk IT</div>
-                        <div class="service-desc">Pusat Layanan Bantuan Teknis & Pelaporan</div>
-                    </div>
-                </a>
-
+                <a href="#"><div class="service-card"><i class="fas fa-graduation-cap service-icon"></i><div class="service-title">SIAKAD</div><div class="service-desc">Sistem Informasi Akademik</div></div></a>
+                <a href="cek data mahasiswa.html"><div class="service-card"><i class="fas fa-user-edit service-icon"></i><div class="service-title">PDM DIKTI</div><div class="service-desc">Pemutakhiran Data</div></div></a>
+                <a href="#"><div class="service-card"><i class="fas fa-wifi service-icon"></i><div class="service-title">Hotspot</div><div class="service-desc">Akses Internet Kampus</div></div></a>
+                <a href="#"><div class="service-card"><i class="fas fa-laptop-medical service-icon"></i><div class="service-title">Helpdesk</div><div class="service-desc">Layanan Bantuan IT</div></div></a>
             </div>
         </div>
-        </section>
+    </section>
 
+    <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navWrapper = document.getElementById('navWrapper');
+        const dropdowns = document.querySelectorAll('.has-dropdown');
+        const subDropdowns = document.querySelectorAll('.sub-dropdown');
+
+        // Toggle Sidebar Mobile
+        mobileMenuBtn.addEventListener('click', () => {
+            navWrapper.classList.toggle('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+
+        // Toggle Dropdown di Mobile
+        dropdowns.forEach(dropdown => {
+            dropdown.querySelector('a').addEventListener('click', (e) => {
+                if (window.innerWidth <= 1200) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active-mobile');
+                }
+            });
+        });
+
+        subDropdowns.forEach(sub => {
+            sub.querySelector('a').addEventListener('click', (e) => {
+                if (window.innerWidth <= 1200) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    sub.classList.toggle('active-mobile');
+                }
+            });
+        });
+
+        // Close menu saat klik di luar
+        document.addEventListener('click', (e) => {
+            if (!navWrapper.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                navWrapper.classList.remove('active');
+                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+            }
+        });
+    </script>
 </body>
 </html>
