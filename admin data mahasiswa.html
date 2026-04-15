@@ -285,7 +285,7 @@
     let currentAdminSchedulePage = 1;
     const adminSchedulePerPage = 10;
 
-    // --- RENDER TABEL MAHASISWA (FITUR LENGKAP DROPDOWN & DATE) ---
+    // --- RENDER TABEL MAHASISWA ---
     function renderTable(keyword = "") {
         const tbody = document.getElementById("tableBody");
         tbody.innerHTML = "";
@@ -333,7 +333,7 @@
         });
     }
 
-    // --- RENDER JADWAL LAB (WITH PAGINATION) ---
+    // --- RENDER JADWAL LAB ---
     function renderScheduleTable() {
         const tbody = document.getElementById("scheduleTableBody");
         const prevBtn = document.getElementById("adminPrevBtn");
@@ -383,45 +383,45 @@
         } catch(e) { console.error("Error Fetch"); } 
     }
 
+    // --- BACKEND CONNECTOR (SINKRONISASI UTAMA) ---
+    async function sendToBackend(action, dataObj = null, id = null) { 
+        showToast("Menyinkronkan..."); 
+        const params = new URLSearchParams(); 
+        params.append('action', action); 
+        
+        if(dataObj) {
+            params.append('data', JSON.stringify(dataObj)); 
+        }
+        if(id) {
+            params.append('id', id); 
+        }
+
+        try { 
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded' 
+                }, 
+                body: params.toString() 
+            }); 
+            showToast("Sinkron Berhasil!"); 
+        } catch(e) { 
+            console.error("Error Koneksi:", e);
+            showToast("Koneksi Gagal!", true); 
+        } 
+    }
+
     // --- FUNGSI CRUD MAHASISWA ---
     function updateData(id, field, val) { const idx = dbMahasiswa.findIndex(m => m.id === id); if (idx !== -1) { dbMahasiswa[idx][field] = val; sendToBackend('edit', dbMahasiswa[idx]); } }
     function addNewRow() { const newData = { id: Date.now(), nama: "Nama Baru", nim: "0000", ket: "Draft", doc: "Dokumen belum diperiksa", catatan: "", tgl: new Date().toISOString().split('T')[0], status: "Belum selesai" }; dbMahasiswa.unshift(newData); renderTable(); sendToBackend('add', newData); }
     function deleteRow(id) { if(confirm("Hapus Mahasiswa?")) { dbMahasiswa = dbMahasiswa.filter(m => m.id !== id); renderTable(); sendToBackend('delete', null, id); } }
     
-   async function sendToBackend(action, dataObj = null, id = null) { 
-    showToast("Menyinkronkan..."); 
-    const params = new URLSearchParams(); 
-    params.append('action', action); 
-    
-    if(dataObj) {
-        // Ini mengirim objek data mahasiswa/jadwal sebagai string JSON
-        params.append('data', JSON.stringify(dataObj)); 
-    }
-    if(id) {
-        // Ini digunakan khusus untuk aksi 'delete'
-        params.append('id', id); 
-    }
-
-    try { 
-        await fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            mode: 'no-cors', // Penting agar tidak terblokir kebijakan keamanan browser
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded' // BARIS INI WAJIB ADA
-            }, 
-            body: params.toString() 
-        }); 
-        showToast("Sinkron Berhasil!"); 
-    } catch(e) { 
-        console.error("Error Koneksi:", e);
-        showToast("Koneksi Gagal!", true); 
-    } 
-}
-    // --- FUNGSI CRUD JADWAL ---
+    // --- FUNGSI CRUD JADWAL (PERBAIKAN KONEKSI) ---
     async function saveScheduleToLocal() {
-        showToast("Menyinkronkan...");
-        const params = new URLSearchParams(); params.append('action', 'saveSchedule'); params.append('data', JSON.stringify(dbSchedule));
-        try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() }); showToast("Jadwal Tersimpan!"); setTimeout(fetchFromSheet, 2000); } catch (e) { showToast("Gagal!", true); }
+        // Mengirimkan seluruh array dbSchedule ke backend
+        await sendToBackend('saveSchedule', dbSchedule);
+        setTimeout(fetchFromSheet, 2000); // Segarkan data setelah 2 detik
     }
 
     function changeAdminPage(dir) { currentAdminSchedulePage += dir; renderScheduleTable(); }
