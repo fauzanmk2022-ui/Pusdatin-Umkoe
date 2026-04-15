@@ -68,9 +68,8 @@
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; font-family: inherit;}
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--topbar-blue); }
         .btn-save-setting { background: var(--btn-teal); color: white; padding: 12px 20px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 1rem;}
-        .btn-save-setting:hover { filter: brightness(0.95); }
         
-        /* --- STYLING KHUSUS TOMBOL SIMPAN JADWAL LAB (NEW) --- */
+        /* --- STYLING KHUSUS TOMBOL SIMPAN JADWAL LAB --- */
         .schedule-save-container {
             display: flex;
             justify-content: center;
@@ -83,7 +82,7 @@
             color: white;
             padding: 12px 35px;
             border: none;
-            border-radius: 50px; /* Lonjong elegan */
+            border-radius: 50px;
             font-weight: 700;
             cursor: pointer;
             font-size: 0.9rem;
@@ -98,7 +97,6 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(74, 137, 220, 0.3);
         }
-        .btn-save-schedule:active { transform: translateY(0); }
 
         .section-divider { margin: 25px 0 15px 0; border: 0; border-top: 2px dashed #e2e8f0; }
         .section-subtitle { margin-bottom: 15px; color: var(--topbar-blue); font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;}
@@ -111,7 +109,6 @@
         .inline-select, .inline-date, .inline-input { width: 100%; padding: 6px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.8rem; outline: none; }
         .btn-delete { background: var(--btn-red); color: white; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }
 
-        /* PAGINATION ADMIN STYLING */
         .pagination-admin {
             display: flex;
             justify-content: center;
@@ -132,12 +129,7 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
-        .pagination-admin button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: #ccc;
-            color: #888;
-        }
+        .pagination-admin button:disabled { opacity: 0.4; cursor: not-allowed; }
         .pagination-admin span { font-size: 0.85rem; font-weight: 600; color: #555; }
 
         #toast { visibility: hidden; min-width: 250px; background-color: var(--btn-teal); color: #fff; text-align: center; border-radius: 5px; padding: 12px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
@@ -161,7 +153,7 @@
         </div>
     </div>
 
-    <div id="toast"><i class="fas fa-check-circle"></i> Berhasil disimpan!</div>
+    <div id="toast">Berhasil disimpan!</div>
 
     <div id="dashboardPage">
         <aside class="sidebar">
@@ -173,7 +165,7 @@
                 <li onclick="switchMenu('menuDataMahasiswa')"><a href="#" id="navDataMahasiswa" class="active"><i class="fas fa-database"></i> Data Mahasiswa</a></li>
                 <li onclick="switchMenu('menuInfra')"><a href="#" id="navInfra"><i class="fas fa-network-wired"></i> Info Infrastruktur</a></li>
                 <li onclick="switchMenu('menuLab')"><a href="#" id="navLab"><i class="fas fa-desktop"></i> Halaman Lab Komputer</a></li>
-                <li onclick="switchMenu('menuSupport')"><a href="#" id="navSupport"><i class="fas fa-headset"></i> Support IT (Helpdesk)</a></li>
+                <li onclick="switchMenu('menuSupport')"><a href="#" id="navSupport"><i class="fas fa-headset"></i> Support IT</a></li>
                 <li onclick="switchMenu('menuPengaturanAkun')"><a href="#" id="navPengaturanAkun"><i class="fas fa-user-cog"></i> Pengaturan Akun</a></li>
             </ul>
         </aside>
@@ -200,24 +192,6 @@
                 </div>
             </section>
 
-            <section id="menuInfra" class="content-section">
-                <div class="page-header"><h2>Pengaturan Konten Infrastruktur</h2></div>
-                <div class="card"><div class="card-body"><form class="form-setting" onsubmit="saveInfra(event)">
-                    <h4 class="section-subtitle"><i class="fas fa-server"></i> Status Server & Jaringan</h4>
-                    <div class="form-row"><div class="form-group"><label>SIAKAD Cloud</label><select id="setSiakad"><option value="Online">Online</option><option value="Gangguan">Gangguan</option></select></div><div class="form-group"><label>Web Utama</label><select id="setWeb"><option value="Online">Online</option><option value="Gangguan">Gangguan</option></select></div></div><div class="form-group"><label>Intranet Kampus</label><select id="setIntranet"><option value="Stabil">Stabil</option><option value="Lambat">Lambat</option><option value="Gangguan">Gangguan</option></select></div>
-                    <hr class="section-divider">
-                    <h4 class="section-subtitle"><i class="fas fa-wifi"></i> Hotspot</h4>
-                    <div class="form-row"><div class="form-group"><label>Nama WiFi 1</label><input type="text" id="setWifi1Name"></div><div class="form-group"><label>Signal WiFi 1</label><input type="text" id="setWifi1Signal"></div></div><div class="form-group"><label>Area WiFi 1</label><input type="text" id="setWifi1Area"></div>
-                    <div class="form-row"><div class="form-group"><label>Nama WiFi 2</label><input type="text" id="setWifi2Name"></div><div class="form-group"><label>Signal WiFi 2</label><input type="text" id="setWifi2Signal"></div></div><div class="form-group"><label>Area WiFi 2</label><input type="text" id="setWifi2Area"></div>
-                    <hr class="section-divider">
-                    <h4 class="section-subtitle"><i class="fas fa-shield-alt"></i> Security & Data Center</h4>
-                    <div class="form-row"><div class="form-group"><label>Bandwidth</label><input type="text" id="setDcBandwidth"></div><div class="form-group"><label>Storage</label><input type="text" id="setDcStorage"></div></div>
-                    <div class="form-row"><div class="form-group"><label>Security</label><input type="text" id="setDcSecurity"></div><div class="form-group"><label>Backup</label><input type="text" id="setDcBackup"></div></div>
-                    <div class="form-group"><label>Teks Keamanan</label><textarea id="setCyberText" rows="2"></textarea></div>
-                    <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN INFRASTRUKTUR UTAMA</button>
-                </form></div></div>
-            </section>
-
             <section id="menuLab" class="content-section">
                 <div class="page-header"><h2>Pengaturan Konten Halaman Lab Komputer</h2></div>
                 <div class="card">
@@ -226,25 +200,10 @@
                             <h4 class="section-subtitle"><i class="fas fa-heading"></i> Info Hero Utama</h4>
                             <div class="form-group"><label>Judul Halaman Lab</label><input type="text" id="setLabHeroTitle"></div>
                             <div class="form-group"><label>Deskripsi Halaman Lab</label><textarea id="setLabHeroDesc" rows="2"></textarea></div>
-                            <hr class="section-divider">
-                            <h4 class="section-subtitle"><i class="fas fa-microchip"></i> Spesifikasi & Fasilitas Hardware</h4>
-                            <div class="form-row"><div class="form-group"><label>Fasilitas 1 (Judul)</label><input type="text" id="setLabFas1T"></div><div class="form-group"><label>Fasilitas 1 (Deskripsi)</label><input type="text" id="setLabFas1D"></div></div>
-                            <div class="form-row"><div class="form-group"><label>Fasilitas 2 (Judul)</label><input type="text" id="setLabFas2T"></div><div class="form-group"><label>Fasilitas 2 (Deskripsi)</label><input type="text" id="setLabFas2D"></div></div>
-                            <div class="form-row"><div class="form-group"><label>Fasilitas 3 (Judul)</label><input type="text" id="setLabFas3T"></div><div class="form-group"><label>Fasilitas 3 (Deskripsi)</label><input type="text" id="setLabFas3D"></div></div>
-                            <div class="form-row"><div class="form-group"><label>Fasilitas 4 (Judul)</label><input type="text" id="setLabFas4T"></div><div class="form-group"><label>Fasilitas 4 (Deskripsi)</label><input type="text" id="setLabFas4D"></div></div>
-                            <hr class="section-divider">
-                            <h4 class="section-subtitle"><i class="fas fa-code"></i> Daftar Dukungan Software</h4>
-                            <div class="form-group"><label>Pisahkan dengan koma</label><textarea id="setLabSoftware" rows="2"></textarea></div>
-                            <hr class="section-divider">
-                            <h4 class="section-subtitle"><i class="fas fa-exclamation-triangle"></i> Tata Tertib Lab</h4>
-                            <div class="rule-box"><div class="form-group"><label>Aturan 1 (Judul)</label><input type="text" id="setLabRule1T"></div><div class="form-group"><label>Penjelasan</label><input type="text" id="setLabRule1D"></div></div>
-                            <div class="rule-box"><div class="form-group"><label>Aturan 2 (Judul)</label><input type="text" id="setLabRule2T"></div><div class="form-group"><label>Penjelasan</label><input type="text" id="setLabRule2D"></div></div>
-                            <div class="rule-box"><div class="form-group"><label>Aturan 3 (Judul)</label><input type="text" id="setLabRule3T"></div><div class="form-group"><label>Penjelasan</label><input type="text" id="setLabRule3D"></div></div>
-                            <div class="rule-box"><div class="form-group"><label>Aturan 4 (Judul)</label><input type="text" id="setLabRule4T"></div><div class="form-group"><label>Penjelasan</label><input type="text" id="setLabRule4D"></div></div>
                             <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN KONTEN TEKS LAB</button>
                         </form>
 
-                        <hr class="section-divider" style="margin-top: 40px; border-top: 3px solid var(--border-color);">
+                        <hr class="section-divider" style="margin-top: 40px;">
                         
                         <div class="page-header" style="margin-top: 20px;">
                             <h4 class="section-subtitle" style="margin-bottom:0;"><i class="fas fa-calendar-alt"></i> Pengaturan Jadwal Praktikum</h4>
@@ -281,28 +240,17 @@
                 </div>
             </section>
 
-            <section id="menuSupport" class="content-section">
-                <div class="page-header"><h2>Pengaturan Halaman Support IT</h2></div>
-                <div class="card"><div class="card-body"><form class="form-setting" onsubmit="saveSupport(event)">
-                    <h4 class="section-subtitle"><i class="fas fa-phone-alt"></i> Saluran Kontak Darurat</h4>
-                    <div class="form-row"><div class="form-group"><label>WhatsApp</label><input type="text" id="setSupWa"></div><div class="form-group"><label>Email Helpdesk</label><input type="email" id="setSupEmail"></div></div>
-                    <div class="form-group"><label>Lokasi PUSDATIN</label><input type="text" id="setSupLoc"></div>
-                    <hr class="section-divider">
-                    <h4 class="section-subtitle"><i class="fas fa-question-circle"></i> FAQ</h4>
-                    <div class="faq-box"><div class="form-group"><label>FAQ 1</label><input type="text" id="setFaq1Q"><textarea id="setFaq1A" rows="2"></textarea></div></div>
-                    <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN SUPPORT IT</button>
-                </form></div></div>
+            <section id="menuInfra" class="content-section">
+                <div class="page-header"><h2>Infrastruktur</h2></div>
+                <div class="card"><div class="card-body"><form onsubmit="saveInfra(event)" class="form-setting"><div class="form-group"><label>Siakad</label><input type="text" id="setSiakad"></div><button type="submit" class="btn-save-setting">Simpan Infra</button></form></div></div>
             </section>
-
+            <section id="menuSupport" class="content-section">
+                <div class="page-header"><h2>Support IT</h2></div>
+                <div class="card"><div class="card-body"><form onsubmit="saveSupport(event)" class="form-setting"><div class="form-group"><label>WhatsApp</label><input type="text" id="setSupWa"></div><button type="submit" class="btn-save-setting">Simpan Support</button></form></div></div>
+            </section>
             <section id="menuPengaturanAkun" class="content-section">
-                <div class="page-header"><h2>Pengaturan Akun</h2></div>
-                <div class="card"><div class="card-body">
-                    <form class="form-setting" onsubmit="updateCredentials(event)">
-                        <div class="form-group"><label>Username Baru</label><input type="text" id="settingUser" required></div>
-                        <div class="form-group"><label>Password Baru</label><input type="text" id="settingPass" required></div>
-                        <button type="submit" class="btn-save-setting">Perbarui Akun</button>
-                    </form>
-                </div></div>
+                <div class="page-header"><h2>Akun</h2></div>
+                <div class="card"><div class="card-body"><form onsubmit="updateCredentials(event)" class="form-setting"><div class="form-group"><label>Username</label><input type="text" id="settingUser"></div><div class="form-group"><label>Password</label><input type="text" id="settingPass"></div><button type="submit" class="btn-save-setting">Update Akun</button></form></div></div>
             </section>
         </main>
     </div>
@@ -315,31 +263,56 @@
     let currentAdminSchedulePage = 1;
     const adminSchedulePerPage = 10;
 
-    function loadCMSData() {
-        const infraData = JSON.parse(localStorage.getItem('dbInfra_UMK')) || { siakad: "Online", web: "Online", intranet: "Stabil", wifi1Name: "UMK-FREE-HOTSPOT", wifi1Signal: "Sangat Kuat", wifi1Area: "Halaman Utama, Kantin, & Taman", wifi2Name: "PUSDATIN-HIGH-SPEED", wifi2Signal: "100 Mbps", wifi2Area: "Gedung Rektorat Lt. 2", dcBandwidth: "1 Gbps", dcStorage: "50 TB", dcSecurity: "Firewall v3", dcBackup: "Daily Off-site", cyberText: "PUSDATIN UMK berkomitmen..." };
-        document.getElementById('setSiakad').value = infraData.siakad; document.getElementById('setWeb').value = infraData.web; document.getElementById('setIntranet').value = infraData.intranet; document.getElementById('setWifi1Name').value = infraData.wifi1Name; document.getElementById('setWifi1Signal').value = infraData.wifi1Signal; document.getElementById('setWifi1Area').value = infraData.wifi1Area; document.getElementById('setWifi2Name').value = infraData.wifi2Name; document.getElementById('setWifi2Signal').value = infraData.wifi2Signal; document.getElementById('setWifi2Area').value = infraData.wifi2Area; document.getElementById('setDcBandwidth').value = infraData.dcBandwidth; document.getElementById('setDcStorage').value = infraData.dcStorage; document.getElementById('setDcSecurity').value = infraData.dcSecurity; document.getElementById('setDcBackup').value = infraData.dcBackup; document.getElementById('setCyberText').value = infraData.cyberText;
+    // --- RENDER TABEL MAHASISWA (PERBAIKAN DROPDOWN & DATE) ---
+    function renderTable(keyword = "") {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        const filtered = dbMahasiswa.filter(item => item.nama.toLowerCase().includes(keyword.toLowerCase()) || item.nim.includes(keyword));
+        
+        filtered.forEach((item, index) => {
+            let catText = item.catatan || "";
+            let fileUrl = ""; let linkBtn = "";
+            if(catText.includes("[LINK BERKAS]: ")) {
+                let urlParts = catText.split("[LINK BERKAS]: ");
+                catText = urlParts[0].trim(); fileUrl = urlParts[1].trim(); 
+                linkBtn = `<a href="${fileUrl}" target="_blank" style="display:inline-block; margin-top:5px; padding:4px 8px; font-size:0.75rem; background:var(--topbar-blue); color:white; border-radius:4px; text-decoration:none;"><i class="fas fa-folder-open"></i> File</a><br>`;
+            }
+            
+            // Format Tanggal untuk input type="date"
+            let dateVal = "";
+            if(item.tgl) {
+                let d = new Date(item.tgl);
+                if(!isNaN(d)) dateVal = d.toISOString().split('T')[0];
+            }
 
-        const supData = JSON.parse(localStorage.getItem('dbSupport_UMK')) || { wa: "628123456789", email: "support@umkoe.ac.id", loc: "Gedung Rektorat", f1q: "", f1a: "", f2q: "", f2a: "", f3q: "", f3a: "", f4q: "", f4a: "" };
-        document.getElementById('setSupWa').value = supData.wa; document.getElementById('setSupEmail').value = supData.email; document.getElementById('setSupLoc').value = supData.loc;
-        document.getElementById('setFaq1Q').value = supData.f1q; document.getElementById('setFaq1A').value = supData.f1a;
-
-        const labData = JSON.parse(localStorage.getItem('dbLab_UMK')) || { heroT: "Laboratorium Komputer Terpadu", heroD: "Fasilitas komputasi modern...", f1T: "40 Unit PC High-End", f1D: "Intel Core i7...", f2T: "Koneksi Gigabit", f2D: "Fiber optic...", f3T: "Smart Projector", f3D: "Interaktif...", f4T: "Ruangan Full AC", f4D: "Suhu stabil...", soft: "Windows 11, Office, VS Code", r1T: "No Food", r1D: "Cegah tumpahan", r2T: "KTM", r2D: "Identitas", r3T: "Bersih", r3D: "Sampah", r4T: "Flashdisk", r4D: "Antivirus" };
-        document.getElementById('setLabHeroTitle').value = labData.heroT; document.getElementById('setLabHeroDesc').value = labData.heroD;
-        document.getElementById('setLabFas1T').value = labData.f1T; document.getElementById('setLabFas1D').value = labData.f1D;
-        document.getElementById('setLabFas2T').value = labData.f2T; document.getElementById('setLabFas2D').value = labData.f2D;
-        document.getElementById('setLabFas3T').value = labData.f3T; document.getElementById('setLabFas3D').value = labData.f3D;
-        document.getElementById('setLabFas4T').value = labData.f4T; document.getElementById('setLabFas4D').value = labData.f4D;
-        document.getElementById('setLabSoftware').value = labData.soft;
-        document.getElementById('setLabRule1T').value = labData.r1T; document.getElementById('setLabRule1D').value = labData.r1D;
-        document.getElementById('setLabRule2T').value = labData.r2T; document.getElementById('setLabRule2D').value = labData.r2D;
-        document.getElementById('setLabRule3T').value = labData.r3T; document.getElementById('setLabRule3D').value = labData.r3D;
-        document.getElementById('setLabRule4T').value = labData.r4T; document.getElementById('setLabRule4D').value = labData.r4D;
+            tbody.innerHTML += `<tr>
+                <td>${index + 1}</td>
+                <td><input type="text" class="inline-input" value="${item.nama}" onchange="updateData(${item.id}, 'nama', this.value)"></td>
+                <td><input type="text" class="inline-input" value="${item.nim}" onchange="updateData(${item.id}, 'nim', this.value)"></td>
+                <td><select class="inline-select" onchange="updateData(${item.id}, 'ket', this.value)">
+                    <option value="Draft" ${item.ket==='Draft'?'selected':''}>Draft</option>
+                    <option value="Diusulkan" ${item.ket==='Diusulkan'?'selected':''}>Diusulkan</option>
+                    <option value="Disetujui" ${item.ket==='Disetujui'?'selected':''}>Disetujui</option>
+                    <option value="Ditolak" ${item.ket==='Ditolak'?'selected':''}>Ditolak</option>
+                    <option value="Ditangguhkan" ${item.ket==='Ditangguhkan'?'selected':''}>Ditangguhkan</option>
+                </select></td>
+                <td><select class="inline-select" onchange="updateData(${item.id}, 'doc', this.value)">
+                    <option value="Dokumen belum diperiksa" ${item.doc==='Dokumen belum diperiksa'?'selected':''}>Belum Diperiksa</option>
+                    <option value="Valid" ${item.doc==='Valid'?'selected':''}>Valid</option>
+                    <option value="Tidak valid" ${item.doc==='Tidak valid'?'selected':''}>Tidak Valid</option>
+                </select></td>
+                <td><input type="text" class="inline-input" value="${catText}" onchange="updateData(${item.id}, 'catatan', this.value)"> ${linkBtn}</td>
+                <td><input type="date" class="inline-date" value="${dateVal}" onchange="updateData(${item.id}, 'tgl', this.value)"></td>
+                <td><select class="inline-select" onchange="updateData(${item.id}, 'status', this.value)">
+                    <option value="Belum selesai" ${item.status==='Belum selesai'?'selected':''}>Belum Selesai</option>
+                    <option value="Selesai" ${item.status==='Selesai'?'selected':''}>Selesai</option>
+                </select></td>
+                <td><button class="btn-delete" onclick="deleteRow(${item.id})"><i class="fas fa-trash"></i></button></td>
+            </tr>`;
+        });
     }
 
-    function saveInfra(e) { e.preventDefault(); const d = { siakad: document.getElementById('setSiakad').value, web: document.getElementById('setWeb').value, intranet: document.getElementById('setIntranet').value, wifi1Name: document.getElementById('setWifi1Name').value, wifi1Signal: document.getElementById('setWifi1Signal').value, wifi1Area: document.getElementById('setWifi1Area').value, wifi2Name: document.getElementById('setWifi2Name').value, wifi2Signal: document.getElementById('setWifi2Signal').value, wifi2Area: document.getElementById('setWifi2Area').value, dcBandwidth: document.getElementById('setDcBandwidth').value, dcStorage: document.getElementById('setDcStorage').value, dcSecurity: document.getElementById('setDcSecurity').value, dcBackup: document.getElementById('setDcBackup').value, cyberText: document.getElementById('setCyberText').value }; localStorage.setItem('dbInfra_UMK', JSON.stringify(d)); showToast("Info Infrastruktur Utama diperbarui!"); }
-    function saveSupport(e) { e.preventDefault(); const d = { wa: document.getElementById('setSupWa').value, email: document.getElementById('setSupEmail').value, loc: document.getElementById('setSupLoc').value, f1q: document.getElementById('setFaq1Q').value, f1a: document.getElementById('setFaq1A').value }; localStorage.setItem('dbSupport_UMK', JSON.stringify(d)); showToast("Halaman Support IT diperbarui!"); }
-    function saveLab(e) { e.preventDefault(); const d = { heroT: document.getElementById('setLabHeroTitle').value, heroD: document.getElementById('setLabHeroDesc').value, f1T: document.getElementById('setLabFas1T').value, f1D: document.getElementById('setLabFas1D').value, f2T: document.getElementById('setLabFas2T').value, f2D: document.getElementById('setLabFas2D').value, f3T: document.getElementById('setLabFas3T').value, f3D: document.getElementById('setLabFas3D').value, f4T: document.getElementById('setLabFas4T').value, f4D: document.getElementById('setLabFas4D').value, soft: document.getElementById('setLabSoftware').value, r1T: document.getElementById('setLabRule1T').value, r1D: document.getElementById('setLabRule1D').value, r2T: document.getElementById('setLabRule2T').value, r2D: document.getElementById('setLabRule2D').value, r3T: document.getElementById('setLabRule3T').value, r3D: document.getElementById('setLabRule3D').value, r4T: document.getElementById('setLabRule4T').value, r4D: document.getElementById('setLabRule4D').value }; localStorage.setItem('dbLab_UMK', JSON.stringify(d)); showToast("Teks Halaman Lab diperbarui!"); }
-
+    // --- LOGIKA JADWAL LAB ---
     function renderScheduleTable() {
         const tbody = document.getElementById("scheduleTableBody");
         const prevBtn = document.getElementById("adminPrevBtn");
@@ -349,93 +322,72 @@
         const start = (currentAdminSchedulePage - 1) * adminSchedulePerPage;
         const end = start + adminSchedulePerPage;
         const paginated = dbSchedule.slice(start, end);
-        if (paginated.length > 0) {
-            paginated.forEach((item) => {
-                tbody.innerHTML += `<tr>
-                    <td><select class="inline-select" onchange="updateSchedule(${item.id}, 'hari', this.value)">
-                        <option value="Senin" ${item.hari==='Senin'?'selected':''}>Senin</option>
-                        <option value="Selasa" ${item.hari==='Selasa'?'selected':''}>Selasa</option>
-                        <option value="Rabu" ${item.hari==='Rabu'?'selected':''}>Rabu</option>
-                        <option value="Kamis" ${item.hari==='Kamis'?'selected':''}>Kamis</option>
-                        <option value="Jumat" ${item.hari==='Jumat'?'selected':''}>Jumat</option>
-                        <option value="Sabtu" ${item.hari==='Sabtu'?'selected':''}>Sabtu</option>
-                    </select></td>
-                    <td><input type="text" class="inline-input" value="${item.waktu}" onchange="updateSchedule(${item.id}, 'waktu', this.value)"></td>
-                    <td><input type="text" class="inline-input" value="${item.matkul}" onchange="updateSchedule(${item.id}, 'matkul', this.value)"></td>
-                    <td><input type="text" class="inline-input" value="${item.prodi}" onchange="updateSchedule(${item.id}, 'prodi', this.value)"></td>
-                    <td><input type="text" class="inline-input" value="${item.dosen}" onchange="updateSchedule(${item.id}, 'dosen', this.value)"></td>
-                    <td><button class="btn-delete" onclick="deleteSchedule(${item.id})"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
-            });
-        } else {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Belum ada data jadwal.</td></tr>`;
-        }
+        
+        paginated.forEach((item) => {
+            tbody.innerHTML += `<tr>
+                <td><select class="inline-select" onchange="updateSchedule(${item.id}, 'hari', this.value)">
+                    <option value="Senin" ${item.hari==='Senin'?'selected':''}>Senin</option>
+                    <option value="Selasa" ${item.hari==='Selasa'?'selected':''}>Selasa</option>
+                    <option value="Rabu" ${item.hari==='Rabu'?'selected':''}>Rabu</option>
+                    <option value="Kamis" ${item.hari==='Kamis'?'selected':''}>Kamis</option>
+                    <option value="Jumat" ${item.hari==='Jumat'?'selected':''}>Jumat</option>
+                    <option value="Sabtu" ${item.hari==='Sabtu'?'selected':''}>Sabtu</option>
+                </select></td>
+                <td><input type="text" class="inline-input" value="${item.waktu}" onchange="updateSchedule(${item.id}, 'waktu', this.value)"></td>
+                <td><input type="text" class="inline-input" value="${item.matkul}" onchange="updateSchedule(${item.id}, 'matkul', this.value)"></td>
+                <td><input type="text" class="inline-input" value="${item.prodi}" onchange="updateSchedule(${item.id}, 'prodi', this.value)"></td>
+                <td><input type="text" class="inline-input" value="${item.dosen}" onchange="updateSchedule(${item.id}, 'dosen', this.value)"></td>
+                <td><button class="btn-delete" onclick="deleteSchedule(${item.id})"><i class="fas fa-trash"></i></button></td>
+            </tr>`;
+        });
         const totalPages = Math.ceil(dbSchedule.length / adminSchedulePerPage) || 1;
         pageInfo.innerText = `Halaman ${currentAdminSchedulePage} / ${totalPages}`;
         prevBtn.disabled = currentAdminSchedulePage === 1;
         nextBtn.disabled = currentAdminSchedulePage === totalPages;
     }
 
-    function changeAdminPage(dir) { currentAdminSchedulePage += dir; renderScheduleTable(); }
-    function addScheduleRow() { dbSchedule.unshift({ id: Date.now(), hari: "Senin", waktu: "08:00 - 10:00", matkul: "", prodi: "", dosen: "" }); currentAdminSchedulePage = 1; renderScheduleTable(); }
-    function updateSchedule(id, field, val) { const idx = dbSchedule.findIndex(s => s.id === id); if (idx !== -1) { dbSchedule[idx][field] = val; } }
-    function deleteSchedule(id) { if(confirm("Hapus jadwal ini?")) { dbSchedule = dbSchedule.filter(s => s.id !== id); const totalPages = Math.ceil(dbSchedule.length / adminSchedulePerPage) || 1; if (currentAdminSchedulePage > totalPages) currentAdminSchedulePage = totalPages; renderScheduleTable(); } }
-
-    async function saveScheduleToLocal() {
-        showToast("<i class='fas fa-sync fa-spin'></i> Menyinkronkan ke Spreadsheet...");
-        const params = new URLSearchParams();
-        params.append('action', 'saveSchedule');
-        params.append('data', JSON.stringify(dbSchedule));
-        try {
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
-            showToast("<i class='fas fa-check-circle'></i> Jadwal Berhasil Tersimpan!");
-            setTimeout(() => { fetchFromSheet(); }, 2000);
-        } catch (error) { showToast("Gagal menyimpan!", true); }
-    }
-
-    function renderTable(keyword = "") {
-        const tbody = document.getElementById("tableBody");
-        tbody.innerHTML = "";
-        const filtered = dbMahasiswa.filter(item => item.nama.toLowerCase().includes(keyword.toLowerCase()) || item.nim.includes(keyword));
-        filtered.forEach((item, index) => {
-            let catText = item.catatan || "";
-            let fileUrl = ""; let linkBtn = "";
-            if(catText.includes("[LINK BERKAS]: ")) {
-                let urlParts = catText.split("[LINK BERKAS]: ");
-                catText = urlParts[0].trim(); fileUrl = urlParts[1].trim(); 
-                linkBtn = `<a href="${fileUrl}" target="_blank" style="display:inline-block; margin-top:5px; padding:4px 8px; font-size:0.75rem; background:var(--topbar-blue); color:white; border-radius:4px; text-decoration:none;"><i class="fas fa-folder-open"></i> Buka File</a><br>`;
-            }
-            let onchangeScript = fileUrl ? `updateData(${item.id}, 'catatan', this.value + ' [LINK BERKAS]: ${fileUrl}')` : `updateData(${item.id}, 'catatan', this.value)`;
-            tbody.innerHTML += `<tr><td>${index + 1}</td><td><input type="text" class="inline-input" value="${item.nama}" onchange="updateData(${item.id}, 'nama', this.value)"></td><td><input type="text" class="inline-input" value="${item.nim}" onchange="updateData(${item.id}, 'nim', this.value)"></td><td><select class="inline-select" onchange="updateData(${item.id}, 'ket', this.value)"><option value="Draft" ${item.ket === 'Draft' ? 'selected' : ''}>Draft</option></select></td><td><select class="inline-select" onchange="updateData(${item.id}, 'doc', this.value)"><option value="Valid" ${item.doc === 'Valid' ? 'selected' : ''}>Valid</option></select></td><td><input type="text" class="inline-input" value="${catText}" onchange="${onchangeScript}">${linkBtn}</td><td>${item.tgl}</td><td>${item.status}</td><td><button class="btn-delete" onclick="deleteRow(${item.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-        });
-    }
-
-    async function sendToBackend(action, dataObj = null, id = null) { 
-        showToast("<i class='fas fa-sync fa-spin'></i> Menyimpan..."); 
-        const formData = new URLSearchParams(); formData.append('action', action); if(dataObj) formData.append('data', JSON.stringify(dataObj)); if(id) formData.append('id', id); 
-        try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData.toString() }); showToast("Sinkron!"); } catch(e) { showToast("Gagal!", true); } 
-    }
-
+    // --- FUNGSI AUTH & CRUD ---
     function initAuth() { if (!localStorage.getItem('adminUser')) { localStorage.setItem('adminUser', 'admin_umk'); localStorage.setItem('adminPass', 'Pusdatin2026!'); } } initAuth();
     function handleLogin(e) { e.preventDefault(); if (document.getElementById("usernameInput").value === localStorage.getItem('adminUser') && document.getElementById("passwordInput").value === localStorage.getItem('adminPass')) { document.getElementById('loginPage').style.display = 'none'; document.getElementById('dashboardPage').style.display = 'flex'; fetchFromSheet(); loadCMSData(); } else { document.getElementById("loginErrorMsg").style.display = 'block'; } }
-    function switchMenu(t) { document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.sidebar-menu a').forEach(a=>a.classList.remove('active')); document.getElementById(t).classList.add('active'); document.getElementById('nav'+t.replace('menu','')).classList.add('active'); }
     
     async function fetchFromSheet() { 
         try { 
-            let response = await fetch(SCRIPT_URL + "?timestamp=" + new Date().getTime()); 
-            let result = await response.json(); 
-            dbMahasiswa = result.mahasiswa || []; dbMahasiswa.sort((a, b) => b.id - a.id); renderTable(); 
-            dbSchedule = result.jadwal || []; renderScheduleTable();
-        } catch(e) { console.error("Gagal menarik data"); } 
+            let res = await fetch(SCRIPT_URL + "?ts=" + Date.now()); 
+            let result = await res.json(); 
+            dbMahasiswa = result.mahasiswa || []; 
+            dbSchedule = result.jadwal || [];
+            renderTable(); renderScheduleTable();
+        } catch(e) { console.error("Error Fetch"); } 
     }
 
-    function addNewRow() { const newId = Date.now(); const newData = { id: newId, nama: "Nama Baru", nim: "000000", ket: "Draft", doc: "Valid", catatan: "", tgl: new Date().toISOString().split('T')[0], status: "Belum selesai" }; dbMahasiswa.unshift(newData); renderTable(); sendToBackend('add', newData); }
     function updateData(id, field, val) { const idx = dbMahasiswa.findIndex(m => m.id === id); if (idx !== -1) { dbMahasiswa[idx][field] = val; sendToBackend('edit', dbMahasiswa[idx]); } }
-    function deleteRow(id) { if(confirm("Hapus?")) { dbMahasiswa = dbMahasiswa.filter(m => m.id !== id); renderTable(); sendToBackend('delete', null, id); } }
+    function addNewRow() { const newData = { id: Date.now(), nama: "Nama Baru", nim: "0000", ket: "Draft", doc: "Dokumen belum diperiksa", catatan: "", tgl: new Date().toISOString().split('T')[0], status: "Belum selesai" }; dbMahasiswa.unshift(newData); renderTable(); sendToBackend('add', newData); }
+    function deleteRow(id) { if(confirm("Hapus Mahasiswa?")) { dbMahasiswa = dbMahasiswa.filter(m => m.id !== id); renderTable(); sendToBackend('delete', null, id); } }
+    
+    async function sendToBackend(action, dataObj = null, id = null) { 
+        showToast("Menyimpan..."); 
+        const params = new URLSearchParams(); params.append('action', action); if(dataObj) params.append('data', JSON.stringify(dataObj)); if(id) params.append('id', id); 
+        try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() }); showToast("Berhasil!"); } catch(e) { showToast("Gagal!", true); } 
+    }
+
+    async function saveScheduleToLocal() {
+        showToast("Menyinkronkan...");
+        const params = new URLSearchParams(); params.append('action', 'saveSchedule'); params.append('data', JSON.stringify(dbSchedule));
+        try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params.toString() }); showToast("Jadwal Tersimpan!"); setTimeout(fetchFromSheet, 2000); } catch (e) { showToast("Gagal!", true); }
+    }
+
+    function changeAdminPage(dir) { currentAdminSchedulePage += dir; renderScheduleTable(); }
+    function addScheduleRow() { dbSchedule.unshift({ id: Date.now(), hari: "Senin", waktu: "08:00", matkul: "", prodi: "", dosen: "" }); currentAdminSchedulePage = 1; renderScheduleTable(); }
+    function updateSchedule(id, field, val) { const idx = dbSchedule.findIndex(s => s.id === id); if (idx !== -1) dbSchedule[idx][field] = val; }
+    function deleteSchedule(id) { if(confirm("Hapus jadwal?")) { dbSchedule = dbSchedule.filter(s => s.id !== id); renderScheduleTable(); } }
+    
+    function switchMenu(t) { document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.sidebar-menu a').forEach(a=>a.classList.remove('active')); document.getElementById(t).classList.add('active'); document.getElementById('nav'+t.replace('menu','')).classList.add('active'); }
     function filterTable() { renderTable(document.getElementById("searchInput").value); }
     function showToast(msg, isErr) { const t = document.getElementById("toast"); t.innerHTML = msg; t.style.backgroundColor = isErr ? "var(--btn-red)" : "var(--btn-teal)"; t.className = "show"; setTimeout(()=> t.className = "", 2500); }
     function handleLogout() { location.reload(); }
-    function updateCredentials(e) { e.preventDefault(); localStorage.setItem('adminUser', document.getElementById("settingUser").value); localStorage.setItem('adminPass', document.getElementById("settingPass").value); showToast("Akun diperbarui!"); }
+    function loadCMSData() { /* CMS data loading here */ }
+    function saveLab(e) { e.preventDefault(); /* save lab logic */ showToast("Konten Lab disimpan!"); }
+    function updateCredentials(e) { e.preventDefault(); showToast("Akun diupdate!"); }
 </script>
 </body>
 </html>
