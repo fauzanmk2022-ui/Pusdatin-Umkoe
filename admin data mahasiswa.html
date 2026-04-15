@@ -70,6 +70,36 @@
         .btn-save-setting { background: var(--btn-teal); color: white; padding: 12px 20px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 1rem;}
         .btn-save-setting:hover { filter: brightness(0.95); }
         
+        /* --- STYLING KHUSUS TOMBOL SIMPAN JADWAL LAB (NEW) --- */
+        .schedule-save-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .btn-save-schedule {
+            background: var(--topbar-blue);
+            color: white;
+            padding: 12px 35px;
+            border: none;
+            border-radius: 50px; /* Lonjong elegan */
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 137, 220, 0.2);
+        }
+        .btn-save-schedule:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 137, 220, 0.3);
+        }
+        .btn-save-schedule:active { transform: translateY(0); }
+
         .section-divider { margin: 25px 0 15px 0; border: 0; border-top: 2px dashed #e2e8f0; }
         .section-subtitle { margin-bottom: 15px; color: var(--topbar-blue); font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;}
         .faq-box, .rule-box { border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 15px; background: #f8fafc;}
@@ -80,6 +110,35 @@
         td { padding: 8px 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         .inline-select, .inline-date, .inline-input { width: 100%; padding: 6px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.8rem; outline: none; }
         .btn-delete { background: var(--btn-red); color: white; padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }
+
+        /* PAGINATION ADMIN STYLING */
+        .pagination-admin {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+        }
+        .pagination-admin button {
+            background: #fff;
+            border: 1px solid var(--topbar-blue);
+            color: var(--topbar-blue);
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .pagination-admin button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #ccc;
+            color: #888;
+        }
+        .pagination-admin span { font-size: 0.85rem; font-weight: 600; color: #555; }
 
         #toast { visibility: hidden; min-width: 250px; background-color: var(--btn-teal); color: #fff; text-align: center; border-radius: 5px; padding: 12px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -175,7 +234,7 @@
                             <div class="form-row"><div class="form-group"><label>Fasilitas 4 (Judul)</label><input type="text" id="setLabFas4T"></div><div class="form-group"><label>Fasilitas 4 (Deskripsi)</label><input type="text" id="setLabFas4D"></div></div>
                             <hr class="section-divider">
                             <h4 class="section-subtitle"><i class="fas fa-code"></i> Daftar Dukungan Software</h4>
-                            <div class="form-group"><label>Pisahkan dengan koma (Contoh: Windows 11, SPSS, XAMPP)</label><textarea id="setLabSoftware" rows="2"></textarea></div>
+                            <div class="form-group"><label>Pisahkan dengan koma</label><textarea id="setLabSoftware" rows="2"></textarea></div>
                             <hr class="section-divider">
                             <h4 class="section-subtitle"><i class="fas fa-exclamation-triangle"></i> Tata Tertib Lab</h4>
                             <div class="rule-box"><div class="form-group"><label>Aturan 1 (Judul)</label><input type="text" id="setLabRule1T"></div><div class="form-group"><label>Penjelasan</label><input type="text" id="setLabRule1D"></div></div>
@@ -206,9 +265,18 @@
                                 <tbody id="scheduleTableBody"></tbody>
                             </table>
                         </div>
-                        <button class="btn-save-setting" style="width: 100%; background: var(--topbar-blue); margin-top: 15px;" onclick="saveScheduleToLocal()">
-                            <i class="fas fa-save"></i> SIMPAN JADWAL LAB
-                        </button>
+                        
+                        <div class="pagination-admin">
+                            <button id="adminPrevBtn" onclick="changeAdminPage(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <span id="adminPageInfo">Halaman 1 / 1</span>
+                            <button id="adminNextBtn" onclick="changeAdminPage(1)"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+
+                        <div class="schedule-save-container">
+                            <button class="btn-save-schedule" onclick="saveScheduleToLocal()">
+                                <i class="fas fa-cloud-upload-alt"></i> SIMPAN JADWAL LAB
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -217,25 +285,22 @@
                 <div class="page-header"><h2>Pengaturan Halaman Support IT</h2></div>
                 <div class="card"><div class="card-body"><form class="form-setting" onsubmit="saveSupport(event)">
                     <h4 class="section-subtitle"><i class="fas fa-phone-alt"></i> Saluran Kontak Darurat</h4>
-                    <div class="form-row"><div class="form-group"><label>Nomor WhatsApp</label><input type="text" id="setSupWa" placeholder="6281234567890" required></div><div class="form-group"><label>Alamat Email Helpdesk</label><input type="email" id="setSupEmail" placeholder="support@umkoe.ac.id" required></div></div>
-                    <div class="form-group"><label>Alamat Fisik / Lokasi PUSDATIN</label><input type="text" id="setSupLoc" placeholder="Gedung Rektorat Lantai 2..." required></div>
+                    <div class="form-row"><div class="form-group"><label>WhatsApp</label><input type="text" id="setSupWa"></div><div class="form-group"><label>Email Helpdesk</label><input type="email" id="setSupEmail"></div></div>
+                    <div class="form-group"><label>Lokasi PUSDATIN</label><input type="text" id="setSupLoc"></div>
                     <hr class="section-divider">
-                    <h4 class="section-subtitle"><i class="fas fa-question-circle"></i> Pengaturan FAQ</h4>
-                    <div class="faq-box"><div class="form-group"><label>Pertanyaan FAQ 1</label><input type="text" id="setFaq1Q"></div><div class="form-group"><label>Jawaban FAQ 1</label><textarea id="setFaq1A" rows="2"></textarea></div></div>
-                    <div class="faq-box"><div class="form-group"><label>Pertanyaan FAQ 2</label><input type="text" id="setFaq2Q"></div><div class="form-group"><label>Jawaban FAQ 2</label><textarea id="setFaq2A" rows="2"></textarea></div></div>
-                    <div class="faq-box"><div class="form-group"><label>Pertanyaan FAQ 3</label><input type="text" id="setFaq3Q"></div><div class="form-group"><label>Jawaban FAQ 3</label><textarea id="setFaq3A" rows="2"></textarea></div></div>
-                    <div class="faq-box"><div class="form-group"><label>Pertanyaan FAQ 4</label><input type="text" id="setFaq4Q"></div><div class="form-group"><label>Jawaban FAQ 4</label><textarea id="setFaq4A" rows="2"></textarea></div></div>
-                    <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN DAN TERAPKAN KE WEBSITE</button>
+                    <h4 class="section-subtitle"><i class="fas fa-question-circle"></i> FAQ</h4>
+                    <div class="faq-box"><div class="form-group"><label>FAQ 1</label><input type="text" id="setFaq1Q"><textarea id="setFaq1A" rows="2"></textarea></div></div>
+                    <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN SUPPORT IT</button>
                 </form></div></div>
             </section>
 
             <section id="menuPengaturanAkun" class="content-section">
-                <div class="page-header"><h2>Pengaturan Akun Administrator</h2></div>
-                <div class="card"><div class="card-header">Ubah Kredensial Akses</div><div class="card-body">
+                <div class="page-header"><h2>Pengaturan Akun</h2></div>
+                <div class="card"><div class="card-body">
                     <form class="form-setting" onsubmit="updateCredentials(event)">
                         <div class="form-group"><label>Username Baru</label><input type="text" id="settingUser" required></div>
                         <div class="form-group"><label>Password Baru</label><input type="text" id="settingPass" required></div>
-                        <button type="submit" class="btn-save-setting"><i class="fas fa-save"></i> Perbarui Akun</button>
+                        <button type="submit" class="btn-save-setting">Perbarui Akun</button>
                     </form>
                 </div></div>
             </section>
@@ -247,6 +312,8 @@
     
     let dbMahasiswa = [];
     let dbSchedule = []; 
+    let currentAdminSchedulePage = 1;
+    const adminSchedulePerPage = 10;
 
     function loadCMSData() {
         const infraData = JSON.parse(localStorage.getItem('dbInfra_UMK')) || { siakad: "Online", web: "Online", intranet: "Stabil", wifi1Name: "UMK-FREE-HOTSPOT", wifi1Signal: "Sangat Kuat", wifi1Area: "Halaman Utama, Kantin, & Taman", wifi2Name: "PUSDATIN-HIGH-SPEED", wifi2Signal: "100 Mbps", wifi2Area: "Gedung Rektorat Lt. 2", dcBandwidth: "1 Gbps", dcStorage: "50 TB", dcSecurity: "Firewall v3", dcBackup: "Daily Off-site", cyberText: "PUSDATIN UMK berkomitmen..." };
@@ -255,22 +322,8 @@
         const supData = JSON.parse(localStorage.getItem('dbSupport_UMK')) || { wa: "628123456789", email: "support@umkoe.ac.id", loc: "Gedung Rektorat", f1q: "", f1a: "", f2q: "", f2a: "", f3q: "", f3a: "", f4q: "", f4a: "" };
         document.getElementById('setSupWa').value = supData.wa; document.getElementById('setSupEmail').value = supData.email; document.getElementById('setSupLoc').value = supData.loc;
         document.getElementById('setFaq1Q').value = supData.f1q; document.getElementById('setFaq1A').value = supData.f1a;
-        document.getElementById('setFaq2Q').value = supData.f2q; document.getElementById('setFaq2A').value = supData.f2a;
-        document.getElementById('setFaq3Q').value = supData.f3q; document.getElementById('setFaq3A').value = supData.f3a;
-        document.getElementById('setFaq4Q').value = supData.f4q; document.getElementById('setFaq4A').value = supData.f4a;
 
-        const labData = JSON.parse(localStorage.getItem('dbLab_UMK')) || { 
-            heroT: "Laboratorium Komputer Terpadu", heroD: "Fasilitas komputasi modern yang didesain untuk mendukung kegiatan praktikum...",
-            f1T: "40 Unit PC High-End", f1D: "Intel Core i7, 16GB RAM, 512GB SSD NVMe untuk performa maksimal.",
-            f2T: "Koneksi Gigabit", f2D: "Terhubung langsung ke jaringan fiber optic kampus berkecepatan 1 Gbps.",
-            f3T: "Smart Projector", f3D: "Proyektor interaktif dan papan tulis kaca untuk presentasi dosen.",
-            f4T: "Ruangan Full AC", f4D: "Suhu ruangan terjaga stabil untuk kenyamanan belajar dan keawetan alat.",
-            soft: "Windows 11 Pro, Ms. Office 365, Visual Studio Code, IBM SPSS, Android Studio, XAMPP / MySQL",
-            r1T: "Dilarang Membawa Makanan & Minuman", r1D: "Untuk mencegah kerusakan akibat tumpahan cairan pada perangkat elektronik.",
-            r2T: "Wajib Membawa Kartu Mahasiswa (KTM)", r2D: "Digunakan sebagai identitas peminjaman dan akses masuk saat jam praktikum.",
-            r3T: "Jaga Kebersihan Ruangan", r3D: "Buang sampah pada tempatnya dan rapikan kembali kursi setelah selesai digunakan.",
-            r4T: "Scan Flashdisk Sebelum Digunakan", r4D: "Wajib melakukan pemindaian antivirus pada media penyimpanan eksternal untuk mencegah malware."
-        };
+        const labData = JSON.parse(localStorage.getItem('dbLab_UMK')) || { heroT: "Laboratorium Komputer Terpadu", heroD: "Fasilitas komputasi modern...", f1T: "40 Unit PC High-End", f1D: "Intel Core i7...", f2T: "Koneksi Gigabit", f2D: "Fiber optic...", f3T: "Smart Projector", f3D: "Interaktif...", f4T: "Ruangan Full AC", f4D: "Suhu stabil...", soft: "Windows 11, Office, VS Code", r1T: "No Food", r1D: "Cegah tumpahan", r2T: "KTM", r2D: "Identitas", r3T: "Bersih", r3D: "Sampah", r4T: "Flashdisk", r4D: "Antivirus" };
         document.getElementById('setLabHeroTitle').value = labData.heroT; document.getElementById('setLabHeroDesc').value = labData.heroD;
         document.getElementById('setLabFas1T').value = labData.f1T; document.getElementById('setLabFas1D').value = labData.f1D;
         document.getElementById('setLabFas2T').value = labData.f2T; document.getElementById('setLabFas2D').value = labData.f2D;
@@ -281,163 +334,86 @@
         document.getElementById('setLabRule2T').value = labData.r2T; document.getElementById('setLabRule2D').value = labData.r2D;
         document.getElementById('setLabRule3T').value = labData.r3T; document.getElementById('setLabRule3D').value = labData.r3D;
         document.getElementById('setLabRule4T').value = labData.r4T; document.getElementById('setLabRule4D').value = labData.r4D;
-
-        // Jadwal akan dimuat dari fetchFromSheet untuk sinkronisasi dengan DB
     }
 
     function saveInfra(e) { e.preventDefault(); const d = { siakad: document.getElementById('setSiakad').value, web: document.getElementById('setWeb').value, intranet: document.getElementById('setIntranet').value, wifi1Name: document.getElementById('setWifi1Name').value, wifi1Signal: document.getElementById('setWifi1Signal').value, wifi1Area: document.getElementById('setWifi1Area').value, wifi2Name: document.getElementById('setWifi2Name').value, wifi2Signal: document.getElementById('setWifi2Signal').value, wifi2Area: document.getElementById('setWifi2Area').value, dcBandwidth: document.getElementById('setDcBandwidth').value, dcStorage: document.getElementById('setDcStorage').value, dcSecurity: document.getElementById('setDcSecurity').value, dcBackup: document.getElementById('setDcBackup').value, cyberText: document.getElementById('setCyberText').value }; localStorage.setItem('dbInfra_UMK', JSON.stringify(d)); showToast("Info Infrastruktur Utama diperbarui!"); }
-    function saveSupport(e) { e.preventDefault(); const d = { wa: document.getElementById('setSupWa').value, email: document.getElementById('setSupEmail').value, loc: document.getElementById('setSupLoc').value, f1q: document.getElementById('setFaq1Q').value, f1a: document.getElementById('setFaq1A').value, f2q: document.getElementById('setFaq2Q').value, f2a: document.getElementById('setFaq2A').value, f3q: document.getElementById('setFaq3Q').value, f3a: document.getElementById('setFaq3A').value, f4q: document.getElementById('setFaq4Q').value, f4a: document.getElementById('setFaq4A').value }; localStorage.setItem('dbSupport_UMK', JSON.stringify(d)); showToast("Halaman Support IT diperbarui!"); }
+    function saveSupport(e) { e.preventDefault(); const d = { wa: document.getElementById('setSupWa').value, email: document.getElementById('setSupEmail').value, loc: document.getElementById('setSupLoc').value, f1q: document.getElementById('setFaq1Q').value, f1a: document.getElementById('setFaq1A').value }; localStorage.setItem('dbSupport_UMK', JSON.stringify(d)); showToast("Halaman Support IT diperbarui!"); }
     function saveLab(e) { e.preventDefault(); const d = { heroT: document.getElementById('setLabHeroTitle').value, heroD: document.getElementById('setLabHeroDesc').value, f1T: document.getElementById('setLabFas1T').value, f1D: document.getElementById('setLabFas1D').value, f2T: document.getElementById('setLabFas2T').value, f2D: document.getElementById('setLabFas2D').value, f3T: document.getElementById('setLabFas3T').value, f3D: document.getElementById('setLabFas3D').value, f4T: document.getElementById('setLabFas4T').value, f4D: document.getElementById('setLabFas4D').value, soft: document.getElementById('setLabSoftware').value, r1T: document.getElementById('setLabRule1T').value, r1D: document.getElementById('setLabRule1D').value, r2T: document.getElementById('setLabRule2T').value, r2D: document.getElementById('setLabRule2D').value, r3T: document.getElementById('setLabRule3T').value, r3D: document.getElementById('setLabRule3D').value, r4T: document.getElementById('setLabRule4T').value, r4D: document.getElementById('setLabRule4D').value }; localStorage.setItem('dbLab_UMK', JSON.stringify(d)); showToast("Teks Halaman Lab diperbarui!"); }
 
     function renderScheduleTable() {
         const tbody = document.getElementById("scheduleTableBody");
+        const prevBtn = document.getElementById("adminPrevBtn");
+        const nextBtn = document.getElementById("adminNextBtn");
+        const pageInfo = document.getElementById("adminPageInfo");
         tbody.innerHTML = "";
-        dbSchedule.forEach((item) => {
-            tbody.innerHTML += `<tr>
-                <td><select class="inline-select" onchange="updateSchedule(${item.id}, 'hari', this.value)">
-                    <option value="Senin" ${item.hari==='Senin'?'selected':''}>Senin</option>
-                    <option value="Selasa" ${item.hari==='Selasa'?'selected':''}>Selasa</option>
-                    <option value="Rabu" ${item.hari==='Rabu'?'selected':''}>Rabu</option>
-                    <option value="Kamis" ${item.hari==='Kamis'?'selected':''}>Kamis</option>
-                    <option value="Jumat" ${item.hari==='Jumat'?'selected':''}>Jumat</option>
-                    <option value="Sabtu" ${item.hari==='Sabtu'?'selected':''}>Sabtu</option>
-                </select></td>
-                <td><input type="text" class="inline-input" value="${item.waktu}" placeholder="08:00 - 10:00" onchange="updateSchedule(${item.id}, 'waktu', this.value)"></td>
-                <td><input type="text" class="inline-input" value="${item.matkul}" placeholder="Nama Matkul" onchange="updateSchedule(${item.id}, 'matkul', this.value)"></td>
-                <td><input type="text" class="inline-input" value="${item.prodi}" placeholder="Program Studi" onchange="updateSchedule(${item.id}, 'prodi', this.value)"></td>
-                <td><input type="text" class="inline-input" value="${item.dosen}" placeholder="Nama Dosen" onchange="updateSchedule(${item.id}, 'dosen', this.value)"></td>
-                <td><button class="btn-delete" onclick="deleteSchedule(${item.id})"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
-        });
-    }
-
-    function addScheduleRow() {
-        const newId = Date.now();
-        dbSchedule.push({ id: newId, hari: "Senin", waktu: "00:00 - 00:00", matkul: "", prodi: "", dosen: "" });
-        renderScheduleTable();
-    }
-
-    function updateSchedule(id, field, val) {
-        const idx = dbSchedule.findIndex(s => s.id === id);
-        if (idx !== -1) { dbSchedule[idx][field] = val; }
-    }
-
-    function deleteSchedule(id) {
-        if(confirm("Hapus jadwal ini?")) {
-            dbSchedule = dbSchedule.filter(s => s.id !== id);
-            renderScheduleTable();
+        const start = (currentAdminSchedulePage - 1) * adminSchedulePerPage;
+        const end = start + adminSchedulePerPage;
+        const paginated = dbSchedule.slice(start, end);
+        if (paginated.length > 0) {
+            paginated.forEach((item) => {
+                tbody.innerHTML += `<tr>
+                    <td><select class="inline-select" onchange="updateSchedule(${item.id}, 'hari', this.value)">
+                        <option value="Senin" ${item.hari==='Senin'?'selected':''}>Senin</option>
+                        <option value="Selasa" ${item.hari==='Selasa'?'selected':''}>Selasa</option>
+                        <option value="Rabu" ${item.hari==='Rabu'?'selected':''}>Rabu</option>
+                        <option value="Kamis" ${item.hari==='Kamis'?'selected':''}>Kamis</option>
+                        <option value="Jumat" ${item.hari==='Jumat'?'selected':''}>Jumat</option>
+                        <option value="Sabtu" ${item.hari==='Sabtu'?'selected':''}>Sabtu</option>
+                    </select></td>
+                    <td><input type="text" class="inline-input" value="${item.waktu}" onchange="updateSchedule(${item.id}, 'waktu', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${item.matkul}" onchange="updateSchedule(${item.id}, 'matkul', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${item.prodi}" onchange="updateSchedule(${item.id}, 'prodi', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${item.dosen}" onchange="updateSchedule(${item.id}, 'dosen', this.value)"></td>
+                    <td><button class="btn-delete" onclick="deleteSchedule(${item.id})"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Belum ada data jadwal.</td></tr>`;
         }
+        const totalPages = Math.ceil(dbSchedule.length / adminSchedulePerPage) || 1;
+        pageInfo.innerText = `Halaman ${currentAdminSchedulePage} / ${totalPages}`;
+        prevBtn.disabled = currentAdminSchedulePage === 1;
+        nextBtn.disabled = currentAdminSchedulePage === totalPages;
     }
+
+    function changeAdminPage(dir) { currentAdminSchedulePage += dir; renderScheduleTable(); }
+    function addScheduleRow() { dbSchedule.unshift({ id: Date.now(), hari: "Senin", waktu: "08:00 - 10:00", matkul: "", prodi: "", dosen: "" }); currentAdminSchedulePage = 1; renderScheduleTable(); }
+    function updateSchedule(id, field, val) { const idx = dbSchedule.findIndex(s => s.id === id); if (idx !== -1) { dbSchedule[idx][field] = val; } }
+    function deleteSchedule(id) { if(confirm("Hapus jadwal ini?")) { dbSchedule = dbSchedule.filter(s => s.id !== id); const totalPages = Math.ceil(dbSchedule.length / adminSchedulePerPage) || 1; if (currentAdminSchedulePage > totalPages) currentAdminSchedulePage = totalPages; renderScheduleTable(); } }
 
     async function saveScheduleToLocal() {
-    // 1. Simpan ke local storage sebagai cadangan
-    localStorage.setItem('dbLabSchedule_UMK', JSON.stringify(dbSchedule));
-    
-    showToast("<i class='fas fa-sync fa-spin'></i> Menyinkronkan ke Spreadsheet...");
-    
-    // 2. Gunakan URLSearchParams (Pola yang sama dengan Data Mahasiswa)
-    const params = new URLSearchParams();
-    params.append('action', 'saveSchedule');
-    params.append('data', JSON.stringify(dbSchedule)); // Kirim seluruh array jadwal
-
-    try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', // Tetap gunakan no-cors agar tidak terblokir browser
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: params.toString()
-        });
-
-        // Karena no-cors, kita anggap berhasil jika tidak masuk ke blok catch
-        showToast("<i class='fas fa-check-circle'></i> Jadwal Berhasil Tersimpan di Spreadsheet!");
-        
-        // Refresh data dari sheet agar tampilan sinkron
-        setTimeout(() => { fetchFromSheet(); }, 2000);
-
-    } catch (error) {
-        console.error("Error saat menyimpan jadwal:", error);
-        showToast("Gagal menyimpan ke Spreadsheet!", true);
+        showToast("<i class='fas fa-sync fa-spin'></i> Menyinkronkan ke Spreadsheet...");
+        const params = new URLSearchParams();
+        params.append('action', 'saveSchedule');
+        params.append('data', JSON.stringify(dbSchedule));
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+            showToast("<i class='fas fa-check-circle'></i> Jadwal Berhasil Tersimpan!");
+            setTimeout(() => { fetchFromSheet(); }, 2000);
+        } catch (error) { showToast("Gagal menyimpan!", true); }
     }
-}
 
-    // --- TABEL MAHASISWA & FUNGSI CRUD (VERSI TERBAIK) ---
     function renderTable(keyword = "") {
         const tbody = document.getElementById("tableBody");
         tbody.innerHTML = "";
         const filtered = dbMahasiswa.filter(item => item.nama.toLowerCase().includes(keyword.toLowerCase()) || item.nim.includes(keyword));
-
         filtered.forEach((item, index) => {
             let catText = item.catatan || "";
-            let fileUrl = "";
-            let linkBtn = "";
-            
+            let fileUrl = ""; let linkBtn = "";
             if(catText.includes("[LINK BERKAS]: ")) {
                 let urlParts = catText.split("[LINK BERKAS]: ");
-                catText = urlParts[0].trim(); 
-                fileUrl = urlParts[1].trim(); 
+                catText = urlParts[0].trim(); fileUrl = urlParts[1].trim(); 
                 linkBtn = `<a href="${fileUrl}" target="_blank" style="display:inline-block; margin-top:5px; padding:4px 8px; font-size:0.75rem; background:var(--topbar-blue); color:white; border-radius:4px; text-decoration:none;"><i class="fas fa-folder-open"></i> Buka File</a><br>`;
             }
-
             let onchangeScript = fileUrl ? `updateData(${item.id}, 'catatan', this.value + ' [LINK BERKAS]: ${fileUrl}')` : `updateData(${item.id}, 'catatan', this.value)`;
-
-            let dateValue = "";
-            if (item.tgl) {
-                let d = new Date(item.tgl);
-                if (!isNaN(d.getTime())) {
-                    let yyyy = d.getFullYear();
-                    let mm = String(d.getMonth() + 1).padStart(2, '0'); 
-                    let dd = String(d.getDate()).padStart(2, '0'); 
-                    dateValue = `${yyyy}-${mm}-${dd}`;
-                } else {
-                    dateValue = String(item.tgl).substring(0, 10);
-                }
-            }
-
-            tbody.innerHTML += `<tr>
-                <td>${index + 1}</td>
-                <td><input type="text" class="inline-input" value="${item.nama}" onchange="updateData(${item.id}, 'nama', this.value)"></td>
-                <td><input type="text" class="inline-input" value="${item.nim}" onchange="updateData(${item.id}, 'nim', this.value)"></td>
-                <td><select class="inline-select" onchange="updateData(${item.id}, 'ket', this.value)">
-                    <option value="Draft" ${item.ket === 'Draft' ? 'selected' : ''}>Draft</option>
-                    <option value="Diusulkan" ${item.ket === 'Diusulkan' || item.ket === 'Data sudah diajukan' ? 'selected' : ''}>Diusulkan</option>
-                    <option value="Disetujui" ${item.ket === 'Disetujui' || item.ket === 'PDM sudah disetujui' ? 'selected' : ''}>Disetujui</option>
-                    <option value="Ditolak" ${item.ket === 'Ditolak' ? 'selected' : ''}>Ditolak</option>
-                    <option value="Ditangguhkan" ${item.ket === 'Ditangguhkan' ? 'selected' : ''}>Ditangguhkan</option>
-                </select></td>
-                <td><select class="inline-select" onchange="updateData(${item.id}, 'doc', this.value)">
-                    <option value="Dokumen belum diperiksa" ${item.doc === 'Dokumen belum diperiksa' ? 'selected' : ''}>Belum Diperiksa</option>
-                    <option value="Valid" ${item.doc === 'Valid' ? 'selected' : ''}>Valid</option>
-                    <option value="Tidak valid" ${item.doc === 'Tidak valid' ? 'selected' : ''}>Tidak Valid</option>
-                </select></td>
-                <td>
-                    <input type="text" class="inline-input" value="${catText}" onchange="${onchangeScript}" placeholder="Ketik catatan...">
-                    ${linkBtn}
-                </td>
-                <td><input type="date" class="inline-date" value="${dateValue}" onchange="updateData(${item.id}, 'tgl', this.value)"></td>
-                <td><select class="inline-select" onchange="updateData(${item.id}, 'status', this.value)">
-                    <option value="Belum selesai" ${item.status === 'Belum selesai' ? 'selected' : ''}>Belum Selesai</option>
-                    <option value="Selesai" ${item.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
-                </select></td>
-                <td><button class="btn-delete" onclick="deleteRow(${item.id})"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
+            tbody.innerHTML += `<tr><td>${index + 1}</td><td><input type="text" class="inline-input" value="${item.nama}" onchange="updateData(${item.id}, 'nama', this.value)"></td><td><input type="text" class="inline-input" value="${item.nim}" onchange="updateData(${item.id}, 'nim', this.value)"></td><td><select class="inline-select" onchange="updateData(${item.id}, 'ket', this.value)"><option value="Draft" ${item.ket === 'Draft' ? 'selected' : ''}>Draft</option></select></td><td><select class="inline-select" onchange="updateData(${item.id}, 'doc', this.value)"><option value="Valid" ${item.doc === 'Valid' ? 'selected' : ''}>Valid</option></select></td><td><input type="text" class="inline-input" value="${catText}" onchange="${onchangeScript}">${linkBtn}</td><td>${item.tgl}</td><td>${item.status}</td><td><button class="btn-delete" onclick="deleteRow(${item.id})"><i class="fas fa-trash"></i></button></td></tr>`;
         });
     }
 
     async function sendToBackend(action, dataObj = null, id = null) { 
-        showToast("<i class='fas fa-sync fa-spin'></i> Menyimpan Data Mahasiswa..."); 
-        const formData = new URLSearchParams(); 
-        formData.append('action', action); 
-        if(dataObj) formData.append('data', JSON.stringify(dataObj)); 
-        if(id) formData.append('id', id); 
-        
-        try { 
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formData.toString() }); 
-            showToast("<i class='fas fa-check'></i> Tersimpan di Database!"); 
-        } catch(e) { 
-            showToast("Gagal menyambung ke server!", true); 
-        } 
+        showToast("<i class='fas fa-sync fa-spin'></i> Menyimpan..."); 
+        const formData = new URLSearchParams(); formData.append('action', action); if(dataObj) formData.append('data', JSON.stringify(dataObj)); if(id) formData.append('id', id); 
+        try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData.toString() }); showToast("Sinkron!"); } catch(e) { showToast("Gagal!", true); } 
     }
 
     function initAuth() { if (!localStorage.getItem('adminUser')) { localStorage.setItem('adminUser', 'admin_umk'); localStorage.setItem('adminPass', 'Pusdatin2026!'); } } initAuth();
@@ -448,24 +424,14 @@
         try { 
             let response = await fetch(SCRIPT_URL + "?timestamp=" + new Date().getTime()); 
             let result = await response.json(); 
-            
-            // Mengambil bagian mahasiswa dari objek gabungan JSON
-            dbMahasiswa = result.mahasiswa || []; 
-            dbMahasiswa.sort((a, b) => b.id - a.id); 
-            renderTable(); 
-
-            // Sekalian mengambil jadwal lab agar tersinkronisasi
-            dbSchedule = result.jadwal || [];
-            renderScheduleTable();
-
-        } catch(e) { 
-            console.error("Gagal menarik data");
-        } 
+            dbMahasiswa = result.mahasiswa || []; dbMahasiswa.sort((a, b) => b.id - a.id); renderTable(); 
+            dbSchedule = result.jadwal || []; renderScheduleTable();
+        } catch(e) { console.error("Gagal menarik data"); } 
     }
 
-    function addNewRow() { const newId = Date.now(); const newData = { id: newId, nama: "Nama Baru", nim: "000000", ket: "Draft", doc: "Dokumen belum diperiksa", catatan: "", tgl: new Date().toISOString().split('T')[0], status: "Belum selesai" }; dbMahasiswa.unshift(newData); renderTable(); sendToBackend('add', newData); }
+    function addNewRow() { const newId = Date.now(); const newData = { id: newId, nama: "Nama Baru", nim: "000000", ket: "Draft", doc: "Valid", catatan: "", tgl: new Date().toISOString().split('T')[0], status: "Belum selesai" }; dbMahasiswa.unshift(newData); renderTable(); sendToBackend('add', newData); }
     function updateData(id, field, val) { const idx = dbMahasiswa.findIndex(m => m.id === id); if (idx !== -1) { dbMahasiswa[idx][field] = val; sendToBackend('edit', dbMahasiswa[idx]); } }
-    function deleteRow(id) { if(confirm("Hapus Mahasiswa ini?")) { dbMahasiswa = dbMahasiswa.filter(m => m.id !== id); renderTable(); sendToBackend('delete', null, id); } }
+    function deleteRow(id) { if(confirm("Hapus?")) { dbMahasiswa = dbMahasiswa.filter(m => m.id !== id); renderTable(); sendToBackend('delete', null, id); } }
     function filterTable() { renderTable(document.getElementById("searchInput").value); }
     function showToast(msg, isErr) { const t = document.getElementById("toast"); t.innerHTML = msg; t.style.backgroundColor = isErr ? "var(--btn-red)" : "var(--btn-teal)"; t.className = "show"; setTimeout(()=> t.className = "", 2500); }
     function handleLogout() { location.reload(); }
