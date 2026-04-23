@@ -215,7 +215,7 @@
                 <div class="card">
                     <div class="card-body">
                         <form class="form-setting" onsubmit="saveLab(event)">
-                            <h4 class="section-subtitle"><i class="fas fa-heading"></i> Info Halaman Utama</h4>
+                            <h4 class="section-subtitle"><i class="fas fa-heading"></i> Info Hero Utama</h4>
                             <div class="form-group"><label>Judul Halaman Lab</label><input type="text" id="setLabHeroTitle"></div>
                             <div class="form-group"><label>Deskripsi Halaman Lab</label><textarea id="setLabHeroDesc" rows="2"></textarea></div>
                             <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN KONTEN TEKS LAB</button>
@@ -244,9 +244,9 @@
                         </div>
                         
                         <div class="pagination-admin">
-                            <button id="adminPrevBtn" onclick="changeAdminPage(-1)"><i class="fas fa-chevron-left"></i> Sebelumnya</button>
+                            <button id="adminPrevBtn" onclick="changeAdminPage(-1)"><i class="fas fa-chevron-left"></i></button>
                             <span id="adminPageInfo">Halaman 1 / 1</span>
-                            <button id="adminNextBtn" onclick="changeAdminPage(1)">Selanjutnya <i class="fas fa-chevron-right"></i></button>
+                            <button id="adminNextBtn" onclick="changeAdminPage(1)"><i class="fas fa-chevron-right"></i></button>
                         </div>
 
                         <div class="schedule-save-container">
@@ -260,10 +260,40 @@
 
             <section id="menuSupport" class="content-section">
                 <div class="page-header"><h2>Pengaturan Halaman Support IT</h2></div>
-                <div class="card"><div class="card-body"><form onsubmit="saveSupport(event)" class="form-setting">
-                    <div class="form-group"><label>WhatsApp</label><input type="text" id="setSupWa"></div>
-                    <button type="submit" class="btn-save-setting">Simpan Support</button>
-                </form></div></div>
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-setting" onsubmit="saveSupport(event)">
+                            <h4 class="section-subtitle"><i class="fas fa-headset"></i> Saluran Kontak Darurat</h4>
+                            <div class="form-row">
+                                <div class="form-group"><label>Nomor WhatsApp</label><input type="text" id="setSupWa" placeholder="6281234567890" required></div>
+                                <div class="form-group"><label>Alamat Email Helpdesk</label><input type="email" id="setSupEmail" placeholder="support@umkoe.ac.id" required></div>
+                            </div>
+                            <div class="form-group"><label>Alamat Fisik / Lokasi PUSDATIN</label><input type="text" id="setSupLoc" placeholder="Gedung Rektorat Lantai 2..." required></div>
+                            
+                            <hr class="section-divider">
+                            
+                            <h4 class="section-subtitle"><i class="fas fa-question-circle"></i> Pengaturan FAQ</h4>
+                            <div class="faq-box">
+                                <div class="form-group"><label>Pertanyaan FAQ 1</label><input type="text" id="setFaq1Q"></div>
+                                <div class="form-group"><label>Jawaban FAQ 1</label><textarea id="setFaq1A" rows="2"></textarea></div>
+                            </div>
+                            <div class="faq-box">
+                                <div class="form-group"><label>Pertanyaan FAQ 2</label><input type="text" id="setFaq2Q"></div>
+                                <div class="form-group"><label>Jawaban FAQ 2</label><textarea id="setFaq2A" rows="2"></textarea></div>
+                            </div>
+                            <div class="faq-box">
+                                <div class="form-group"><label>Pertanyaan FAQ 3</label><input type="text" id="setFaq3Q"></div>
+                                <div class="form-group"><label>Jawaban FAQ 3</label><textarea id="setFaq3A" rows="2"></textarea></div>
+                            </div>
+                            <div class="faq-box">
+                                <div class="form-group"><label>Pertanyaan FAQ 4</label><input type="text" id="setFaq4Q"></div>
+                                <div class="form-group"><label>Jawaban FAQ 4</label><textarea id="setFaq4A" rows="2"></textarea></div>
+                            </div>
+                            
+                            <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN DAN TERAPKAN KE WEBSITE</button>
+                        </form>
+                    </div>
+                </div>
             </section>
 
             <section id="menuPengaturanAkun" class="content-section">
@@ -417,11 +447,10 @@
     function addNewRow() { const newData = { id: Date.now(), nama: "Nama Baru", nim: "0000", ket: "Draft", doc: "Dokumen belum diperiksa", catatan: "", tgl: new Date().toISOString().split('T')[0], status: "Belum selesai" }; dbMahasiswa.unshift(newData); renderTable(); sendToBackend('add', newData); }
     function deleteRow(id) { if(confirm("Hapus Mahasiswa?")) { dbMahasiswa = dbMahasiswa.filter(m => m.id !== id); renderTable(); sendToBackend('delete', null, id); } }
     
-    // --- FUNGSI CRUD JADWAL (PERBAIKAN KONEKSI) ---
+    // --- FUNGSI CRUD JADWAL ---
     async function saveScheduleToLocal() {
-        // Mengirimkan seluruh array dbSchedule ke backend
         await sendToBackend('saveSchedule', dbSchedule);
-        setTimeout(fetchFromSheet, 2000); // Segarkan data setelah 2 detik
+        setTimeout(fetchFromSheet, 2000);
     }
 
     function changeAdminPage(dir) { currentAdminSchedulePage += dir; renderScheduleTable(); }
@@ -434,10 +463,76 @@
     function filterTable() { renderTable(document.getElementById("searchInput").value); }
     function showToast(msg, isErr) { const t = document.getElementById("toast"); t.innerHTML = msg; t.style.backgroundColor = isErr ? "var(--btn-red)" : "var(--btn-teal)"; t.className = "show"; setTimeout(()=> t.className = "", 2500); }
     function handleLogout() { location.reload(); }
-    function loadCMSData() { /* CMS data loading logic */ }
-    function saveLab(e) { e.preventDefault(); showToast("Teks Lab disimpan!"); }
-    function saveInfra(e) { e.preventDefault(); showToast("Infra disimpan!"); }
-    function saveSupport(e) { e.preventDefault(); showToast("Support disimpan!"); }
+    
+    // --- FUNGSI LOAD & SAVE CMS (SUDAH DILENGKAPI KEMBALI) ---
+    function loadCMSData() {
+        // Load Infra
+        const infraData = JSON.parse(localStorage.getItem('dbInfra_UMK')) || { siakad: "Online", web: "Online", intranet: "Stabil", wifi1Name: "UMK-FREE-HOTSPOT", wifi1Signal: "Sangat Kuat", wifi1Area: "Halaman Utama, Kantin, & Taman", wifi2Name: "PUSDATIN-HIGH-SPEED", wifi2Signal: "100 Mbps", wifi2Area: "Gedung Rektorat Lt. 2", dcBandwidth: "1 Gbps", dcStorage: "50 TB", dcSecurity: "Firewall v3", dcBackup: "Daily Off-site", cyberText: "Sistem Keamanan Aktif." };
+        if(document.getElementById('setSiakad')) {
+            document.getElementById('setSiakad').value = infraData.siakad; document.getElementById('setWeb').value = infraData.web; document.getElementById('setIntranet').value = infraData.intranet;
+            document.getElementById('setWifi1Name').value = infraData.wifi1Name; document.getElementById('setWifi1Signal').value = infraData.wifi1Signal; document.getElementById('setWifi1Area').value = infraData.wifi1Area;
+            document.getElementById('setWifi2Name').value = infraData.wifi2Name; document.getElementById('setWifi2Signal').value = infraData.wifi2Signal; document.getElementById('setWifi2Area').value = infraData.wifi2Area;
+            document.getElementById('setDcBandwidth').value = infraData.dcBandwidth; document.getElementById('setDcStorage').value = infraData.dcStorage; document.getElementById('setDcSecurity').value = infraData.dcSecurity; document.getElementById('setDcBackup').value = infraData.dcBackup; document.getElementById('setCyberText').value = infraData.cyberText;
+        }
+
+        // Load Lab
+        const labData = JSON.parse(localStorage.getItem('dbLab_UMK')) || { heroT: "Laboratorium Komputer", heroD: "Fasilitas praktikum mahasiswa..." };
+        if(document.getElementById('setLabHeroTitle')) {
+            document.getElementById('setLabHeroTitle').value = labData.heroT; document.getElementById('setLabHeroDesc').value = labData.heroD;
+        }
+
+        // Load Support IT (Sudah Kembali Utuh!)
+        const supData = JSON.parse(localStorage.getItem('dbSupport_UMK')) || { wa: "628123456789", email: "support@umkoe.ac.id", loc: "Gedung Rektorat", f1q: "", f1a: "", f2q: "", f2a: "", f3q: "", f3a: "", f4q: "", f4a: "" };
+        if(document.getElementById('setSupWa')) {
+            document.getElementById('setSupWa').value = supData.wa;
+            document.getElementById('setSupEmail').value = supData.email;
+            document.getElementById('setSupLoc').value = supData.loc;
+            document.getElementById('setFaq1Q').value = supData.f1q; document.getElementById('setFaq1A').value = supData.f1a;
+            document.getElementById('setFaq2Q').value = supData.f2q; document.getElementById('setFaq2A').value = supData.f2a;
+            document.getElementById('setFaq3Q').value = supData.f3q; document.getElementById('setFaq3A').value = supData.f3a;
+            document.getElementById('setFaq4Q').value = supData.f4q; document.getElementById('setFaq4A').value = supData.f4a;
+        }
+    }
+
+    function saveInfra(e) { 
+        e.preventDefault(); 
+        const d = { 
+            siakad: document.getElementById('setSiakad').value, web: document.getElementById('setWeb').value, intranet: document.getElementById('setIntranet').value, 
+            wifi1Name: document.getElementById('setWifi1Name').value, wifi1Signal: document.getElementById('setWifi1Signal').value, wifi1Area: document.getElementById('setWifi1Area').value, 
+            wifi2Name: document.getElementById('setWifi2Name').value, wifi2Signal: document.getElementById('setWifi2Signal').value, wifi2Area: document.getElementById('setWifi2Area').value, 
+            dcBandwidth: document.getElementById('setDcBandwidth').value, dcStorage: document.getElementById('setDcStorage').value, dcSecurity: document.getElementById('setDcSecurity').value, dcBackup: document.getElementById('setDcBackup').value, cyberText: document.getElementById('setCyberText').value 
+        }; 
+        localStorage.setItem('dbInfra_UMK', JSON.stringify(d)); 
+        showToast("Info Infrastruktur Utama diperbarui!"); 
+    }
+
+    function saveLab(e) { 
+        e.preventDefault(); 
+        const d = { heroT: document.getElementById('setLabHeroTitle').value, heroD: document.getElementById('setLabHeroDesc').value }; 
+        localStorage.setItem('dbLab_UMK', JSON.stringify(d)); 
+        showToast("Teks Halaman Lab diperbarui!"); 
+    }
+
+    // Fungsi Save Support IT (Sudah Kembali Utuh!)
+    function saveSupport(e) { 
+        e.preventDefault(); 
+        const d = { 
+            wa: document.getElementById('setSupWa').value, 
+            email: document.getElementById('setSupEmail').value, 
+            loc: document.getElementById('setSupLoc').value, 
+            f1q: document.getElementById('setFaq1Q').value, 
+            f1a: document.getElementById('setFaq1A').value, 
+            f2q: document.getElementById('setFaq2Q').value, 
+            f2a: document.getElementById('setFaq2A').value, 
+            f3q: document.getElementById('setFaq3Q').value, 
+            f3a: document.getElementById('setFaq3A').value, 
+            f4q: document.getElementById('setFaq4Q').value, 
+            f4a: document.getElementById('setFaq4A').value 
+        }; 
+        localStorage.setItem('dbSupport_UMK', JSON.stringify(d)); 
+        showToast("Halaman Support IT diperbarui!"); 
+    }
+
     function updateCredentials(e) { e.preventDefault(); showToast("Akun diupdate!"); }
 </script>
 </body>
