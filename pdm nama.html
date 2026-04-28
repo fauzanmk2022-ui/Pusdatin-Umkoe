@@ -9,10 +9,32 @@
     <style>
         :root {
             --primary: #2d328a; --secondary: #5d5fef; --danger: #e74c3c; --success: #27ae60; --bg-light: #f4f7fe;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: linear-gradient(135deg, #f4f7fe 0%, #e0e7ff 100%); min-height: 100vh; padding: 40px 20px; display: flex; justify-content: center; }
         
+        /* Ubah padding-top body agar tidak tertimpa header baru */
+        body { background: linear-gradient(135deg, #f4f7fe 0%, #e0e7ff 100%); min-height: 100vh; padding: 120px 20px 40px; display: flex; justify-content: center; align-items: flex-start; }
+        
+        /* --- Header Simple --- */
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 5%; background: white; position: fixed; width: 100%; 
+            top: 0; left: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.04); 
+        }
+        .logo-container { display: flex; align-items: center; gap: 12px; }
+        .logo-box { background: #f0f2ff; padding: 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .logo-box img { height: 42px; }
+        .logo-text span { display: block; font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin-bottom: 2px; }
+        .logo-text b { font-size: 1.15rem; color: var(--primary); font-weight: 800; white-space: nowrap; }
+
+        /* Tombol Kembali */
+        .btn-back {
+            text-decoration: none; color: var(--primary); font-weight: 700;
+            font-size: 0.95rem; display: flex; align-items: center; gap: 8px; transition: var(--transition);
+        }
+        .btn-back:hover { color: var(--secondary); transform: translateX(-5px); }
+
         .upload-container {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
             width: 100%; max-width: 900px; border-radius: 30px; padding: 40px;
@@ -32,8 +54,8 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h2 { color: var(--primary); font-weight: 800; }
+        .header-title { text-align: center; margin-bottom: 30px; }
+        .header-title h2 { color: var(--primary); font-weight: 800; }
 
         .identity-section {
             display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
@@ -62,10 +84,32 @@
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-submit:hover { background: var(--secondary); transform: translateY(-2px);}
         
+        /* Responsive Layout */
+        @media (max-width: 768px) {
+            body { padding-top: 100px; }
+            .logo-text b { font-size: 1rem; }
+            .btn-back span { display: none; /* Sembunyikan teks di HP, sisakan ikon panah */ }
+        }
         @media (max-width: 600px) { .upload-grid { grid-template-columns: 1fr; } .identity-section{ grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-box">
+                <img src="https://umkoe.ac.id/wp-content/uploads/2025/07/Logo-UMKOE-Warna-1.png" alt="Logo UMK">
+            </div>
+            <div class="logo-text">
+                <span>PUSDATIN</span>
+                <b>Universitas Muhammadiyah Kupang</b>
+            </div>
+        </div>
+
+        <a href="index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> <span>Kembali ke Beranda</span>
+        </a>
+    </header>
 
     <div class="upload-container">
         <div id="overlay">
@@ -74,7 +118,7 @@
             <p>Mohon jangan menutup halaman ini.</p>
         </div>
 
-        <div class="header">
+        <div class="header-title">
             <h2>Pemutakhiran Data Mandiri</h2>
             <p>PUSDATIN Universitas Muhammadiyah Kupang</p>
         </div>
@@ -83,7 +127,7 @@
             <div class="identity-section">
                 <div class="input-group">
                     <label>Nama Lengkap (Sesuai KTP)</label>
-                    <input type="text" id="nama" name="nama" placeholder="Contoh: Arman Maulana" required>
+                    <input type="text" id="nama" name="nama" placeholder="Contoh: Ahmad Fauzi" required>
                 </div>
                 <div class="input-group">
                     <label>NIM</label>
@@ -177,7 +221,7 @@
 
     <script>
         // MASUKKAN LINK APPS SCRIPT FINAL ANDA DI SINI
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCv-nnAqtg8nLqpcCQG37GKLe2npZDEU1Ix-PcoTjUKqfs67v6EVK-Y0g46Ann7SHv/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtBS0MIh2KKCTg2Q7fuJP8Qj4vNK-9jkqn-Gwr0SDMRs39KHK-a60W025TdHhJdE2Z/exec"; 
         let activeTab = 'satuan';
 
         function switchTab(e, tabId) {
