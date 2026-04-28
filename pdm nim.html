@@ -9,10 +9,32 @@
     <style>
         :root {
             --primary: #2d328a; --secondary: #5d5fef; --danger: #e74c3c; --success: #27ae60; --bg-light: #f4f7fe;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: linear-gradient(135deg, #f4f7fe 0%, #e0e7ff 100%); min-height: 100vh; padding: 40px 20px; display: flex; justify-content: center; }
         
+        /* Ubah padding-top body agar tidak tertimpa header */
+        body { background: linear-gradient(135deg, #f4f7fe 0%, #e0e7ff 100%); min-height: 100vh; padding: 120px 20px 40px; display: flex; justify-content: center; align-items: flex-start; }
+        
+        /* --- Header Simple --- */
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 5%; background: white; position: fixed; width: 100%; 
+            top: 0; left: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.04); 
+        }
+        .logo-container { display: flex; align-items: center; gap: 12px; }
+        .logo-box { background: #f0f2ff; padding: 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .logo-box img { height: 42px; }
+        .logo-text span { display: block; font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin-bottom: 2px; }
+        .logo-text b { font-size: 1.15rem; color: var(--primary); font-weight: 800; white-space: nowrap; }
+
+        /* Tombol Kembali */
+        .btn-back {
+            text-decoration: none; color: var(--primary); font-weight: 700;
+            font-size: 0.95rem; display: flex; align-items: center; gap: 8px; transition: var(--transition);
+        }
+        .btn-back:hover { color: var(--secondary); transform: translateX(-5px); }
+
         .upload-container {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
             width: 100%; max-width: 900px; border-radius: 30px; padding: 40px;
@@ -30,11 +52,11 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* ========================================= */
-        /* CSS UNTUK POP-UP CUSTOM ALERT (BARU)      */
+        /* CSS UNTUK POP-UP CUSTOM ALERT             */
         /* ========================================= */
         .custom-alert-container {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 1000;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 2000; /* Ditinggikan agar di atas header */
             justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
         }
         .custom-alert-container.show { display: flex; opacity: 1; }
@@ -90,10 +112,32 @@
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-submit:hover { background: var(--secondary); transform: translateY(-2px);}
         
+        /* Responsive Layout */
+        @media (max-width: 768px) {
+            body { padding-top: 100px; }
+            .logo-text b { font-size: 1rem; }
+            .btn-back span { display: none; /* Sembunyikan teks di HP, sisakan ikon panah */ }
+        }
         @media (max-width: 600px) { .upload-grid { grid-template-columns: 1fr; } .identity-section{ grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-box">
+                <img src="https://umkoe.ac.id/wp-content/uploads/2025/07/Logo-UMKOE-Warna-1.png" alt="Logo UMK">
+            </div>
+            <div class="logo-text">
+                <span>PUSDATIN</span>
+                <b>Universitas Muhammadiyah Kupang</b>
+            </div>
+        </div>
+
+        <a href="index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> <span>Kembali ke Beranda</span>
+        </a>
+    </header>
 
     <div id="customAlert" class="custom-alert-container">
         <div class="custom-alert-box">
@@ -105,6 +149,7 @@
             <button class="btn-close-alert" onclick="closeCustomAlert()">Saya Mengerti, Perbaiki</button>
         </div>
     </div>
+
     <div class="upload-container">
         <div id="overlay">
             <div class="spinner"></div>
@@ -250,7 +295,7 @@
         }
 
         // =========================================================
-        // FUNGSI UNTUK MEMUNCULKAN ALERT MODAL (BARU)
+        // FUNGSI UNTUK MEMUNCULKAN ALERT MODAL
         // =========================================================
         function showCustomAlert(title, desc, missingItems = []) {
             document.getElementById('alertTitle').innerText = title;
@@ -282,7 +327,7 @@
             e.preventDefault();
             
             // =========================================================
-            // VALIDASI MANDATORY PENGECEKAN SEMUA DOKUMEN (BARU)
+            // VALIDASI MANDATORY PENGECEKAN SEMUA DOKUMEN
             // =========================================================
             let isReadyToSubmit = true;
             let missingFiles = [];
