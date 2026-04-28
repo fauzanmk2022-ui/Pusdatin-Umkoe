@@ -13,7 +13,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* Penyesuaian padding body agar tidak tertutup header */
+        /* Penyesuaian padding-top agar tidak tertimpa header */
         body { background: linear-gradient(135deg, #f4f7fe 0%, #e0e7ff 100%); min-height: 100vh; padding: 120px 20px 40px; display: flex; justify-content: center; align-items: flex-start; }
         
         /* --- Header Simple --- */
@@ -51,22 +51,40 @@
         .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Pop-up Alert Custom */
+        /* ========================================= */
+        /* CSS UNTUK POP-UP CUSTOM ALERT             */
+        /* ========================================= */
         .custom-alert-container {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 2000;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 2000; /* Ditinggikan agar di atas header */
             justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
         }
         .custom-alert-container.show { display: flex; opacity: 1; }
-        .custom-alert-box { background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        .custom-alert-box {
+            background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 30px;
+            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
         .custom-alert-container.show .custom-alert-box { transform: scale(1); }
+        
         .alert-icon { font-size: 3rem; color: var(--danger); margin-bottom: 15px; }
         .alert-title { color: var(--danger); font-weight: 800; font-size: 1.2rem; margin-bottom: 10px; }
         .alert-text { font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 15px; }
-        .missing-list { background: #fff5f5; border: 1px solid #ffcece; border-radius: 10px; padding: 15px 15px 15px 35px; text-align: left; margin-bottom: 20px; max-height: 150px; overflow-y: auto; }
+        
+        .missing-list {
+            background: #fff5f5; border: 1px solid #ffcece; border-radius: 10px;
+            padding: 15px 15px 15px 35px; text-align: left; margin-bottom: 20px;
+            max-height: 150px; overflow-y: auto;
+        }
         .missing-list li { color: #c0392b; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; }
-        .btn-close-alert { background: var(--danger); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.3s; width: 100%; }
+        
+        .btn-close-alert {
+            background: var(--danger); color: white; border: none; padding: 12px 25px;
+            border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.3s; width: 100%;
+        }
         .btn-close-alert:hover { background: #a93226; transform: translateY(-2px); }
+        /* ========================================= */
 
         .header { text-align: center; margin-bottom: 30px; }
         .header h2 { color: var(--primary); font-weight: 800; }
@@ -86,13 +104,15 @@
         .upload-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; }
         .upload-item { background: #fff; border: 2px dashed #e2e8f0; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; }
         .icon-box { width: 45px; height: 45px; background: #f0f2ff; color: var(--primary); border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; flex-shrink: 0;}
+        
         .btn-upload { background: var(--secondary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; display: inline-block;}
         .file-input { position: absolute; opacity: 0; width: 1px; }
         .file-name { font-size: 0.7rem; color: #888; display: block; margin-top: 5px; font-style: italic;}
+
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 18px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-submit:hover { background: var(--secondary); transform: translateY(-2px);}
         
-        @media (max-width: 768px) {
+        @media (max-width: 768px) { 
             body { padding-top: 100px; }
             .logo-text b { font-size: 1rem; }
             .btn-back span { display: none; }
@@ -112,6 +132,7 @@
                 <b>Universitas Muhammadiyah Kupang</b>
             </div>
         </div>
+
         <a href="index.html" class="btn-back">
             <i class="fas fa-arrow-left"></i> <span>Kembali ke Beranda</span>
         </a>
@@ -121,12 +142,12 @@
         <div class="custom-alert-box">
             <div class="alert-icon"><i class="fas fa-exclamation-circle"></i></div>
             <h3 class="alert-title" id="alertTitle">Dokumen Tidak Lengkap</h3>
-            <p class="alert-text" id="alertDesc">Silakan unggah dokumen wajib sebelum menyimpan data:</p>
-            <ul class="missing-list" id="missingFilesList" style="display: none;"></ul>
+            <p class="alert-text" id="alertDesc">Silakan unggah dokumen wajib berikut ini sebelum menyimpan data:</p>
+            <ul class="missing-list" id="missingFilesList" style="display: none;">
+                </ul>
             <button class="btn-close-alert" onclick="closeCustomAlert()">Saya Mengerti, Perbaiki</button>
         </div>
     </div>
-
     <div class="upload-container">
         <div id="overlay">
             <div class="spinner"></div>
@@ -210,7 +231,8 @@
                     <div class="upload-item">
                         <div class="icon-box"><i class="fas fa-clipboard-list"></i></div>
                         <div>
-                            <h4 class="doc-title" style="font-size: 0.85rem; margin-bottom: 2px;">KHS</h4>
+                            <h4 class="doc-title" style="font-size: 0.85rem; margin-bottom: 2px;">KHS (Kartu Hasil Studi)</h4>
+                            <p style="font-size: 0.65rem; color: #888; margin-bottom: 5px; line-height: 1.2;">*KHS dari semester awal sampai akhir atau yang terbaru.</p>
                             <label class="btn-upload">Pilih File <input type="file" name="khs" class="file-input" accept=".pdf" onchange="checkFile(this)"></label>
                             <span class="file-name">Belum ada file dipilih</span>
                         </div>
@@ -227,14 +249,14 @@
             </div>
 
             <div id="link" class="method-content">
-                <input type="url" id="inputLink" name="link_dokumen" placeholder="Masukkan Link Google Drive" style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #eee;">
+                <input type="url" id="inputLink" name="link_dokumen" placeholder="Masukkan Link (Drive / Dropbox / dll)" style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #eee;">
             </div>
 
             <div id="zip" class="method-content">
                 <div style="text-align: center; padding: 30px; border: 2px dashed var(--secondary); border-radius: 15px; background: #f0f2ff;">
                     <i class="fas fa-file-archive fa-3x" style="color: var(--primary); margin-bottom: 10px;"></i>
                     <h4 style="font-size: 0.9rem; margin-bottom: 10px;">Unggah Satu File ZIP</h4>
-                    <label class="btn-upload">Pilih ZIP <input type="file" name="file_zip" class="file-input" accept=".zip,.rar" onchange="checkFile(this)"></label>
+                    <label class="btn-upload">Pilih ZIP <input type="file" name="file_zip" class="file-input" accept=".zip,.rar,.7z,application/zip" onchange="checkFile(this)"></label>
                     <span class="file-name" style="margin-top: 10px;">Belum ada file dipilih</span>
                 </div>
             </div>
@@ -244,7 +266,6 @@
     </div>
 
     <script>
-        // TETAP MENGGUNAKAN LINK KONEKSI ANDA
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGz5YxurtaxYI5OmmgCqBniyqhvxNZ9ETDDftk0LyZzpc1YXtsJzy8JrRMicJEz1bm/exec"; 
         let activeTab = 'satuan';
 
@@ -260,7 +281,7 @@
             const span = input.parentElement.nextElementSibling;
             if (input.files[0]) {
                 if (input.files[0].size > 1048576) {
-                    alert("Maksimal 1MB!");
+                    alert("Ukuran maksimal 1MB per file!");
                     input.value = "";
                     span.innerText = "Gagal: Melebihi 1MB";
                     span.style.color = "red";
@@ -271,11 +292,16 @@
             }
         }
 
+        // =========================================================
+        // FUNGSI UNTUK MEMUNCULKAN ALERT MODAL (BARU)
+        // =========================================================
         function showCustomAlert(title, desc, missingItems = []) {
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertDesc').innerText = desc;
+            
             const listEl = document.getElementById('missingFilesList');
-            listEl.innerHTML = "";
+            listEl.innerHTML = ""; // Bersihkan list sebelumnya
+            
             if (missingItems.length > 0) {
                 listEl.style.display = "block";
                 missingItems.forEach(item => {
@@ -283,16 +309,24 @@
                     li.innerText = "• " + item;
                     listEl.appendChild(li);
                 });
-            } else { listEl.style.display = "none"; }
+            } else {
+                listEl.style.display = "none";
+            }
+
             document.getElementById('customAlert').classList.add('show');
         }
 
-        function closeCustomAlert() { document.getElementById('customAlert').classList.remove('show'); }
+        function closeCustomAlert() {
+            document.getElementById('customAlert').classList.remove('show');
+        }
+        // =========================================================
 
         document.getElementById("uploadForm").addEventListener("submit", function(e) {
             e.preventDefault();
             
-            // Validasi kelengkapan berkas
+            // =========================================================
+            // VALIDASI MANDATORY PENGECEKAN SEMUA DOKUMEN (BARU)
+            // =========================================================
             let isReadyToSubmit = true;
             let missingFiles = [];
 
@@ -301,21 +335,36 @@
                 inputsSatuan.forEach(input => {
                     if (input.files.length === 0) {
                         isReadyToSubmit = false;
+                        // Ambil nama judul dokumen berdasarkan tag <h4> di dekat input tersebut
                         let docName = input.closest('.upload-item').querySelector('.doc-title').innerText;
                         missingFiles.push(docName);
                     }
                 });
+
                 if (!isReadyToSubmit) {
-                    showCustomAlert("Dokumen Belum Lengkap!", "Lengkapi berkas berikut:", missingFiles);
+                    showCustomAlert(
+                        "Dokumen Belum Lengkap!", 
+                        "Anda harus melampirkan seluruh dokumen berikut untuk melanjutkan:",
+                        missingFiles
+                    );
+                    return; // Menghentikan submit
+                }
+            } else if (activeTab === 'link') {
+                if (document.getElementById("inputLink").value.trim() === "") {
+                    showCustomAlert("Tautan Masih Kosong!", "Silakan masukkan tautan Google Drive / Cloud Anda pada kolom yang tersedia.");
                     return;
                 }
-            } else if (activeTab === 'link' && !document.getElementById("inputLink").value.trim()) {
-                showCustomAlert("Tautan Kosong!", "Masukkan link Drive Anda.");
-                return;
+            } else if (activeTab === 'zip') {
+                const zipInput = document.querySelector('#zip input[type="file"]');
+                if (zipInput.files.length === 0) {
+                    showCustomAlert("Berkas ZIP Kosong!", "Silakan unggah berkas ZIP yang berisi kumpulan dokumen Anda.");
+                    return;
+                }
             }
+            // =========================================================
 
             const namaMhs = document.getElementById("nama").value;
-            if(!confirm("Kirim data atas nama " + namaMhs + "?")) return;
+            if(!confirm("Anda yakin ingin mengirim data atas nama " + namaMhs + "?")) return;
 
             document.getElementById("overlay").style.display = "flex";
 
@@ -323,7 +372,10 @@
             formData.append("nama", namaMhs);
             formData.append("nim", document.getElementById("nim").value);
             formData.append("metode", activeTab);
-            if(activeTab === 'link') formData.append("link_dokumen", document.getElementById("inputLink").value);
+
+            if(activeTab === 'link') {
+                formData.append("link_dokumen", document.getElementById("inputLink").value);
+            }
 
             const inputs = document.getElementById(activeTab).querySelectorAll('input[type="file"]');
             const promises = Array.from(inputs).map(i => {
@@ -336,21 +388,9 @@
             });
 
             Promise.all(promises).then(() => {
-                // PERBAIKAN: Menambahkan mode: 'no-cors' agar data tetap terkirim ke Apps Script tanpa hambatan CORS
-                fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: formData.toString(), 
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" } 
-                })
-                .then(() => { 
-                    alert("Selesai! Data Anda sedang diproses. Silakan cek status secara berkala."); 
-                    location.reload(); 
-                })
-                .catch(() => { 
-                    alert("Proses pengiriman selesai."); 
-                    location.reload(); 
-                });
+                fetch(SCRIPT_URL, { method: 'POST', body: formData.toString(), headers: { "Content-Type": "application/x-www-form-urlencoded" } })
+                .then(() => { alert("Berhasil! Data " + namaMhs + " telah terkirim."); location.reload(); })
+                .catch(() => { alert("Proses Selesai. Silakan cek Drive / Spreadsheet."); location.reload(); });
             });
         });
     </script>
