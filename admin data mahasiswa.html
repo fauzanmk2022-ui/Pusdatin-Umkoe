@@ -462,7 +462,7 @@
     function switchMenu(t) { document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.sidebar-menu a').forEach(a=>a.classList.remove('active')); document.getElementById(t).classList.add('active'); document.getElementById('nav'+t.replace('menu','')).classList.add('active'); }
     function filterTable() { renderTable(document.getElementById("searchInput").value); }
     function showToast(msg, isErr) { const t = document.getElementById("toast"); t.innerHTML = msg; t.style.backgroundColor = isErr ? "var(--btn-red)" : "var(--btn-teal)"; t.className = "show"; setTimeout(()=> t.className = "", 2500); }
-    function handleLogout() { location.reload(); }
+    function handleLogout() { window.location.href = "index.html"; }
     
     // --- FUNGSI LOAD & SAVE CMS (SUDAH DILENGKAPI KEMBALI) ---
     function loadCMSData() {
