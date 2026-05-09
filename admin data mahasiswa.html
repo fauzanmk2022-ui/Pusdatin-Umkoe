@@ -297,12 +297,35 @@
             </section>
 
             <section id="menuPengaturanAkun" class="content-section">
-                <div class="page-header"><h2>Akun</h2></div>
-                <div class="card"><div class="card-body"><form onsubmit="updateCredentials(event)" class="form-setting">
-                    <div class="form-group"><label>Username</label><input type="text" id="settingUser"></div>
-                    <div class="form-group"><label>Password</label><input type="text" id="settingPass"></div>
-                    <button type="submit" class="btn-save-setting">Update Akun</button>
-                </form></div></div>
+                <div class="page-header">
+                    <h2>Manajemen Akun Administrator</h2>
+                    <button class="btn-new" onclick="addNewAdminRow()"><i class="fas fa-user-plus"></i> Tambah Akun Baru</button>
+                </div>
+                <div class="card">
+                    <div class="card-header">Daftar Username & Password Aktif</div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table style="min-width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%">No</th>
+                                        <th style="width: 35%">Username</th>
+                                        <th style="width: 35%">Password</th>
+                                        <th style="width: 20%">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminTableBody">
+                                    <!-- Daftar Akun Akan Dimuat Di Sini -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="schedule-save-container">
+                            <button class="btn-save-schedule" onclick="saveAdminAccounts()">
+                                <i class="fas fa-save"></i> SIMPAN PERUBAHAN AKUN
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
@@ -400,9 +423,90 @@
     }
 
     // --- FUNGSI AUTH & FETCH ---
-    function initAuth() { if (!localStorage.getItem('adminUser')) { localStorage.setItem('adminUser', 'admin_umk'); localStorage.setItem('adminPass', 'Pusdatin2026!'); } } initAuth();
-    function handleLogin(e) { e.preventDefault(); if (document.getElementById("usernameInput").value === localStorage.getItem('adminUser') && document.getElementById("passwordInput").value === localStorage.getItem('adminPass')) { document.getElementById('loginPage').style.display = 'none'; document.getElementById('dashboardPage').style.display = 'flex'; fetchFromSheet(); loadCMSData(); } else { document.getElementById("loginErrorMsg").style.display = 'block'; } }
-    
+    // --- FUNGSI AUTH & MANAJEMEN AKUN ---
+    let adminAccounts = [];
+
+    function initAuth() { 
+        let storedAccounts = localStorage.getItem('adminAccounts_UMK');
+        
+        if (!storedAccounts) {
+            // Migrasi dari sistem single-user lama (jika ada) ke multi-user
+            let oldUser = localStorage.getItem('adminUser');
+            let oldPass = localStorage.getItem('adminPass');
+            
+            if(oldUser && oldPass) {
+                adminAccounts = [{ id: Date.now(), user: oldUser, pass: oldPass }];
+                localStorage.removeItem('adminUser'); // Hapus memori lama
+                localStorage.removeItem('adminPass');
+            } else {
+                // Default jika benar-benar baru
+                adminAccounts = [{ id: Date.now(), user: 'admin_umk', pass: 'Pusdatin2026!' }]; 
+            }
+            localStorage.setItem('adminAccounts_UMK', JSON.stringify(adminAccounts));
+        } else {
+            adminAccounts = JSON.parse(storedAccounts);
+        }
+    } 
+    initAuth();
+
+    function handleLogin(e) { 
+        e.preventDefault(); 
+        const inputUser = document.getElementById("usernameInput").value;
+        const inputPass = document.getElementById("passwordInput").value;
+
+        // Mengecek apakah input cocok dengan salah satu akun di database lokal
+        const isValidUser = adminAccounts.some(acc => acc.user === inputUser && acc.pass === inputPass);
+
+        if (isValidUser) { 
+            document.getElementById('loginPage').style.display = 'none'; 
+            document.getElementById('dashboardPage').style.display = 'flex'; 
+            fetchFromSheet(); 
+            loadCMSData(); 
+            renderAdminTable(); // Muat tabel akun
+        } else { 
+            document.getElementById("loginErrorMsg").style.display = 'block'; 
+        } 
+    }
+
+    // --- FUNGSI CRUD UNTUK TABEL AKUN ADMIN ---
+    function renderAdminTable() {
+        const tbody = document.getElementById("adminTableBody");
+        tbody.innerHTML = "";
+        adminAccounts.forEach((acc, index) => {
+            tbody.innerHTML += `<tr>
+                <td>${index + 1}</td>
+                <td><input type="text" class="inline-input" value="${acc.user}" onchange="updateAdmin(${acc.id}, 'user', this.value)"></td>
+                <td><input type="text" class="inline-input" value="${acc.pass}" onchange="updateAdmin(${acc.id}, 'pass', this.value)"></td>
+                <td><button class="btn-delete" onclick="deleteAdmin(${acc.id})"><i class="fas fa-trash"></i> Hapus</button></td>
+            </tr>`;
+        });
+    }
+
+    function addNewAdminRow() {
+        adminAccounts.push({ id: Date.now(), user: 'admin_baru', pass: 'password123' });
+        renderAdminTable();
+    }
+
+    function updateAdmin(id, field, val) {
+        const idx = adminAccounts.findIndex(a => a.id === id);
+        if (idx !== -1) adminAccounts[idx][field] = val;
+    }
+
+    function deleteAdmin(id) {
+        if(adminAccounts.length === 1) {
+            alert("Gagal: Harus tersisa minimal 1 akun Administrator!");
+            return;
+        }
+        if(confirm("Apakah Anda yakin ingin menghapus akun ini?")) {
+            adminAccounts = adminAccounts.filter(a => a.id !== id);
+            renderAdminTable();
+        }
+    }
+
+    function saveAdminAccounts() {
+        localStorage.setItem('adminAccounts_UMK', JSON.stringify(adminAccounts));
+        showToast("Manajemen Akun berhasil disimpan!");
+    }    
     async function fetchFromSheet() { 
         try { 
             let res = await fetch(SCRIPT_URL + "?ts=" + Date.now()); 
@@ -533,7 +637,7 @@
         showToast("Halaman Support IT diperbarui!"); 
     }
 
-    function updateCredentials(e) { e.preventDefault(); showToast("Akun diupdate!"); }
+   
 </script>
 </body>
 </html>
