@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUSDATIN - PDF Tools Interaktif</title>
+    
+    <!-- Header Assets: Fonts, Icons, Favicon -->
+    <link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=1PIQb-v4vNSdTQMKLbOejmIp8ttSKpyag&sz=w32">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PDF Processing Assets -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        /* --- Global & Variable Styles --- */
+        :root {
+            --primary: #2d328a; 
+            --secondary: #5d5fef;
+            --accent: #ffcb05;
+            --bg-light: #f4f7fe;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* PDF Tools Variables */
+            --tool-primary: #4f46e5;
+            --tool-primary-hover: #4338ca;
+            --tool-secondary: #0ea5e9;
+            --tool-secondary-hover: #0284c7;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* --- Header & Nav Styles --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5%;
+            background: white;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1100; }
+        .logo-box { background: #f0f2ff; padding: 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .logo-box img { height: 42px; }
+        .logo-text span { display: block; font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin-bottom: 2px; }
+        .logo-text b { font-size: 1.15rem; color: var(--primary); font-weight: 800; white-space: nowrap; }
+
+        .mobile-menu-btn {
+            display: none; font-size: 1.5rem; color: var(--primary); cursor: pointer; z-index: 1100; padding: 10px;
+        }
+
+        .nav-wrapper { display: flex; align-items: center; }
+        .nav-links { display: flex; list-style: none; gap: 5px; align-items: center; }
+        .nav-links > li { position: relative; padding: 10px 0; }
+        
+        .nav-links li a {
+            text-decoration: none; color: #4a5568; padding: 12px 20px;
+            font-size: 0.9rem; font-weight: 600; transition: var(--transition);
+            border-radius: 12px; display: flex; align-items: center; gap: 8px;
+        }
+
+        .nav-links li a.active { background: white; color: var(--primary); box-shadow: 0 10px 25px rgba(93, 95, 239, 0.15); transform: translateY(-2px); }
+        .nav-links li a:hover:not(.active) { color: var(--secondary); background: #f8f9ff; }
+
+        .dropdown-content {
+            position: absolute; top: 100%; left: 0; background-color: white;
+            min-width: 240px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-radius: 15px; padding: 10px; opacity: 0; visibility: hidden;
+            transform: translateY(15px); transition: var(--transition); border: 1px solid #edf2f7;
+        }
+        .nav-links li:hover > .dropdown-content { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-content > a, .sub-dropdown > a {
+            color: #4a5568 !important; padding: 12px 15px !important; font-size: 0.85rem !important;
+            border-radius: 10px !important; display: flex !important; align-items: center; justify-content: space-between;
+            background: transparent !important; box-shadow: none !important; width: 100%; cursor: pointer;
+        }
+
+        .sub-dropdown { position: relative; }
+        .sub-dropdown-content {
+            position: absolute; top: 0; left: 100%; margin-left: 5px; background-color: white; min-width: 200px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 15px; padding: 10px; opacity: 0; visibility: hidden;
+            transform: translateX(15px); transition: var(--transition); border: 1px solid #edf2f7;
+        }
+        .sub-dropdown:hover .sub-dropdown-content { opacity: 1; visibility: visible; transform: translateX(0); }
+
+        .btn-masuk {
+            background: var(--primary); color: white; padding: 12px 32px; border-radius: 12px;
+            text-decoration: none; font-weight: 700; transition: var(--transition); box-shadow: 0 6px 15px rgba(45, 50, 138, 0.2);
+            margin-left: 15px;
+        }
+
+        /* --- Mobile Responsive Nav --- */
+        @media (max-width: 1200px) {
+            .mobile-menu-btn { display: block; }
+            .nav-wrapper {
+                position: fixed; top: 0; right: -100%; width: 80%; max-width: 350px; height: 100vh;
+                background: white; box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                padding: 100px 30px 40px; flex-direction: column; align-items: flex-start; z-index: 1050;
+            }
+            .nav-wrapper.active { right: 0; }
+            .nav-links { flex-direction: column; width: 100%; align-items: flex-start; gap: 10px; }
+            .nav-links > li { width: 100%; }
+            .nav-links li a { width: 100%; padding: 15px; font-size: 1rem; border-radius: 10px; }
+            .dropdown-content, .sub-dropdown-content {
+                position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; border: none; padding-left: 20px; display: none; width: 100%;
+            }
+            .nav-links li.active-mobile > .dropdown-content, .sub-dropdown.active-mobile > .sub-dropdown-content { display: block; }
+            .btn-masuk { margin: 20px 0 0 0; width: 100%; text-align: center; }
+        }
+
+        /* --- Main Content Area (For PDF Tools) --- */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 120px 20px 40px; /* Padding top prevents overlap with fixed header */
+        }
+
+        /* --- PDF Tools Styles --- */
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 650px;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+        .pdf-header { text-align: center; margin-bottom: 2rem; }
+        .pdf-header h2 { margin-bottom: 0.5rem; color: var(--text-main); font-weight: 800; font-size: 1.8rem; }
+        .pdf-header p.subtitle { color: var(--text-muted); font-size: 0.95rem; }
+
+        .tabs { display: flex; background-color: #e2e8f0; padding: 4px; border-radius: 8px; margin-bottom: 2rem; }
+        .tab-btn { flex: 1; background: none; border: none; padding: 0.75rem; font-size: 0.95rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: var(--transition); }
+        .tab-btn.active { background-color: white; color: var(--tool-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color); border-radius: 12px; padding: 3rem 2rem;
+            cursor: pointer; transition: var(--transition); background-color: #fafafa; position: relative; text-align: center; margin-bottom: 1.5rem;
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--tool-primary); background-color: #eff6ff; }
+        .drop-zone svg { width: 50px; height: 50px; fill: var(--tool-primary); margin-bottom: 1rem; }
+        .drop-zone input[type="file"] { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+
+        .tool-panel { display: none; }
+        .tool-panel.active { display: block; }
+        
+        .file-info { display: none; margin-top: 1rem; padding: 1.25rem; background-color: #f8fafc; border-radius: 10px; border: 1px solid var(--border-color); }
+        .file-details { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .file-name { font-weight: 600; font-size: 0.95rem; word-break: break-all; color: var(--text-main); }
+        .file-size { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; margin-left: 1rem; }
+
+        .settings-group { margin-bottom: 1.25rem; }
+        .settings-group label { font-size: 0.9rem; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 0.5rem; }
+        select, input[type="text"] { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: white; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+        select:focus, input[type="text"]:focus { border-color: var(--tool-primary); }
+
+        .page-selector-container { background-color: #f1f5f9; padding: 1rem; border-radius: 8px; margin-top: 0.5rem; }
+        .page-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; max-height: 150px; overflow-y: auto; padding: 4px; }
+        .page-badge {
+            background-color: white; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem;
+            border-radius: 6px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; user-select: none; transition: var(--transition);
+        }
+        .page-badge.selected { background-color: #e0e7ff; border-color: var(--tool-primary); color: var(--tool-primary); font-weight: 600; }
+        .page-badge.removed { background-color: #fee2e2; border-color: var(--danger); color: var(--danger); text-decoration: line-through; }
+        .info-note { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4; }
+
+        .btn {
+            background-color: var(--tool-primary); color: white; border: none; padding: 0.85rem 1.5rem; width: 100%;
+            border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; transition: background-color 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem;
+        }
+        .btn:hover { background-color: var(--tool-primary-hover); }
+        .btn-secondary { background-color: var(--tool-secondary); }
+        .btn-secondary:hover { background-color: var(--tool-secondary-hover); }
+
+        .progress-container { display: none; margin-top: 1.5rem; }
+        .progress-bar-bg { background-color: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+        .progress-bar-fill { height: 100%; background-color: var(--tool-primary); width: 0%; transition: width 0.1s linear; }
+        .progress-text { font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between; font-weight: 600; }
+
+        .result-container { display: none; margin-top: 1.5rem; padding: 1.5rem; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; text-align: center; }
+        .result-container h3 { color: var(--success); margin-bottom: 0.5rem; font-size: 1.15rem; }
+        .result-stats { display: flex; justify-content: space-around; margin: 1.25rem 0; font-size: 0.95rem; background: rgba(255,255,255,0.6); padding: 0.75rem; border-radius: 8px; }
+        .btn-download { background-color: var(--success); margin-top: 0.5rem; }
+        .btn-download:hover { background-color: #059669; }
+        .btn-reset { background-color: transparent; color: var(--text-muted); border: 1px solid var(--border-color); margin-top: 0.5rem; }
+        .btn-reset:hover { background-color: #f1f5f9; }
+    </style>
+</head>
+<body>
+
+    <!-- Header PUSDATIN UMK -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-box">
+                <img src="https://umkoe.ac.id/wp-content/uploads/2025/07/Logo-UMKOE-Warna-1.png" alt="Logo UMK">
+            </div>
+            <div class="logo-text">
+                <span>PUSDATIN</span>
+                <b>Universitas Muhammadiyah Kupang</b>
+            </div>
+        </div>
+
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <nav class="nav-wrapper" id="navWrapper">
+            <ul class="nav-links">
+                <li><a href="#" class="active">Beranda</a></li>
+                <li class="has-dropdown">
+                    <a href="javascript:void(0)">Satu Data <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
+                    <div class="dropdown-content">
+                        <div class="sub-dropdown">
+                            <a href="javascript:void(0)">
+                                <span><i class="fas fa-file-alt"></i> Persyaratan PDM</span>
+                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+                            </a>
+                            <div class="sub-dropdown-content">
+                                <a href="https://drive.google.com/drive/folders/1mBCK6mzDBl3CpZZgyVY8QwAvkaScIXnr?usp=sharing"><span>Cek Berkas Persyaratan PDM</span></a>
+                            </div>
+                        </div>
+                        <a href="#"><span><i class="fas fa-users"></i> Data Mahasiswa</span></a>
+                        <div class="sub-dropdown">
+                            <a href="javascript:void(0)">
+                                <span><i class="fas fa-file-invoice"></i> Data Akademik & Prodi</span>
+                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+                            </a>
+                            <div class="sub-dropdown-content">
+                                <a href="#"><span><i class="fas fa-university"></i> Daftar Program Studi</span></a>
+                                <a href="https://drive.google.com/drive/folders/18nMqyEkwwL-PXJzEbms1TAVGaNk5d3sF?usp=sharing"><span><i class="fas fa-award"></i> Sertifikat Akreditasi</span></a>
+                                <a href="#"><span><i class="fas fa-calendar-alt"></i> Kalender Akademik</span></a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="has-dropdown">
+                    <a href="javascript:void(0)">E-Layanan <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
+                    <div class="dropdown-content">
+                        <div class="sub-dropdown">
+                            <a href="javascript:void(0)">
+                                <span><i class="fas fa-user-edit"></i> PDM Mahasiswa</span>
+                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+                            </a>
+                            <div class="sub-dropdown-content">
+                                <a href="pdm nama.html"><span><i class="fas fa-font"></i> Nama</span></a>
+                                <a href="pdm nim.html"><span><i class="fas fa-id-badge"></i> NIM</span></a>
+                            </div>
+                        </div>
+                        <a href="cek data mahasiswa.html"><span><i class="fas fa-search"></i> Cek Data Mahasiswa</span></a>
+                        <a href="#"><span><i class="fas fa-user-tie"></i> Cek Data Dosen</span></a>
+                    </div>
+                </li>
+                <li class="has-dropdown">
+                    <a href="javascript:void(0)">Infrastruktur <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
+                    <div class="dropdown-content">
+                        <a href="info infrastruktur.html"><span><i class="fas fa-network-wired"></i> Status Jaringan</span></a>
+                        <a href="#"><span><i class="fas fa-server"></i> Data Center</span></a>
+                        <div class="sub-dropdown">
+                            <a href="javascript:void(0)">
+                                <span><i class="fas fa-flask"></i> Laboratorium</span>
+                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+                            </a>
+                            <div class="sub-dropdown-content">
+                                <a href="lab komputer.html"><span><i class="fas fa-desktop"></i> Lab Komputer</span></a>
+                                <a href="#"><span><i class="fas fa-language"></i> Lab Bahasa</span></a>
+                                <a href="#"><span><i class="fas fa-microscope"></i> Lab Biologi</span></a>
+                            </div>
+                        </div>
+                        <a href="hotspot area.html"><span><i class="fas fa-wifi"></i> Hotspot Area</span></a>
+                    </div>
+                </li>
+                <li class="has-dropdown">
+                    <a href="javascript:void(0)">Website <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
+                    <div class="dropdown-content">
+                        <a href="https://umkoe.ac.id/"><span><i class="fas fa-globe"></i> Website Universitas</span></a>
+                        <a href="https://admisi.umkoe.ac.id/"><span><i class="fas fa-school-circle-check"></i> Website PMB</span></a>
+                        <a href="#"><span><i class="fas fa-building"></i> Website Fakultas</span></a>
+                        <a href="#"><span><i class="fas fa-graduation-cap"></i> Website Prodi</span></a>
+                        <a href="#"><span><i class="fas fa-bullhorn"></i> Humas & Informasi</span></a>
+                    </div>
+                </li>
+                <li><a href="#">Statistik</a></li>
+            </ul>
+            <a href="admin data mahasiswa.html" class="btn-masuk">Login</a>
+        </nav>
+    </header>
+
+    <!-- Main Content Area (Aplikasi PDF Tools) -->
+    <div class="main-content">
+        <div class="container">
+            <div class="pdf-header">
+                <h2>Alat PDF E-Layanan</h2>
+                <p class="subtitle">Kelola dan optimasi dokumen PDF Anda secara aman tanpa internet.</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('compress')">Kompres PDF</button>
+                <button class="tab-btn" onclick="switchTab('split')">Hapus/Pisah Halaman</button>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZone">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 id="dropZoneTitle" style="color: var(--text-main); margin-bottom: 5px;">Pilih File PDF Anda</h3>
+                <p class="info-note">atau tarik dan jatuhkan file PDF di sini</p>
+                <input type="file" id="fileInput" accept=".pdf">
+            </div>
+
+            <!-- PANEL 1: KOMPRESI -->
+            <div id="compressPanel" class="tool-panel active">
+                <div class="file-info" id="compressInfo">
+                    <div class="file-details">
+                        <span class="file-name current-filename">dokumen.pdf</span>
+                        <span class="file-size current-filesize">0 KB</span>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label for="compLevel">Tingkat Kompresi:</label>
+                        <select id="compLevel">
+                            <option value="low">Rendah (Kualitas resolusi bagus, ukuran lumayan turun)</option>
+                            <option value="medium" selected>Sedang (Rekomendasi Terbaik)</option>
+                            <option value="high">Tinggi (Gambar agak pecah, ukuran super kecil)</option>
+                        </select>
+                    </div>
+                    
+                    <p class="info-note" style="color: var(--warning);">
+                        *Catatan: Proses kompresi ini akan mengubah halaman PDF Anda menjadi gambar. Dokumen akan mengecil, namun teks tidak akan bisa di-copy lagi.
+                    </p>
+
+                    <button class="btn" id="compressBtn"><i class="fas fa-file-contract"></i> Mulai Kompresi Nyata</button>
+                </div>
+            </div>
+
+            <!-- PANEL 2: PISAH / HAPUS HALAMAN -->
+            <div id="splitPanel" class="tool-panel">
+                <div class="file-info" id="splitInfo">
+                    <div class="file-details">
+                        <span class="file-name current-filename">dokumen.pdf</span>
+                        <span class="file-size current-filesize">0 KB</span>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label>Metode Modifikasi Halaman:</label>
+                        <select id="splitMethod" onchange="toggleSplitMethod()">
+                            <option value="remove">Hapus Halaman Tertentu (Pilih yang ingin dibuang)</option>
+                            <option value="range">Ekstrak Rentang Halaman Tertentu</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-group" id="methodRemoveContainer">
+                        <label>Klik halaman yang ingin DIBUANG / DIHAPUS:</label>
+                        <div class="page-selector-container">
+                            <div class="page-badges" id="removePageBadges"></div>
+                            <p class="info-note">* Halaman berwarna merah akan dihapus dari dokumen baru.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-group" id="methodRangeContainer" style="display: none;">
+                        <label for="pageRangeInput">Masukkan Rentang Halaman (Contoh: 1-3, 5):</label>
+                        <input type="text" id="pageRangeInput" placeholder="Contoh: 1-2 atau 1,3,5">
+                        <p class="info-note" id="totalPagesInfo">Total halaman tersedia: -</p>
+                    </div>
+
+                    <button class="btn btn-secondary" id="splitBtn"><i class="fas fa-cut"></i> Proses & Potong PDF</button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-text">
+                    <span id="statusText">Memproses file...</span>
+                    <span id="percentText">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+            </div>
+
+            <!-- Hasil Pemrosesan -->
+            <div class="result-container" id="resultContainer">
+                <h3 id="resultTitle">Berhasil Diproses! 🎉</h3>
+                <div class="result-stats" id="resultStats">
+                    <!-- Dinamis via JS -->
+                </div>
+                <button class="btn btn-download" id="downloadBtn"><i class="fas fa-download"></i> Unduh File PDF Baru</button>
+                <button class="btn btn-reset" onclick="resetApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Gabungan -->
+    <script>
+        // === HEADER & MOBILE MENU LOGIC ===
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navWrapper = document.getElementById('navWrapper');
+        const dropdowns = document.querySelectorAll('.has-dropdown');
+        const subDropdowns = document.querySelectorAll('.sub-dropdown');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navWrapper.classList.toggle('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+
+        dropdowns.forEach(dropdown => {
+            dropdown.querySelector('a').addEventListener('click', (e) => {
+                if (window.innerWidth <= 1200) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active-mobile');
+                }
+            });
+        });
+
+        subDropdowns.forEach(sub => {
+            sub.querySelector('a').addEventListener('click', (e) => {
+                if (window.innerWidth <= 1200) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    sub.classList.toggle('active-mobile');
+                }
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!navWrapper.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                navWrapper.classList.remove('active');
+                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+            }
+        });
+
+
+        // === PDF TOOLS LOGIC ===
+        let currentTab = 'compress';
+        let selectedFile = null;
+        let pdfDocInstance = null;
+        let totalPagesCount = 0;
+        let pagesToRemove = new Set();
+        let processedPdfBlobUrl = null;
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const percentText = document.getElementById('percentText');
+        const statusText = document.getElementById('statusText');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultStats = document.getElementById('resultStats');
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tool-panel').forEach(panel => panel.classList.remove('active'));
+            
+            if(tabName === 'compress') {
+                document.querySelector('.tab-btn[onclick="switchTab(\'compress\')"]').classList.add('active');
+                document.getElementById('compressPanel').classList.add('active');
+                document.getElementById('dropZoneTitle').textContent = "Pilih File PDF untuk Dikompres";
+            } else {
+                document.querySelector('.tab-btn[onclick="switchTab(\'split\')"]').classList.add('active');
+                document.getElementById('splitPanel').classList.add('active');
+                document.getElementById('dropZoneTitle').textContent = "Pilih File PDF untuk Dipisah/Dihapus Halamannya";
+            }
+            if (selectedFile) renderFileInfo();
+        }
+
+        function toggleSplitMethod() {
+            const method = document.getElementById('splitMethod').value;
+            if (method === 'remove') {
+                document.getElementById('methodRemoveContainer').style.display = 'block';
+                document.getElementById('methodRangeContainer').style.display = 'none';
+            } else {
+                document.getElementById('methodRemoveContainer').style.display = 'none';
+                document.getElementById('methodRangeContainer').style.display = 'block';
+            }
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+        dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+        fileInput.addEventListener('change', function() { handleFiles(this.files); });
+
+        async function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type !== "application/pdf" && !file.name.endsWith('.pdf')) {
+                    alert("Format tidak didukung! Mohon masukkan file berformat asli PDF.");
+                    return;
+                }
+                
+                selectedFile = file;
+                pagesToRemove.clear();
+                
+                statusText.textContent = "Menganalisis file PDF...";
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '30%';
+                percentText.textContent = '30%';
+
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    pdfDocInstance = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+                    totalPagesCount = pdfDocInstance.getPageCount();
+                    progressContainer.style.display = 'none';
+                    renderFileInfo();
+                } catch (error) {
+                    console.error(error);
+                    progressContainer.style.display = 'none';
+                    alert("Gagal memuat struktur file PDF. File mungkin rusak.");
+                    selectedFile = null;
+                }
+            }
+        }
+
+        function renderFileInfo() {
+            if (!selectedFile) return;
+            dropZone.style.display = 'none';
+            resultContainer.style.display = 'none';
+
+            document.querySelectorAll('.current-filename').forEach(el => el.textContent = selectedFile.name);
+            document.querySelectorAll('.current-filesize').forEach(el => el.textContent = formatBytes(selectedFile.size));
+
+            if (currentTab === 'compress') {
+                document.getElementById('compressInfo').style.display = 'block';
+                document.getElementById('splitInfo').style.display = 'none';
+            } else {
+                document.getElementById('compressInfo').style.display = 'none';
+                document.getElementById('splitInfo').style.display = 'block';
+                
+                const badgesContainer = document.getElementById('removePageBadges');
+                badgesContainer.innerHTML = '';
+                for (let i = 1; i <= totalPagesCount; i++) {
+                    const badge = document.createElement('div');
+                    badge.className = 'page-badge';
+                    badge.innerHTML = `📄 Hal ${i}`;
+                    if (pagesToRemove.has(i)) badge.classList.add('removed');
+
+                    badge.onclick = () => {
+                        if (pagesToRemove.has(i)) {
+                            pagesToRemove.delete(i);
+                            badge.classList.remove('removed');
+                        } else {
+                            if (pagesToRemove.size >= totalPagesCount - 1) {
+                                alert("Sisa halaman minimal harus 1!");
+                                return;
+                            }
+                            pagesToRemove.add(i);
+                            badge.classList.add('removed');
+                        }
+                    };
+                    badgesContainer.appendChild(badge);
+                }
+                document.getElementById('totalPagesInfo').textContent = `Total halaman tersedia: ${totalPagesCount} halaman.`;
+            }
+        }
+
+        // --- Logika Kompresi Nyata ---
+        document.getElementById('compressBtn').addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            document.getElementById('compressInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Menyiapkan mesin kompresi...";
+            progressBar.style.width = '2%';
+            percentText.textContent = '2%';
+            
+            try {
+                const level = document.getElementById('compLevel').value;
+                let scale = 1.8; 
+                let quality = 0.8;
+                
+                if (level === 'medium') { scale = 1.3; quality = 0.6; } 
+                else if (level === 'high') { scale = 1.0; quality = 0.45; }
+
+                const arrayBuffer = await selectedFile.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdf.numPages;
+                let newPdf = null;
+                const { jsPDF } = window.jspdf;
+                
+                for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                    statusText.textContent = `Merender & Mengompresi halaman ${pageNum} dari ${totalPages}...`;
+                    const progress = Math.round((pageNum / totalPages) * 90) + 5;
+                    progressBar.style.width = progress + '%';
+                    percentText.textContent = progress + '%';
+
+                    const page = await pdf.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: scale });
+                    
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    
+                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+                    const imgData = canvas.toDataURL('image/jpeg', quality);
+                    const orientation = viewport.width > viewport.height ? 'l' : 'p';
+                    
+                    if (pageNum === 1) {
+                        newPdf = new jsPDF({ orientation: orientation, unit: 'px', format: [viewport.width, viewport.height] });
+                    } else {
+                        newPdf.addPage([viewport.width, viewport.height], orientation);
+                    }
+                    newPdf.addImage(imgData, 'JPEG', 0, 0, viewport.width, viewport.height);
+                }
+                
+                statusText.textContent = "Menyelesaikan file akhir...";
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+                
+                const finalBlob = newPdf.output('blob');
+                let successMessage = "Kompresi Berhasil! 🎉";
+                let savedPercent = Math.round((1 - (finalBlob.size / selectedFile.size)) * 100);
+                
+                if (finalBlob.size >= selectedFile.size) {
+                    successMessage = "Kompresi Selesai ℹ️";
+                    savedPercent = 0;
+                }
+                
+                prepareDownload(finalBlob, 'compressed_' + selectedFile.name);
+
+                document.getElementById('resultTitle').textContent = successMessage;
+                resultStats.innerHTML = `
+                    <div><span style="color:var(--text-muted); font-size:0.8rem;">Ukuran Asli</span><br><strong>${formatBytes(selectedFile.size)}</strong></div>
+                    <div><span style="color:var(--text-muted); font-size:0.8rem;">Ukuran Baru</span><br><strong>${formatBytes(finalBlob.size)}</strong></div>
+                    <div><span style="color:var(--text-muted); font-size:0.8rem;">Penghematan</span><br><strong style="color:${savedPercent > 0 ? 'var(--success)' : 'var(--danger)'};">${savedPercent > 0 ? savedPercent + '% Lebih Kecil' : 'Optimal'}</strong></div>
+                `;
+                setTimeout(() => { progressContainer.style.display = 'none'; resultContainer.style.display = 'block'; }, 500);
+
+            } catch (error) {
+                console.error(error); alert("Terjadi kesalahan teknis saat mengompresi dokumen."); resetApp();
+            }
+        });
+
+        // --- Logika Pemisahan Halaman ---
+        function parsePageRange(text, maxPages) {
+            const pages = new Set();
+            const parts = text.split(',');
+            for (let part of parts) {
+                part = part.trim();
+                if (part.includes('-')) {
+                    const rangeParts = part.split('-');
+                    const start = parseInt(rangeParts[0].trim());
+                    const end = parseInt(rangeParts[1].trim());
+                    if (!isNaN(start) && !isNaN(end) && start <= end) {
+                        for (let i = start; i <= end; i++) { if (i >= 1 && i <= maxPages) pages.add(i); }
+                    }
+                } else {
+                    const pageNum = parseInt(part);
+                    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= maxPages) { pages.add(pageNum); }
+                }
+            }
+            return Array.from(pages).sort((a, b) => a - b);
+        }
+
+        document.getElementById('splitBtn').addEventListener('click', async () => {
+            if (!selectedFile || !pdfDocInstance) return;
+            const method = document.getElementById('splitMethod').value;
+            let targetPagesToKeep = [];
+
+            if (method === 'remove') {
+                for (let i = 1; i <= totalPagesCount; i++) { if (!pagesToRemove.has(i)) targetPagesToKeep.push(i - 1); }
+            } else {
+                const rangeInput = document.getElementById('pageRangeInput').value.trim();
+                if (!rangeInput) { alert("Isi rentang halaman!"); return; }
+                const parsedPages = parsePageRange(rangeInput, totalPagesCount);
+                if (parsedPages.length === 0) { alert("Format rentang salah!"); return; }
+                targetPagesToKeep = parsedPages.map(p => p - 1);
+            }
+
+            if (targetPagesToKeep.length === 0) { alert("Kesalahan: Sisakan minimal 1 halaman!"); return; }
+
+            document.getElementById('splitInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Memotong dan menyusun halaman...";
+            progressBar.style.width = '50%';
+            percentText.textContent = '50%';
+
+            try {
+                const newPdfDoc = await PDFLib.PDFDocument.create();
+                const copiedPages = await newPdfDoc.copyPages(pdfDocInstance, targetPagesToKeep);
+                copiedPages.forEach(page => newPdfDoc.addPage(page));
+
+                const newPdfBytes = await newPdfDoc.save();
+                const newPdfBlob = new Blob([newPdfBytes], { type: 'application/pdf' });
+                
+                prepareDownload(newPdfBlob, 'edited_' + selectedFile.name);
+
+                document.getElementById('resultTitle').textContent = "Pemotongan Berhasil! ✂️";
+                resultStats.innerHTML = `
+                    <div><span style="color:var(--text-muted); font-size:0.8rem;">Halaman Awal</span><br><strong>${totalPagesCount} Hal</strong></div>
+                    <div><span style="color:var(--text-muted); font-size:0.8rem;">Halaman Baru</span><br><strong style="color:var(--tool-primary);">${targetPagesToKeep.length} Hal</strong></div>
+                    <div><span style="color:var(--text-muted); font-size:0.8rem;">Ukuran Baru</span><br><strong>${formatBytes(newPdfBlob.size)}</strong></div>
+                `;
+                progressBar.style.width = '100%'; percentText.textContent = '100%';
+                setTimeout(() => { progressContainer.style.display = 'none'; resultContainer.style.display = 'block'; }, 300);
+            } catch (error) { console.error(error); alert("Gagal memotong PDF."); resetApp(); }
+        });
+
+        function prepareDownload(blobOrFile, outputName) {
+            if (processedPdfBlobUrl) URL.revokeObjectURL(processedPdfBlobUrl);
+            processedPdfBlobUrl = URL.createObjectURL(blobOrFile);
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.onclick = () => {
+                const a = document.createElement('a'); a.href = processedPdfBlobUrl; a.download = outputName;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            };
+        }
+
+        function resetApp() {
+            selectedFile = null; pdfDocInstance = null; totalPagesCount = 0; pagesToRemove.clear();
+            if (processedPdfBlobUrl) { URL.revokeObjectURL(processedPdfBlobUrl); processedPdfBlobUrl = null; }
+            document.getElementById('compressInfo').style.display = 'none'; document.getElementById('splitInfo').style.display = 'none';
+            resultContainer.style.display = 'none'; progressContainer.style.display = 'none';
+            progressBar.style.width = '0%'; dropZone.style.display = 'block';
+            document.getElementById('fileInput').value = ''; document.getElementById('pageRangeInput').value = '';
+        }
+    </script>
+</body>
+</html>
