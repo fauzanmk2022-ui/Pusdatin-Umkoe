@@ -23,7 +23,6 @@
         :root {
             --primary: #2d328a; 
             --secondary: #5d5fef;
-            --accent: #ffcb05;
             --bg-light: #f4f7fe;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             
@@ -54,7 +53,7 @@
             overflow-x: hidden;
         }
 
-        /* --- Header & Nav Styles --- */
+        /* --- Header Styles --- */
         header {
             display: flex;
             justify-content: space-between;
@@ -68,73 +67,27 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
         }
 
-        .logo-container { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1100; }
+        .logo-container { display: flex; align-items: center; gap: 12px; }
         .logo-box { background: #f0f2ff; padding: 10px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
         .logo-box img { height: 42px; }
         .logo-text span { display: block; font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin-bottom: 2px; }
         .logo-text b { font-size: 1.15rem; color: var(--primary); font-weight: 800; white-space: nowrap; }
 
-        .mobile-menu-btn {
-            display: none; font-size: 1.5rem; color: var(--primary); cursor: pointer; z-index: 1100; padding: 10px;
+        /* Tombol Kembali ke Beranda */
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: var(--transition);
         }
 
-        .nav-wrapper { display: flex; align-items: center; }
-        .nav-links { display: flex; list-style: none; gap: 5px; align-items: center; }
-        .nav-links > li { position: relative; padding: 10px 0; }
-        
-        .nav-links li a {
-            text-decoration: none; color: #4a5568; padding: 12px 20px;
-            font-size: 0.9rem; font-weight: 600; transition: var(--transition);
-            border-radius: 12px; display: flex; align-items: center; gap: 8px;
-        }
-
-        .nav-links li a.active { background: white; color: var(--primary); box-shadow: 0 10px 25px rgba(93, 95, 239, 0.15); transform: translateY(-2px); }
-        .nav-links li a:hover:not(.active) { color: var(--secondary); background: #f8f9ff; }
-
-        .dropdown-content {
-            position: absolute; top: 100%; left: 0; background-color: white;
-            min-width: 240px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            border-radius: 15px; padding: 10px; opacity: 0; visibility: hidden;
-            transform: translateY(15px); transition: var(--transition); border: 1px solid #edf2f7;
-        }
-        .nav-links li:hover > .dropdown-content { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-content > a, .sub-dropdown > a {
-            color: #4a5568 !important; padding: 12px 15px !important; font-size: 0.85rem !important;
-            border-radius: 10px !important; display: flex !important; align-items: center; justify-content: space-between;
-            background: transparent !important; box-shadow: none !important; width: 100%; cursor: pointer;
-        }
-
-        .sub-dropdown { position: relative; }
-        .sub-dropdown-content {
-            position: absolute; top: 0; left: 100%; margin-left: 5px; background-color: white; min-width: 200px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 15px; padding: 10px; opacity: 0; visibility: hidden;
-            transform: translateX(15px); transition: var(--transition); border: 1px solid #edf2f7;
-        }
-        .sub-dropdown:hover .sub-dropdown-content { opacity: 1; visibility: visible; transform: translateX(0); }
-
-        .btn-masuk {
-            background: var(--primary); color: white; padding: 12px 32px; border-radius: 12px;
-            text-decoration: none; font-weight: 700; transition: var(--transition); box-shadow: 0 6px 15px rgba(45, 50, 138, 0.2);
-            margin-left: 15px;
-        }
-
-        /* --- Mobile Responsive Nav --- */
-        @media (max-width: 1200px) {
-            .mobile-menu-btn { display: block; }
-            .nav-wrapper {
-                position: fixed; top: 0; right: -100%; width: 80%; max-width: 350px; height: 100vh;
-                background: white; box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                padding: 100px 30px 40px; flex-direction: column; align-items: flex-start; z-index: 1050;
-            }
-            .nav-wrapper.active { right: 0; }
-            .nav-links { flex-direction: column; width: 100%; align-items: flex-start; gap: 10px; }
-            .nav-links > li { width: 100%; }
-            .nav-links li a { width: 100%; padding: 15px; font-size: 1rem; border-radius: 10px; }
-            .dropdown-content, .sub-dropdown-content {
-                position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; border: none; padding-left: 20px; display: none; width: 100%;
-            }
-            .nav-links li.active-mobile > .dropdown-content, .sub-dropdown.active-mobile > .sub-dropdown-content { display: block; }
-            .btn-masuk { margin: 20px 0 0 0; width: 100%; text-align: center; }
+        .btn-back:hover {
+            color: var(--secondary);
+            transform: translateX(-3px);
         }
 
         /* --- Main Content Area (For PDF Tools) --- */
@@ -143,7 +96,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 120px 20px 40px; /* Padding top prevents overlap with fixed header */
+            padding: 120px 20px 40px;
         }
 
         /* --- PDF Tools Styles --- */
@@ -214,11 +167,17 @@
         .btn-download:hover { background-color: #059669; }
         .btn-reset { background-color: transparent; color: var(--text-muted); border: 1px solid var(--border-color); margin-top: 0.5rem; }
         .btn-reset:hover { background-color: #f1f5f9; }
+        
+        /* Mobile adjustment for header */
+        @media (max-width: 600px) {
+            header { padding: 15px 5%; flex-direction: column; gap: 15px; }
+            .main-content { padding-top: 150px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Header PUSDATIN UMK -->
+    <!-- Header PUSDATIN UMK (Revisi Tanpa Navigasi) -->
     <header>
         <div class="logo-container">
             <div class="logo-box">
@@ -230,89 +189,10 @@
             </div>
         </div>
 
-        <div class="mobile-menu-btn" id="mobileMenuBtn">
-            <i class="fas fa-bars"></i>
-        </div>
-
-        <nav class="nav-wrapper" id="navWrapper">
-            <ul class="nav-links">
-                <li><a href="#" class="active">Beranda</a></li>
-                <li class="has-dropdown">
-                    <a href="javascript:void(0)">Satu Data <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
-                    <div class="dropdown-content">
-                        <div class="sub-dropdown">
-                            <a href="javascript:void(0)">
-                                <span><i class="fas fa-file-alt"></i> Persyaratan PDM</span>
-                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
-                            </a>
-                            <div class="sub-dropdown-content">
-                                <a href="https://drive.google.com/drive/folders/1mBCK6mzDBl3CpZZgyVY8QwAvkaScIXnr?usp=sharing"><span>Cek Berkas Persyaratan PDM</span></a>
-                            </div>
-                        </div>
-                        <a href="#"><span><i class="fas fa-users"></i> Data Mahasiswa</span></a>
-                        <div class="sub-dropdown">
-                            <a href="javascript:void(0)">
-                                <span><i class="fas fa-file-invoice"></i> Data Akademik & Prodi</span>
-                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
-                            </a>
-                            <div class="sub-dropdown-content">
-                                <a href="#"><span><i class="fas fa-university"></i> Daftar Program Studi</span></a>
-                                <a href="https://drive.google.com/drive/folders/18nMqyEkwwL-PXJzEbms1TAVGaNk5d3sF?usp=sharing"><span><i class="fas fa-award"></i> Sertifikat Akreditasi</span></a>
-                                <a href="#"><span><i class="fas fa-calendar-alt"></i> Kalender Akademik</span></a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li class="has-dropdown">
-                    <a href="javascript:void(0)">E-Layanan <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
-                    <div class="dropdown-content">
-                        <div class="sub-dropdown">
-                            <a href="javascript:void(0)">
-                                <span><i class="fas fa-user-edit"></i> PDM Mahasiswa</span>
-                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
-                            </a>
-                            <div class="sub-dropdown-content">
-                                <a href="pdm nama.html"><span><i class="fas fa-font"></i> Nama</span></a>
-                                <a href="pdm nim.html"><span><i class="fas fa-id-badge"></i> NIM</span></a>
-                            </div>
-                        </div>
-                        <a href="cek data mahasiswa.html"><span><i class="fas fa-search"></i> Cek Data Mahasiswa</span></a>
-                        <a href="#"><span><i class="fas fa-user-tie"></i> Cek Data Dosen</span></a>
-                    </div>
-                </li>
-                <li class="has-dropdown">
-                    <a href="javascript:void(0)">Infrastruktur <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
-                    <div class="dropdown-content">
-                        <a href="info infrastruktur.html"><span><i class="fas fa-network-wired"></i> Status Jaringan</span></a>
-                        <a href="#"><span><i class="fas fa-server"></i> Data Center</span></a>
-                        <div class="sub-dropdown">
-                            <a href="javascript:void(0)">
-                                <span><i class="fas fa-flask"></i> Laboratorium</span>
-                                <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
-                            </a>
-                            <div class="sub-dropdown-content">
-                                <a href="lab komputer.html"><span><i class="fas fa-desktop"></i> Lab Komputer</span></a>
-                                <a href="#"><span><i class="fas fa-language"></i> Lab Bahasa</span></a>
-                                <a href="#"><span><i class="fas fa-microscope"></i> Lab Biologi</span></a>
-                            </div>
-                        </div>
-                        <a href="hotspot area.html"><span><i class="fas fa-wifi"></i> Hotspot Area</span></a>
-                    </div>
-                </li>
-                <li class="has-dropdown">
-                    <a href="javascript:void(0)">Website <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i></a>
-                    <div class="dropdown-content">
-                        <a href="https://umkoe.ac.id/"><span><i class="fas fa-globe"></i> Website Universitas</span></a>
-                        <a href="https://admisi.umkoe.ac.id/"><span><i class="fas fa-school-circle-check"></i> Website PMB</span></a>
-                        <a href="#"><span><i class="fas fa-building"></i> Website Fakultas</span></a>
-                        <a href="#"><span><i class="fas fa-graduation-cap"></i> Website Prodi</span></a>
-                        <a href="#"><span><i class="fas fa-bullhorn"></i> Humas & Informasi</span></a>
-                    </div>
-                </li>
-                <li><a href="#">Statistik</a></li>
-            </ul>
-            <a href="admin data mahasiswa.html" class="btn-masuk">Login</a>
-        </nav>
+        <!-- Tombol Kembali (Silakan ubah 'index.html' sesuai nama file beranda Anda) -->
+        <a href="index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+        </a>
     </header>
 
     <!-- Main Content Area (Aplikasi PDF Tools) -->
@@ -421,49 +301,8 @@
         </div>
     </div>
 
-    <!-- Scripts Gabungan -->
+    <!-- Scripts Khusus PDF Tools -->
     <script>
-        // === HEADER & MOBILE MENU LOGIC ===
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const navWrapper = document.getElementById('navWrapper');
-        const dropdowns = document.querySelectorAll('.has-dropdown');
-        const subDropdowns = document.querySelectorAll('.sub-dropdown');
-
-        mobileMenuBtn.addEventListener('click', () => {
-            navWrapper.classList.toggle('active');
-            const icon = mobileMenuBtn.querySelector('i');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-        });
-
-        dropdowns.forEach(dropdown => {
-            dropdown.querySelector('a').addEventListener('click', (e) => {
-                if (window.innerWidth <= 1200) {
-                    e.preventDefault();
-                    dropdown.classList.toggle('active-mobile');
-                }
-            });
-        });
-
-        subDropdowns.forEach(sub => {
-            sub.querySelector('a').addEventListener('click', (e) => {
-                if (window.innerWidth <= 1200) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    sub.classList.toggle('active-mobile');
-                }
-            });
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!navWrapper.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                navWrapper.classList.remove('active');
-                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-            }
-        });
-
-
         // === PDF TOOLS LOGIC ===
         let currentTab = 'compress';
         let selectedFile = null;
