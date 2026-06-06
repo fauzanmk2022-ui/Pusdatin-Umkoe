@@ -425,28 +425,47 @@
             chatBox.appendChild(messageDiv);
         }
 
+       // Logika Respons Chatbot PUSDATIN Tersinkronisasi dengan Menu
         function generateBotResponse(input) {
-            if (input.includes('pdm') || input.includes('pemutakhiran') || input.includes('data mandiri')) {
-                return `Untuk proses <b>Pemutakhiran Data Mandiri (PDM)</b>, Anda wajib menyiapkan dokumen berikut:<br>
-                        1. KTP & KTM<br>
-                        2. Ijazah Terakhir<br>
-                        3. Akta Lahir & KK<br>
-                        4. KHS & Surat Pernyataan Rektor<br><br>
-                        Silakan buka halaman <b>E-Layanan -> PDM Mahasiswa</b> di website ini untuk mengunggah berkas.`;
-            } else if (input.includes('wifi') || input.includes('jaringan') || input.includes('internet') || input.includes('lemot')) {
-                return `Informasi WiFi (Hotspot) dan status kestabilan server SIAKAD dapat Anda pantau langsung di menu <b>Infrastruktur -> Status Jaringan</b>.<br><br>Jika mengalami gangguan, laporkan ke tim Support IT kami.`;
-            } else if (input.includes('lab') || input.includes('komputer') || input.includes('praktikum')) {
-                return `Untuk melihat jadwal penggunaan Laboratorium Komputer, silakan kunjungi menu <b>Infrastruktur -> Laboratorium -> Lab Komputer</b>.`;
-            } else if (input.includes('statistik') || input.includes('jumlah') || input.includes('pddikti')) {
-                return `Data jumlah mahasiswa aktif yang tersinkronisasi dengan PDDIKTI dapat dilihat di halaman <b>Statistik</b> pada menu utama.`;
+            // --- KATEGORI: PDM & CEK STATUS ---
+            if (input.includes('pdm') || input.includes('cek status') || input.includes('progres') || input.includes('perkembangan')) {
+                return `Untuk memantau status PDM Anda:<br><br>
+                        1. Jika ingin melihat progres/status, kunjungi <b>E-Layanan > Cek Data Mahasiswa</b>.<br>
+                        2. Jika ingin memulai PDM, pilih <b>E-Layanan > PDM Mahasiswa</b> (pilih Nama atau NIM).<br>
+                        3. Jika bingung persyaratannya, cek <b>Satu Data > Persyaratan PDM</b>.`;
+            
+            // --- KATEGORI: INFRASTRUKTUR & JARINGAN ---
+            } else if (input.includes('wifi') || input.includes('jaringan') || input.includes('internet') || input.includes('hotspot')) {
+                return `Informasi jaringan tersedia di menu <b>Infrastruktur > Status Jaringan</b> atau lihat titik lokasi WiFi di menu <b>Infrastruktur > Hotspot Area</b>. Jika WiFi lemot, silakan lapor ke Helpdesk kami.`;
+            
+            // --- KATEGORI: LABORATORIUM ---
+            } else if (input.includes('lab') || input.includes('jadwal') || input.includes('praktikum')) {
+                return `Jadwal praktikum, daftar mata kuliah, dosen pengampu, serta tata tertib Lab Komputer dapat dilihat di menu <b>Infrastruktur > Laboratorium > Lab Komputer</b>.`;
+
+            // --- KATEGORI: AKADEMIK & DATA ---
+            } else if (input.includes('akreditasi') || input.includes('sertifikat') || input.includes('akademik')) {
+                return `Untuk sertifikat akreditasi prodi, Anda bisa mengaksesnya melalui <b>Satu Data > Data Akademik & Prodi > Sertifikat Akreditasi</b>.`;
+            } else if (input.includes('mahasiswa') && input.includes('data')) {
+                return `Data rekapitulasi mahasiswa tersedia di menu <b>Satu Data > Data Mahasiswa</b>.`;
+
+            // --- KATEGORI: WEBSITE & LAYANAN LAIN ---
+            } else if (input.includes('pdf') || input.includes('kompres') || input.includes('resize')) {
+                return `Anda bisa mengecilkan ukuran berkas dokumen Anda dengan fitur <b>E-Layanan > Kompres File PDF</b> sebelum mengunggahnya ke portal PDM.`;
+            } else if (input.includes('pmb') || input.includes('website')) {
+                return `Untuk website resmi Universitas, PMB, atau informasi Humas, silakan akses melalui menu <b>Website</b> di bagian paling kanan navigasi.`;
+
+            // --- KATEGORI: KONTAK & BANTUAN ---
             } else if (input.includes('kontak') || input.includes('bantuan') || input.includes('support') || input.includes('admin') || input.includes('lapor')) {
-                return `Anda butuh bantuan teknis? Hubungi IT Support kami melalui:<br>
+                return `Ada kendala teknis? Hubungi kami:<br>
                         📧 <b>Email:</b> support@umkoe.ac.id<br>
-                        🏢 <b>Lokasi:</b> Gedung Rektorat (PUSDATIN).<br>Atau cek menu <b>Support IT</b> untuk nomor WhatsApp.`;
+                        🏢 <b>Lokasi:</b> Gedung Rektorat (PUSDATIN).<br>
+                        Untuk detail WhatsApp, silakan cek menu <b>Support IT</b>.`;
+            
+            // --- DEFAULT ---
             } else if (input.includes('terima kasih') || input.includes('makasih')) {
-                return `Sama-sama! Jangan ragu bertanya jika ada masalah teknis lainnya. Semoga harimu menyenangkan! 😊`;
+                return `Sama-sama! Senang bisa membantu mahasiswa UMK. Ada lagi yang ingin ditanyakan terkait fitur website PUSDATIN? 😊`;
             } else {
-                return `Maaf, saya kurang mengerti. Untuk informasi seputar layanan PUSDATIN, silakan ketik kata kunci seperti <b>'pdm'</b>, <b>'wifi'</b>, <b>'lab'</b>, atau <b>'kontak'</b>.`;
+                return `Maaf, saya belum memahami pertanyaan Anda. Coba tanya seputar <b>'PDM'</b>, <b>'WiFi'</b>, <b>'Jadwal Lab'</b>, atau <b>'Kontak IT'</b>.`;
             }
         }
     </script>
