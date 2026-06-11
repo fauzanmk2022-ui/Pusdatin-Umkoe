@@ -76,10 +76,19 @@
 
         .nav-links li:hover > .dropdown-content { opacity: 1; visibility: visible; transform: translateY(0); }
 
-        .dropdown-content > a, .sub-dropdown > a {
+        /* PERBAIKAN: Menambahkan target ke sub-dropdown-content dan transisi mulus */
+        .dropdown-content > a, .sub-dropdown > a, .sub-dropdown-content > a {
             color: #4a5568 !important; padding: 12px 15px !important; font-size: 0.85rem !important;
             border-radius: 10px !important; display: flex !important; align-items: center; justify-content: space-between;
             background: transparent !important; box-shadow: none !important; width: 100%; cursor: pointer;
+            transition: all 0.3s ease !important; 
+        }
+
+        /* EFEK HOVER BARU: Background soft-blue, teks biru terang, dan teks bergeser sedikit ke kanan */
+        .dropdown-content > a:hover, .sub-dropdown:hover > a, .sub-dropdown-content > a:hover {
+            background-color: var(--bg-light) !important;
+            color: var(--primary) !important;
+            padding-left: 22px !important; 
         }
 
         .sub-dropdown { position: relative; }
