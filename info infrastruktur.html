@@ -67,8 +67,116 @@
         .data-list li { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .data-list li b { color: var(--accent); }
 
+        /* ====== NEW: NETWORK STATUS TABLE (RAPAT/COMPACT) ====== */
+        .net-status-card { padding: 0; overflow: hidden; }
+        .net-status-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 28px 14px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .net-status-header .section-title { margin-bottom: 0; }
+        .net-status-header .live-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.7rem; font-weight: 700;
+            background: #e6fcf5; color: var(--success);
+            padding: 5px 10px; border-radius: 20px;
+        }
+        .net-status-header .live-badge .dot { background: var(--success); }
+
+        .net-table-wrap { overflow-x: auto; }
+        .net-table {
+            width: 100%; border-collapse: collapse;
+            font-size: 0.78rem; /* rapat */
+            min-width: 720px;
+        }
+        .net-table thead th {
+            background: #f8faff;
+            color: #64748b;
+            font-weight: 700;
+            text-align: left;
+            padding: 8px 10px;       /* rapat */
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .net-table tbody td {
+            padding: 9px 10px;        /* rapat */
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            color: #334155;
+            white-space: nowrap;
+        }
+        .net-table tbody tr:hover { background: #f8f9ff; }
+        .net-table tbody tr:last-child td { border-bottom: none; }
+
+        /* SSID cell: name + area stacked tight */
+        .ssid-cell { display: flex; flex-direction: column; gap: 1px; }
+        .ssid-cell .ssid-name { font-weight: 700; color: var(--primary); font-size: 0.82rem; }
+        .ssid-cell .ssid-area { font-size: 0.68rem; color: #94a3b8; }
+
+        /* Status pill compact */
+        .pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.7rem; font-weight: 700;
+            padding: 3px 9px; border-radius: 20px;
+        }
+        .pill .dot { width: 6px; height: 6px; }
+        .pill-online   { background: #e6fcf5; color: var(--success); }
+        .pill-online   .dot { background: var(--success); }
+        .pill-gangguan { background: #ffebeb; color: var(--danger); }
+        .pill-gangguan .dot { background: var(--danger); }
+        .pill-lambat   { background: #fff9e6; color: var(--warning); }
+        .pill-lambat   .dot { background: var(--warning); }
+        .pill-offline  { background: #f1f5f9; color: #64748b; }
+        .pill-offline  .dot { background: #94a3b8; animation: none; }
+
+        /* Experience bar compact */
+        .exp-cell { display: flex; align-items: center; gap: 6px; min-width: 90px; }
+        .exp-bar {
+            flex: 1; height: 5px; background: #f1f5f9; border-radius: 10px; overflow: hidden;
+        }
+        .exp-bar .exp-fill { height: 100%; border-radius: 10px; }
+        .exp-fill-good { background: var(--success); }
+        .exp-fill-fair { background: var(--warning); }
+        .exp-fill-poor { background: var(--danger); }
+        .exp-pct { font-size: 0.72rem; font-weight: 700; color: #475569; min-width: 32px; }
+
+        .uptime-cell { font-weight: 600; color: #475569; }
+        .clients-cell { font-weight: 700; color: var(--primary); }
+        .bw-cell { font-family: 'Plus Jakarta Sans', monospace; font-size: 0.74rem; color: #475569; }
+        .bw-cell i { font-size: 0.6rem; margin-right: 2px; }
+        .bw-up   i { color: var(--success); }
+        .bw-down i { color: var(--secondary); }
+        .bw-stack { display: flex; flex-direction: column; gap: 1px; }
+
+        /* Security band (WPA2 etc) compact */
+        .sec-tag {
+            font-size: 0.65rem; font-weight: 700;
+            padding: 2px 7px; border-radius: 6px;
+            background: #eef2ff; color: var(--secondary);
+            display: inline-flex; align-items: center; gap: 3px;
+        }
+        .sec-tag.open { background: #fff3cd; color: #b8860b; }
+
+        .net-summary {
+            display: flex; gap: 18px; flex-wrap: wrap;
+            padding: 12px 28px; background: #f8faff;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.72rem; color: #64748b;
+        }
+        .net-summary span { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+        .net-summary span b { color: var(--primary); font-weight: 800; }
+
         @keyframes pulse { 0% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.5; transform: scale(1); } }
-        @media (max-width: 992px) { .info-grid { grid-template-columns: 1fr; } .container { margin-top: 20px; } .lab-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 992px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .container { margin-top: 20px; }
+            .lab-grid { grid-template-columns: 1fr; }
+            .net-status-header { padding: 16px 18px 10px; }
+            .net-summary { padding: 10px 18px; gap: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -89,7 +197,7 @@
     </section>
 
     <div class="container">
-        
+
         <div class="status-grid">
             <div class="status-card">
                 <div id="iconSiakad" class="status-icon bg-online"><i class="fas fa-server"></i></div>
@@ -116,11 +224,45 @@
 
         <div class="info-grid">
             <div class="main-content">
-                
+
+                <!-- ====== NEW: NETWORK STATUS TABLE (RAPAT) ====== -->
+                <div class="content-card net-status-card">
+                    <div class="net-status-header">
+                        <div class="section-title">
+                            <i class="fas fa-wifi"></i>
+                            <h3>Status Jaringan WiFi Kampus</h3>
+                        </div>
+                        <span class="live-badge"><span class="dot"></span> LIVE MONITORING</span>
+                    </div>
+
+                    <div class="net-table-wrap">
+                        <table class="net-table" id="netStatusTable">
+                            <thead>
+                                <tr>
+                                    <th>SSID Jaringan</th>
+                                    <th>Status</th>
+                                    <th>Experience</th>
+                                    <th>Uptime</th>
+                                    <th>Clients</th>
+                                    <th>Bandwidth</th>
+                                    <th>Security</th>
+                                </tr>
+                            </thead>
+                            <tbody id="netStatusBody">
+                                <!-- diisi via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="net-summary" id="netSummary">
+                        <!-- diisi via JS -->
+                    </div>
+                </div>
+
                 <div class="content-card">
                     <div class="section-title"><i class="fas fa-broadcast-tower"></i><h3>Hotspot & Konektivitas</h3></div>
                     <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">Mahasiswa dapat mengakses jaringan internet gratis di seluruh area kampus dengan akun SSO masing-masing.</p>
-                    
+
                     <div class="wifi-list">
                         <div class="wifi-item">
                             <div class="wifi-info">
@@ -185,16 +327,29 @@
             lab1Name: "Lab Komputer A", lab1Loc: "Gedung B Lt. 1", lab1Desc: "Kapasitas: 40 Unit PC High-End untuk desain grafis.",
             lab2Name: "Lab Komputer B", lab2Loc: "Gedung B Lt. 2", lab2Desc: "Kapasitas: 30 Unit untuk pemrograman & jaringan.",
             dcBandwidth: "1 Gbps", dcStorage: "50 TB", dcSecurity: "Firewall v3", dcBackup: "Daily Off-site",
-            cyberText: "PUSDATIN UMK berkomitmen melindungi data civitas dengan enkripsi SSL 256-bit di setiap transmisi data siakad."
+            cyberText: "PUSDATIN UMK berkomitmen melindungi data civitas dengan enkripsi SSL 256-bit di setiap transmisi data siakad.",
+
+            // ====== NEW: daftar SSID untuk tabel status jaringan ======
+            // rapat = compact mode (true)
+            netCompact: true,
+            networks: [
+                { name: "UMK-FREE-HOTSPOT",       area: "Halaman Utama, Kantin & Taman",  status: "Online",   exp: 96, uptime: "24h 12m", clients: 312, up: "84 Mbps",  down: "210 Mbps", security: "WPA2" },
+                { name: "PUSDATIN-HIGH-SPEED",    area: "Gedung Rektorat Lt. 2",          status: "Online",   exp: 99, uptime: "7d 4h",  clients: 28,  up: "120 Mbps", down: "940 Mbps", security: "WPA3" },
+                { name: "UMK-Mahasiswa",          area: "Gedung B (Seluruh Lantai)",      status: "Online",   exp: 92, uptime: "1d 8h",  clients: 187, up: "56 Mbps",  down: "180 Mbps", security: "WPA2" },
+                { name: "UMK-Dosen-Staf",         area: "Ruang Dosen & Kantor Pusat",     status: "Online",   exp: 98, uptime: "12d 6h", clients: 64,  up: "78 Mbps",  down: "320 Mbps", security: "WPA3" },
+                { name: "UMK-Visitor",            area: "Lobby & Aula Utama",             status: "Lambat",   exp: 64, uptime: "5h 22m", clients: 41,  up: "12 Mbps",  down: "30 Mbps",  security: "Open" },
+                { name: "Eduroam-UMK",            area: "Global Roaming (Seluruh Kampus)",status: "Online",   exp: 95, uptime: "30d 1h", clients: 19,  up: "65 Mbps",  down: "240 Mbps", security: "802.1x" },
+                { name: "UMK-IoT-Lab",            area: "Lab Jaringan Gedung B Lt. 2",    status: "Gangguan", exp: 28, uptime: "0h 14m", clients: 7,   up: "0 Mbps",   down: "0 Mbps",   security: "WPA2" },
+                { name: "UMK-VoIP",               area: "Internal Voice (Seluruh Kampus)",status: "Online",   exp: 97, uptime: "20d 9h", clients: 22,  up: "4 Mbps",   down: "4 Mbps",   security: "WPA2" }
+            ]
         };
 
-        // Ambil pengaturan yang dikirim Admin, jika belum ada, pakai default
         const infraData = JSON.parse(localStorage.getItem('dbInfra_UMK')) || defaultInfra;
 
         // --- BANTUAN VISUAL STATUS SERVER ---
         function setStatusVisual(elementIcon, elementText, statusValue) {
             let colorVar = "var(--success)"; let bgClass = "bg-online"; let textClass = "text-online";
-            if(statusValue === "Gangguan") { colorVar = "var(--danger)"; bgClass = "bg-gangguan"; textClass = "text-gangguan"; } 
+            if(statusValue === "Gangguan") { colorVar = "var(--danger)"; bgClass = "bg-gangguan"; textClass = "text-gangguan"; }
             else if (statusValue === "Lambat") { colorVar = "var(--warning)"; bgClass = "bg-lambat"; textClass = "text-lambat"; }
 
             document.getElementById(elementIcon).className = `status-icon ${bgClass}`;
@@ -202,7 +357,6 @@
             document.getElementById(elementText).className = textClass;
         }
 
-        // Terapkan Status Server
         setStatusVisual('iconSiakad', 'textSiakad', infraData.siakad);
         setStatusVisual('iconWeb', 'textWeb', infraData.web);
         setStatusVisual('iconIntranet', 'textIntranet', infraData.intranet);
@@ -211,12 +365,11 @@
         document.getElementById('dispWifi1Name').innerText = infraData.wifi1Name;
         document.getElementById('dispWifi1Area').innerText = `Area: ${infraData.wifi1Area}`;
         document.getElementById('dispWifi1Signal').innerHTML = `<i class="fas fa-signal"></i> ${infraData.wifi1Signal}`;
-        
+
         document.getElementById('dispWifi2Name').innerText = infraData.wifi2Name;
         document.getElementById('dispWifi2Area').innerText = `Area: ${infraData.wifi2Area}`;
         document.getElementById('dispWifi2Signal').innerHTML = `<i class="fas fa-signal"></i> ${infraData.wifi2Signal}`;
 
-        // Ubah warna sinyal wifi jika ada kata negatif
         function checkSignalColor(elementId, text) {
             const el = document.getElementById(elementId);
             if(text.toLowerCase().includes("gangguan") || text.toLowerCase().includes("perbaikan") || text.toLowerCase().includes("lemah")) {
@@ -230,7 +383,7 @@
         document.getElementById('dispLab1Name').innerText = infraData.lab1Name;
         document.getElementById('dispLab1Loc').innerText = infraData.lab1Loc;
         document.getElementById('dispLab1Desc').innerText = infraData.lab1Desc;
-        
+
         document.getElementById('dispLab2Name').innerText = infraData.lab2Name;
         document.getElementById('dispLab2Loc').innerText = infraData.lab2Loc;
         document.getElementById('dispLab2Desc').innerText = infraData.lab2Desc;
@@ -241,9 +394,80 @@
         document.getElementById('dispDcSecurity').innerText = infraData.dcSecurity;
         document.getElementById('dispDcBackup').innerText = infraData.dcBackup;
         document.getElementById('dispCyberText').innerText = infraData.cyberText;
+
+        // ====== NEW: RENDER TABEL STATUS JARINGAN (RAPAT) ======
+        const networks = infraData.networks || [];
+
+        function statusPill(status) {
+            const map = {
+                "Online":   "pill-online",
+                "Lambat":   "pill-lambat",
+                "Gangguan": "pill-gangguan",
+                "Offline":  "pill-offline"
+            };
+            const cls = map[status] || "pill-offline";
+            return `<span class="pill ${cls}"><span class="dot"></span>${status}</span>`;
+        }
+
+        function expBar(pct) {
+            let fillCls = "exp-fill-good";
+            if (pct < 50) fillCls = "exp-fill-poor";
+            else if (pct < 80) fillCls = "exp-fill-fair";
+            return `
+                <div class="exp-cell">
+                    <div class="exp-bar"><div class="exp-fill ${fillCls}" style="width:${pct}%;"></div></div>
+                    <span class="exp-pct">${pct}%</span>
+                </div>`;
+        }
+
+        function securityTag(sec) {
+            const isOpen = sec.toLowerCase() === "open";
+            const icon = isOpen ? "fa-unlock" : "fa-lock";
+            return `<span class="sec-tag ${isOpen ? 'open' : ''}"><i class="fas ${icon}"></i>${sec}</span>`;
+        }
+
+        function bandwidthCell(up, down) {
+            return `
+                <div class="bw-cell bw-stack">
+                    <span class="bw-up"><i class="fas fa-arrow-up"></i>${up}</span>
+                    <span class="bw-down"><i class="fas fa-arrow-down"></i>${down}</span>
+                </div>`;
+        }
+
+        const tbody = document.getElementById('netStatusBody');
+        tbody.innerHTML = networks.map(n => `
+            <tr>
+                <td>
+                    <div class="ssid-cell">
+                        <span class="ssid-name">${n.name}</span>
+                        <span class="ssid-area">${n.area}</span>
+                    </div>
+                </td>
+                <td>${statusPill(n.status)}</td>
+                <td>${expBar(n.exp)}</td>
+                <td class="uptime-cell">${n.uptime}</td>
+                <td class="clients-cell">${n.clients}</td>
+                <td>${bandwidthCell(n.up, n.down)}</td>
+                <td>${securityTag(n.security)}</td>
+            </tr>
+        `).join('');
+
+        // Ringkasan rapat di bawah tabel
+        const total      = networks.length;
+        const onlineN    = networks.filter(n => n.status === "Online").length;
+        const gangguanN  = networks.filter(n => n.status === "Gangguan").length;
+        const lambatN    = networks.filter(n => n.status === "Lambat").length;
+        const totalCl    = networks.reduce((s, n) => s + (n.clients || 0), 0);
+
+        document.getElementById('netSummary').innerHTML = `
+            <span><i class="fas fa-wifi" style="color:var(--primary);"></i> Total SSID: <b>${total}</b></span>
+            <span><i class="fas fa-circle-check" style="color:var(--success);"></i> Online: <b>${onlineN}</b></span>
+            <span><i class="fas fa-triangle-exclamation" style="color:var(--warning);"></i> Lambat: <b>${lambatN}</b></span>
+            <span><i class="fas fa-circle-xmark" style="color:var(--danger);"></i> Gangguan: <b>${gangguanN}</b></span>
+            <span><i class="fas fa-users" style="color:var(--secondary);"></i> Total Client Aktif: <b>${totalCl}</b></span>
+        `;
     }
 
-    // Eksekusi
     applyInfraSettings();
 </script>
 </body>
