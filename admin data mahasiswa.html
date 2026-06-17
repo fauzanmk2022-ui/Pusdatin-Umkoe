@@ -133,6 +133,18 @@
         .pagination-admin button:disabled { opacity: 0.4; cursor: not-allowed; }
         .pagination-admin span { font-size: 0.85rem; font-weight: 600; color: #555; }
 
+        /* Hint kotak info di tabel SSID */
+        .net-info-hint {
+            background: #eef5ff;
+            border-left: 4px solid var(--topbar-blue);
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            color: #445;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .net-info-hint b { color: var(--topbar-blue); }
+
         #toast { visibility: hidden; min-width: 250px; background-color: var(--btn-teal); color: #fff; text-align: center; border-radius: 5px; padding: 12px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
@@ -209,6 +221,52 @@
                     <div class="form-group"><label>Teks Keamanan</label><textarea id="setCyberText" rows="2"></textarea></div>
                     <button type="submit" class="btn-save-setting" style="width: 100%;"><i class="fas fa-save"></i> SIMPAN INFRASTRUKTUR UTAMA</button>
                 </form></div></div>
+
+                <!-- ====== NEW: MANAJEMEN SSID WIFI (STATUS JARINGAN) ====== -->
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-wifi"></i> Manajemen SSID WiFi &mdash; Status Jaringan Kampus</div>
+                    <div class="card-body">
+                        <div class="net-info-hint">
+                            <i class="fas fa-info-circle"></i> Daftar SSID di bawah ini akan tampil di tabel <b>"Status Jaringan WiFi Kampus"</b> pada halaman publik <code>info-infrastruktur.html</code>. Tambah, edit, atau hapus baris sesuai kondisi jaringan riil. Klik <b>SIMPAN DAFTAR SSID WIFI</b> untuk menerapkan.
+                        </div>
+
+                        <div class="page-header" style="margin-top: 10px;">
+                            <h4 class="section-subtitle" style="margin-bottom:0;"><i class="fas fa-broadcast-tower"></i> Daftar SSID Aktif</h4>
+                            <button class="btn-new" onclick="addNetworkRow()"><i class="fas fa-plus"></i> Tambah SSID</button>
+                        </div>
+                        <div class="table-container">
+                            <table style="min-width: 1150px;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 14%">Nama SSID</th>
+                                        <th style="width: 16%">Area Coverage</th>
+                                        <th style="width: 9%">Status</th>
+                                        <th style="width: 8%">Experience (%)</th>
+                                        <th style="width: 9%">Uptime</th>
+                                        <th style="width: 6%">Clients</th>
+                                        <th style="width: 9%">Bandwidth Up</th>
+                                        <th style="width: 9%">Bandwidth Down</th>
+                                        <th style="width: 9%">Security</th>
+                                        <th style="width: 5%">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="networksTableBody"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="pagination-admin">
+                            <button id="netPrevBtn" onclick="changeNetworkPage(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <span id="netPageInfo">Halaman 1 / 1</span>
+                            <button id="netNextBtn" onclick="changeNetworkPage(1)"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+
+                        <div class="schedule-save-container">
+                            <button class="btn-save-schedule" onclick="saveNetworksToLocal()">
+                                <i class="fas fa-cloud-upload-alt"></i> SIMPAN DAFTAR SSID WIFI
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section id="menuLab" class="content-section">
@@ -339,6 +397,23 @@
     let currentAdminSchedulePage = 1;
     const adminSchedulePerPage = 10;
 
+    // ====== NEW: STATE DAFTAR SSID WIFI ======
+    let dbNetworks = [];
+    let currentNetPage = 1;
+    const netPerPage = 10;
+
+    // Default 8 SSID (sinkron dengan halaman info-infrastruktur.html)
+    const DEFAULT_NETWORKS = [
+        { name: "UMK-FREE-HOTSPOT",    area: "Halaman Utama, Kantin & Taman",  status: "Online",   exp: 96, uptime: "24h 12m", clients: 312, up: "84 Mbps",  down: "210 Mbps", security: "WPA2" },
+        { name: "PUSDATIN-HIGH-SPEED", area: "Gedung Rektorat Lt. 2",          status: "Online",   exp: 99, uptime: "7d 4h",  clients: 28,  up: "120 Mbps", down: "940 Mbps", security: "WPA3" },
+        { name: "UMK-Mahasiswa",       area: "Gedung B (Seluruh Lantai)",      status: "Online",   exp: 92, uptime: "1d 8h",  clients: 187, up: "56 Mbps",  down: "180 Mbps", security: "WPA2" },
+        { name: "UMK-Dosen-Staf",      area: "Ruang Dosen & Kantor Pusat",     status: "Online",   exp: 98, uptime: "12d 6h", clients: 64,  up: "78 Mbps",  down: "320 Mbps", security: "WPA3" },
+        { name: "UMK-Visitor",         area: "Lobby & Aula Utama",             status: "Lambat",   exp: 64, uptime: "5h 22m", clients: 41,  up: "12 Mbps",  down: "30 Mbps",  security: "Open" },
+        { name: "Eduroam-UMK",         area: "Global Roaming (Seluruh Kampus)",status: "Online",   exp: 95, uptime: "30d 1h", clients: 19,  up: "65 Mbps",  down: "240 Mbps", security: "802.1x" },
+        { name: "UMK-IoT-Lab",         area: "Lab Jaringan Gedung B Lt. 2",    status: "Gangguan", exp: 28, uptime: "0h 14m", clients: 7,   up: "0 Mbps",   down: "0 Mbps",   security: "WPA2" },
+        { name: "UMK-VoIP",            area: "Internal Voice (Seluruh Kampus)",status: "Online",   exp: 97, uptime: "20d 9h", clients: 22,  up: "4 Mbps",   down: "4 Mbps",   security: "WPA2" }
+    ];
+
     // --- RENDER TABEL MAHASISWA ---
     function renderTable(keyword = "") {
         const tbody = document.getElementById("tableBody");
@@ -423,6 +498,61 @@
         nextBtn.disabled = currentAdminSchedulePage === totalPages;
     }
 
+    // ====== NEW: RENDER TABEL SSID WIFI (dengan pagination, pola sama dengan jadwal lab) ======
+    function renderNetworksTable() {
+        const tbody = document.getElementById("networksTableBody");
+        const prevBtn = document.getElementById("netPrevBtn");
+        const nextBtn = document.getElementById("netNextBtn");
+        const pageInfo = document.getElementById("netPageInfo");
+
+        if (!tbody) return; // safety: belum ada di DOM
+
+        tbody.innerHTML = "";
+        const start = (currentNetPage - 1) * netPerPage;
+        const paginated = dbNetworks.slice(start, start + netPerPage);
+
+        if (paginated.length > 0) {
+            paginated.forEach((item) => {
+                tbody.innerHTML += `<tr>
+                    <td><input type="text" class="inline-input" value="${escapeAttr(item.name)}" onchange="updateNetwork(${item.id}, 'name', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${escapeAttr(item.area)}" onchange="updateNetwork(${item.id}, 'area', this.value)"></td>
+                    <td><select class="inline-select" onchange="updateNetwork(${item.id}, 'status', this.value)">
+                        <option value="Online"   ${item.status==='Online'?'selected':''}>Online</option>
+                        <option value="Lambat"   ${item.status==='Lambat'?'selected':''}>Lambat</option>
+                        <option value="Gangguan" ${item.status==='Gangguan'?'selected':''}>Gangguan</option>
+                        <option value="Offline"  ${item.status==='Offline'?'selected':''}>Offline</option>
+                    </select></td>
+                    <td><input type="number" min="0" max="100" class="inline-input" value="${item.exp}" onchange="updateNetwork(${item.id}, 'exp', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${escapeAttr(item.uptime)}" placeholder="cth: 7d 4h" onchange="updateNetwork(${item.id}, 'uptime', this.value)"></td>
+                    <td><input type="number" min="0" class="inline-input" value="${item.clients}" onchange="updateNetwork(${item.id}, 'clients', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${escapeAttr(item.up)}" placeholder="cth: 84 Mbps" onchange="updateNetwork(${item.id}, 'up', this.value)"></td>
+                    <td><input type="text" class="inline-input" value="${escapeAttr(item.down)}" placeholder="cth: 210 Mbps" onchange="updateNetwork(${item.id}, 'down', this.value)"></td>
+                    <td><select class="inline-select" onchange="updateNetwork(${item.id}, 'security', this.value)">
+                        <option value="WPA2"    ${item.security==='WPA2'?'selected':''}>WPA2</option>
+                        <option value="WPA3"    ${item.security==='WPA3'?'selected':''}>WPA3</option>
+                        <option value="WPA"     ${item.security==='WPA'?'selected':''}>WPA</option>
+                        <option value="802.1x"  ${item.security==='802.1x'?'selected':''}>802.1x</option>
+                        <option value="Open"    ${item.security==='Open'?'selected':''}>Open</option>
+                    </select></td>
+                    <td><button class="btn-delete" onclick="deleteNetwork(${item.id})"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:20px; color:#999;">Belum ada SSID. Klik "Tambah SSID" untuk menambah jaringan.</td></tr>`;
+        }
+
+        const totalPages = Math.ceil(dbNetworks.length / netPerPage) || 1;
+        pageInfo.innerText = `Halaman ${currentNetPage} / ${totalPages}`;
+        prevBtn.disabled = currentNetPage === 1;
+        nextBtn.disabled = currentNetPage === totalPages;
+    }
+
+    // Helper: escape attribute untuk value input (hindari XSS / broken HTML)
+    function escapeAttr(str) {
+        if (str === undefined || str === null) return "";
+        return String(str).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     // --- FUNGSI AUTH & FETCH ---
     // --- FUNGSI AUTH & MANAJEMEN AKUN ---
     let adminAccounts = [];
@@ -464,6 +594,7 @@
             fetchFromSheet(); 
             loadCMSData(); 
             renderAdminTable(); // Muat tabel akun
+            renderNetworksTable(); // ====== NEW: Muat tabel SSID ======
         } else { 
             document.getElementById("loginErrorMsg").style.display = 'block'; 
         } 
@@ -562,17 +693,95 @@
     function addScheduleRow() { dbSchedule.unshift({ id: Date.now(), hari: "Senin", waktu: "08:00", matkul: "", prodi: "", dosen: "" }); currentAdminSchedulePage = 1; renderScheduleTable(); }
     function updateSchedule(id, field, val) { const idx = dbSchedule.findIndex(s => s.id === id); if (idx !== -1) dbSchedule[idx][field] = val; }
     function deleteSchedule(id) { if(confirm("Hapus baris?")) { dbSchedule = dbSchedule.filter(s => s.id !== id); renderScheduleTable(); } }
+
+    // ====== NEW: FUNGSI CRUD SSID WIFI ======
+    function changeNetworkPage(dir) { currentNetPage += dir; renderNetworksTable(); }
+    function addNetworkRow() {
+        dbNetworks.unshift({
+            id: Date.now(),
+            name: "SSID-BARU",
+            area: "Area Belum Diset",
+            status: "Online",
+            exp: 80,
+            uptime: "0h 1m",
+            clients: 0,
+            up: "0 Mbps",
+            down: "0 Mbps",
+            security: "WPA2"
+        });
+        currentNetPage = 1;
+        renderNetworksTable();
+    }
+    function updateNetwork(id, field, val) {
+        const idx = dbNetworks.findIndex(n => n.id === id);
+        if (idx !== -1) {
+            // Cast numeric fields
+            if (field === 'exp' || field === 'clients') {
+                val = parseInt(val, 10); if (isNaN(val)) val = 0;
+                if (field === 'exp') { if (val < 0) val = 0; if (val > 100) val = 100; }
+                if (field === 'clients' && val < 0) val = 0;
+            }
+            dbNetworks[idx][field] = val;
+        }
+    }
+    function deleteNetwork(id) {
+        if (confirm("Hapus SSID ini dari daftar?")) {
+            dbNetworks = dbNetworks.filter(n => n.id !== id);
+            // Reset page jika overflow
+            const totalPages = Math.ceil(dbNetworks.length / netPerPage) || 1;
+            if (currentNetPage > totalPages) currentNetPage = totalPages;
+            renderNetworksTable();
+        }
+    }
+
+    /**
+     * Simpan daftar SSID ke localStorage 'dbInfra_UMK' (key: networks)
+     * Tidak mengubah field infrastruktur lain (siakad, web, intranet, wifi1, wifi2, dc*, dll)
+     */
+    function saveNetworksToLocal() {
+        // Validasi minimal
+        if (dbNetworks.length === 0) {
+            showToast("Daftar SSID kosong! Tambahkan minimal 1 SSID.", true);
+            return;
+        }
+        // Ambil dbInfra_UMK yang sudah ada, merge networks
+        const existing = JSON.parse(localStorage.getItem('dbInfra_UMK')) || {};
+        existing.networks = dbNetworks;
+        localStorage.setItem('dbInfra_UMK', JSON.stringify(existing));
+        showToast("Daftar SSID WiFi berhasil disimpan & diterapkan!");
+    }
     
     // --- UI HELPERS ---
-    function switchMenu(t) { document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.sidebar-menu a').forEach(a=>a.classList.remove('active')); document.getElementById(t).classList.add('active'); document.getElementById('nav'+t.replace('menu','')).classList.add('active'); }
+    function switchMenu(t) {
+        document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+        document.querySelectorAll('.sidebar-menu a').forEach(a=>a.classList.remove('active'));
+        document.getElementById(t).classList.add('active');
+        document.getElementById('nav'+t.replace('menu','')).classList.add('active');
+        // ====== NEW: refresh tabel SSID saat masuk menu infra ======
+        if (t === 'menuInfra') renderNetworksTable();
+    }
     function filterTable() { renderTable(document.getElementById("searchInput").value); }
     function showToast(msg, isErr) { const t = document.getElementById("toast"); t.innerHTML = msg; t.style.backgroundColor = isErr ? "var(--btn-red)" : "var(--btn-teal)"; t.className = "show"; setTimeout(()=> t.className = "", 2500); }
     function handleLogout() { window.location.href = "index.html"; }
     
     // --- FUNGSI LOAD & SAVE CMS (SUDAH DILENGKAPI KEMBALI) ---
     function loadCMSData() {
-        // Load Infra
-        const infraData = JSON.parse(localStorage.getItem('dbInfra_UMK')) || { siakad: "Online", web: "Online", intranet: "Stabil", wifi1Name: "UMK-FREE-HOTSPOT", wifi1Signal: "Sangat Kuat", wifi1Area: "Halaman Utama, Kantin, & Taman", wifi2Name: "PUSDATIN-HIGH-SPEED", wifi2Signal: "100 Mbps", wifi2Area: "Gedung Rektorat Lt. 2", dcBandwidth: "1 Gbps", dcStorage: "50 TB", dcSecurity: "Firewall v3", dcBackup: "Daily Off-site", cyberText: "Sistem Keamanan Aktif." };
+        // Load Infra (dengan default yang sudah termasuk networks)
+        const defaultInfra = {
+            siakad: "Online", web: "Online", intranet: "Stabil",
+            wifi1Name: "UMK-FREE-HOTSPOT", wifi1Signal: "Sangat Kuat", wifi1Area: "Halaman Utama, Kantin, & Taman",
+            wifi2Name: "PUSDATIN-HIGH-SPEED", wifi2Signal: "100 Mbps", wifi2Area: "Gedung Rektorat Lt. 2",
+            dcBandwidth: "1 Gbps", dcStorage: "50 TB", dcSecurity: "Firewall v3", dcBackup: "Daily Off-site",
+            cyberText: "Sistem Keamanan Aktif.",
+            networks: DEFAULT_NETWORKS   // ====== NEW ======
+        };
+        const infraData = JSON.parse(localStorage.getItem('dbInfra_UMK')) || defaultInfra;
+
+        // ====== NEW: Load daftar SSID (fallback ke default jika belum ada) ======
+        dbNetworks = Array.isArray(infraData.networks) && infraData.networks.length > 0
+            ? infraData.networks.map(n => ({ ...n, id: n.id || Date.now() + Math.random() }))
+            : DEFAULT_NETWORKS.map(n => ({ ...n, id: Date.now() + Math.random() }));
+
         if(document.getElementById('setSiakad')) {
             document.getElementById('setSiakad').value = infraData.siakad; document.getElementById('setWeb').value = infraData.web; document.getElementById('setIntranet').value = infraData.intranet;
             document.getElementById('setWifi1Name').value = infraData.wifi1Name; document.getElementById('setWifi1Signal').value = infraData.wifi1Signal; document.getElementById('setWifi1Area').value = infraData.wifi1Area;
@@ -601,21 +810,24 @@
 
     function saveInfra(e) { 
         e.preventDefault(); 
+        // Ambil data infra yang sudah ada (agar networks tidak hilang)
+        const existing = JSON.parse(localStorage.getItem('dbInfra_UMK')) || {};
         const d = { 
+            ...existing, // pertahankan field lain (termasuk networks!)
             siakad: document.getElementById('setSiakad').value, web: document.getElementById('setWeb').value, intranet: document.getElementById('setIntranet').value, 
             wifi1Name: document.getElementById('setWifi1Name').value, wifi1Signal: document.getElementById('setWifi1Signal').value, wifi1Area: document.getElementById('setWifi1Area').value, 
             wifi2Name: document.getElementById('setWifi2Name').value, wifi2Signal: document.getElementById('setWifi2Signal').value, wifi2Area: document.getElementById('setWifi2Area').value, 
             dcBandwidth: document.getElementById('setDcBandwidth').value, dcStorage: document.getElementById('setDcStorage').value, dcSecurity: document.getElementById('setDcSecurity').value, dcBackup: document.getElementById('setDcBackup').value, cyberText: document.getElementById('setCyberText').value 
         }; 
         localStorage.setItem('dbInfra_UMK', JSON.stringify(d)); 
-        showToast("Info Infrastruktur Utama diperbarui!"); 
+        showToast("Info Infrastruktur Utama diperbarui!");
     }
 
     function saveLab(e) { 
         e.preventDefault(); 
         const d = { heroT: document.getElementById('setLabHeroTitle').value, heroD: document.getElementById('setLabHeroDesc').value }; 
         localStorage.setItem('dbLab_UMK', JSON.stringify(d)); 
-        showToast("Teks Halaman Lab diperbarui!"); 
+        showToast("Teks Halaman Lab diperbarui!");
     }
 
     // Fungsi Save Support IT (Sudah Kembali Utuh!)
@@ -635,7 +847,7 @@
             f4a: document.getElementById('setFaq4A').value 
         }; 
         localStorage.setItem('dbSupport_UMK', JSON.stringify(d)); 
-        showToast("Halaman Support IT diperbarui!"); 
+        showToast("Halaman Support IT diperbarui!");
     }
 
    
