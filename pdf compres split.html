@@ -17,6 +17,10 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Library tambahan untuk fitur baru -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         /* --- Global & Variable Styles --- */
@@ -676,6 +680,271 @@
             border-color: var(--tool-primary);
         }
 
+        /* --- Image Thumbnail List (JPG to PDF & Edit PDF) --- */
+        .image-thumb-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 1rem;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .image-thumb {
+            position: relative;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f8fafc;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-thumb .thumb-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .image-thumb .thumb-actions button {
+            background: rgba(255,255,255,0.95);
+            border: 1px solid var(--border-color);
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-main);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-thumb .thumb-actions button:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .image-thumb .thumb-actions .move-btn:hover {
+            background: var(--tool-primary);
+            border-color: var(--tool-primary);
+        }
+
+        .image-thumb .thumb-order {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: var(--tool-primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* --- PDF Edit Canvas --- */
+        .pdf-edit-container {
+            position: relative;
+            background: #525659;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            overflow: auto;
+            min-height: 400px;
+        }
+
+        .pdf-edit-canvas-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .pdf-edit-canvas-wrapper canvas {
+            display: block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .edit-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .edit-toolbar button, .edit-toolbar select, .edit-toolbar input {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .edit-toolbar button:hover, .edit-toolbar select:hover {
+            border-color: var(--tool-primary);
+        }
+
+        .edit-toolbar button.active {
+            background: var(--tool-primary);
+            color: white;
+            border-color: var(--tool-primary);
+        }
+
+        .edit-toolbar .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
+
+        .edit-toolbar input[type="color"] {
+            padding: 4px;
+            width: 40px;
+            height: 36px;
+        }
+
+        .edit-toolbar input[type="range"] {
+            padding: 0;
+            width: 100px;
+        }
+
+        .edit-text-overlay {
+            position: absolute;
+            background: transparent;
+            border: 1px dashed transparent;
+            color: #000;
+            font-size: 16px;
+            cursor: move;
+            padding: 2px 4px;
+            white-space: nowrap;
+            user-select: none;
+            outline: none;
+        }
+
+        .edit-text-overlay.selected {
+            border-color: var(--tool-primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .edit-page-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .edit-page-nav button {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--tool-primary);
+        }
+
+        .edit-page-nav button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .edit-page-info {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        /* --- Metadata Form (PDF Properties) --- */
+        .metadata-form .form-row {
+            margin-bottom: 1rem;
+        }
+
+        .metadata-form label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+
+        .metadata-form input, .metadata-form textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .metadata-form .readonly-info {
+            background: #f8fafc;
+            padding: 0.7rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .metadata-form .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metadata-form .info-grid > div {
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .metadata-form .info-grid > div .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .metadata-form .info-grid > div .value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--tool-primary);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             header { 
@@ -791,6 +1060,13 @@
                 <div class="tool-icon">🖼️</div>
                 <div class="tool-name">PDF to JPG</div>
                 <div class="tool-description">Konversi halaman PDF menjadi gambar JPG berkualitas tinggi</div>
+            </div>
+
+            <!-- JPG to PDF -->
+            <div class="tool-card" onclick="switchToTool('jpg2pdf')">
+                <div class="tool-icon">📷</div>
+                <div class="tool-name">JPG to PDF</div>
+                <div class="tool-description">Gabungkan beberapa gambar JPG/PNG menjadi satu file PDF</div>
             </div>
 
             <!-- PDF to Word -->
@@ -1255,6 +1531,532 @@
         </div>
     </div>
 
+    <!-- JPG TO PDF TOOL -->
+    <div class="tool-section" id="jpg2pdfSection">
+        <div class="container">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Dashboard</a> / 
+                <span>JPG to PDF</span>
+            </div>
+
+            <div class="tool-header">
+                <button class="btn-close-tool" onclick="goToDashboard()" title="Tutup"><i class="fas fa-times"></i></button>
+                <h2>📷 Konversi JPG ke PDF</h2>
+                <p class="subtitle">Gabungkan beberapa gambar JPG/PNG menjadi satu dokumen PDF</p>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZoneJpg2pdf">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 style="color: var(--text-main); margin-bottom: 5px;">Pilih Gambar</h3>
+                <p class="info-note">atau tarik dan jatuhkan file gambar di sini (JPG, PNG, WEBP)</p>
+                <input type="file" id="fileInputJpg2pdf" accept="image/jpeg,image/png,image/webp,image/bmp" multiple>
+            </div>
+
+            <!-- PANEL: JPG to PDF -->
+            <div id="jpg2pdfPanel" class="tool-panel active">
+                <div class="file-info" id="jpg2pdfInfo">
+                    <div class="file-details">
+                        <span class="file-name" id="fileNameJpg2pdf">Belum ada gambar</span>
+                        <span class="file-size" id="fileSizeJpg2pdf">0 gambar</span>
+                    </div>
+
+                    <div class="settings-group">
+                        <label>Urutan Gambar (drag untuk reorder):</label>
+                        <div class="image-thumb-list" id="jpg2pdfThumbList"></div>
+                        <p class="info-note">Klik tombol hapus untuk membuang gambar. Klik tombol panah untuk menggeser urutan.</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <label for="jpg2pdfOrientation">Orientasi PDF:</label>
+                        <select id="jpg2pdfOrientation">
+                            <option value="auto" selected>🤖 Otomatis (sesuai rasio gambar)</option>
+                            <option value="portrait">📄 Portrait</option>
+                            <option value="landscape">📋 Landscape</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-group">
+                        <label for="jpg2pdfPageSize">Ukuran Halaman:</label>
+                        <select id="jpg2pdfPageSize">
+                            <option value="fit" selected>📐 Sesuai Ukuran Gambar (1 gambar = 1 halaman)</option>
+                            <option value="a4">📄 A4</option>
+                            <option value="letter">📄 Letter</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-group">
+                        <label for="jpg2pdfMargin">Margin:</label>
+                        <select id="jpg2pdfMargin">
+                            <option value="0" selected>Tanpa Margin</option>
+                            <option value="10">10 px</option>
+                            <option value="20">20 px</option>
+                            <option value="40">40 px</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-secondary" id="jpg2pdfBtn" disabled><i class="fas fa-file-pdf"></i> Buat PDF</button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainerJpg2pdf">
+                <div class="progress-text">
+                    <span id="statusTextJpg2pdf">Menggabung gambar...</span>
+                    <span id="percentTextJpg2pdf">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarJpg2pdf"></div>
+                </div>
+            </div>
+
+            <!-- Hasil -->
+            <div class="result-container" id="resultContainerJpg2pdf">
+                <h3 id="resultTitleJpg2pdf">Berhasil Dibuat! 🎉</h3>
+                <div class="result-stats" id="resultStatsJpg2pdf"></div>
+                <button class="btn btn-download" id="downloadBtnJpg2pdf"><i class="fas fa-download"></i> Unduh File PDF</button>
+                <button class="btn btn-reset" onclick="resetJpg2pdfApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF PROPERTIES TOOL -->
+    <div class="tool-section" id="propertiesSection">
+        <div class="container">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Dashboard</a> / 
+                <span>PDF Properties</span>
+            </div>
+
+            <div class="tool-header">
+                <button class="btn-close-tool" onclick="goToDashboard()" title="Tutup"><i class="fas fa-times"></i></button>
+                <h2>⚙️ Properti Dokumen PDF</h2>
+                <p class="subtitle">Lihat informasi file dan edit metadata dokumen PDF</p>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZoneProperties">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 style="color: var(--text-main); margin-bottom: 5px;">Pilih File PDF</h3>
+                <p class="info-note">atau tarik dan jatuhkan file PDF di sini</p>
+                <input type="file" id="fileInputProperties" accept=".pdf">
+            </div>
+
+            <div id="propertiesInfo" class="file-info metadata-form" style="display: none;">
+                <div class="file-details">
+                    <span class="file-name" id="fileNameProperties">dokumen.pdf</span>
+                    <span class="file-size" id="fileSizeProperties">0 KB</span>
+                </div>
+
+                <h3 style="margin: 1rem 0 0.75rem; color: var(--text-main);">Informasi File</h3>
+                <div class="info-grid">
+                    <div><div class="label">Total Halaman</div><div class="value" id="propPages">-</div></div>
+                    <div><div class="label">Ukuran File</div><div class="value" id="propSize">-</div></div>
+                    <div><div class="label">PDF Version</div><div class="value" id="propVersion">-</div></div>
+                    <div><div class="label">Status Enkripsi</div><div class="value" id="propEncrypted">-</div></div>
+                </div>
+
+                <h3 style="margin: 1.5rem 0 0.75rem; color: var(--text-main);">Edit Metadata</h3>
+                <div class="form-row">
+                    <label for="metaTitle">Judul</label>
+                    <input type="text" id="metaTitle" placeholder="Judul dokumen">
+                </div>
+                <div class="form-row">
+                    <label for="metaAuthor">Penulis</label>
+                    <input type="text" id="metaAuthor" placeholder="Nama penulis">
+                </div>
+                <div class="form-row">
+                    <label for="metaSubject">Subjek</label>
+                    <input type="text" id="metaSubject" placeholder="Subjek dokumen">
+                </div>
+                <div class="form-row">
+                    <label for="metaKeywords">Kata Kunci</label>
+                    <input type="text" id="metaKeywords" placeholder="kata, kunci, dipisah, koma">
+                </div>
+                <div class="form-row">
+                    <label for="metaCreator">Creator</label>
+                    <input type="text" id="metaCreator" placeholder="Aplikasi pembuat">
+                </div>
+                <div class="form-row">
+                    <label for="metaProducer">Producer</label>
+                    <input type="text" id="metaProducer" placeholder="Aplikasi producer">
+                </div>
+
+                <button class="btn" id="propertiesBtn"><i class="fas fa-save"></i> Simpan Metadata</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainerProperties">
+                <div class="progress-text">
+                    <span id="statusTextProperties">Menyimpan metadata...</span>
+                    <span id="percentTextProperties">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarProperties"></div>
+                </div>
+            </div>
+
+            <!-- Hasil -->
+            <div class="result-container" id="resultContainerProperties">
+                <h3 id="resultTitleProperties">Metadata Berhasil Disimpan! ✅</h3>
+                <div class="result-stats" id="resultStatsProperties"></div>
+                <button class="btn btn-download" id="downloadBtnProperties"><i class="fas fa-download"></i> Unduh File PDF</button>
+                <button class="btn btn-reset" onclick="resetPropertiesApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UNLOCK PDF TOOL -->
+    <div class="tool-section" id="unlockSection">
+        <div class="container">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Dashboard</a> / 
+                <span>Unlock PDF</span>
+            </div>
+
+            <div class="tool-header">
+                <button class="btn-close-tool" onclick="goToDashboard()" title="Tutup"><i class="fas fa-times"></i></button>
+                <h2>🔓 Buka Kunci PDF</h2>
+                <p class="subtitle">Hapus proteksi permission (copy, print, edit) dari PDF</p>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZoneUnlock">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 style="color: var(--text-main); margin-bottom: 5px;">Pilih File PDF</h3>
+                <p class="info-note">atau tarik dan jatuhkan file PDF terkunci di sini</p>
+                <input type="file" id="fileInputUnlock" accept=".pdf">
+            </div>
+
+            <div id="unlockInfo" class="file-info" style="display: none;">
+                <div class="file-details">
+                    <span class="file-name" id="fileNameUnlock">dokumen.pdf</span>
+                    <span class="file-size" id="fileSizeUnlock">0 KB</span>
+                </div>
+
+                <div class="settings-group">
+                    <label for="unlockPassword">Password PDF (opsional, hanya jika PDF butuh password untuk dibuka):</label>
+                    <input type="password" id="unlockPassword" placeholder="Kosongkan jika tidak ada password user">
+                </div>
+
+                <div class="settings-group">
+                    <div class="readonly-info">
+                        <strong>ℹ️ Informasi:</strong> Tool ini menghapus batasan permission (larangan copy, print, edit, dll). PDF dengan password pembuka (user password) tetap memerlukan password untuk dibuka, namun batasan permission akan dihilangkan setelah proses unlock.
+                    </div>
+                </div>
+
+                <button class="btn btn-warning" id="unlockBtn"><i class="fas fa-unlock"></i> Buka Kunci PDF</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainerUnlock">
+                <div class="progress-text">
+                    <span id="statusTextUnlock">Membuka kunci...</span>
+                    <span id="percentTextUnlock">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarUnlock"></div>
+                </div>
+            </div>
+
+            <!-- Hasil -->
+            <div class="result-container" id="resultContainerUnlock">
+                <h3 id="resultTitleUnlock">PDF Berhasil Dibuka! 🔓</h3>
+                <div class="result-stats" id="resultStatsUnlock"></div>
+                <button class="btn btn-download" id="downloadBtnUnlock"><i class="fas fa-download"></i> Unduh File PDF Terbuka</button>
+                <button class="btn btn-reset" onclick="resetUnlockApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF TO WORD TOOL -->
+    <div class="tool-section" id="pdf2wordSection">
+        <div class="container">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Dashboard</a> / 
+                <span>PDF to Word</span>
+            </div>
+
+            <div class="tool-header">
+                <button class="btn-close-tool" onclick="goToDashboard()" title="Tutup"><i class="fas fa-times"></i></button>
+                <h2>📝 Konversi PDF ke Word</h2>
+                <p class="subtitle">Ekstrak teks dari PDF dan hasilkan file DOC yang bisa diedit</p>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZonePdf2word">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 style="color: var(--text-main); margin-bottom: 5px;">Pilih File PDF</h3>
+                <p class="info-note">atau tarik dan jatuhkan file PDF di sini</p>
+                <input type="file" id="fileInputPdf2word" accept=".pdf">
+            </div>
+
+            <div id="pdf2wordInfo" class="file-info" style="display: none;">
+                <div class="file-details">
+                    <span class="file-name" id="fileNamePdf2word">dokumen.pdf</span>
+                    <span class="file-size" id="fileSizePdf2word">0 KB</span>
+                </div>
+
+                <div class="settings-group">
+                    <label for="pdf2wordFormat">Format Output:</label>
+                    <select id="pdf2wordFormat">
+                        <option value="doc" selected>📄 DOC (Kompatibel dengan semua Microsoft Word)</option>
+                        <option value="docx">📄 DOCX (Format modern)</option>
+                    </select>
+                </div>
+
+                <div class="settings-group">
+                    <label for="pdf2wordMode">Mode Ekstraksi:</label>
+                    <select id="pdf2wordMode">
+                        <option value="text" selected>📝 Teks saja (cepat, akurat untuk teks)</option>
+                        <option value="layout">📊 Pertahankan layout (paragraf per baris)</option>
+                    </select>
+                    <p class="info-note">Catatan: Hasil konversi mungkin tidak 100% identik dengan PDF asli. Tool ini mengextract teks dan struktur dasar, bukan formatting kompleks.</p>
+                </div>
+
+                <button class="btn" id="pdf2wordBtn"><i class="fas fa-file-word"></i> Konversi ke Word</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainerPdf2word">
+                <div class="progress-text">
+                    <span id="statusTextPdf2word">Mengkonversi...</span>
+                    <span id="percentTextPdf2word">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarPdf2word"></div>
+                </div>
+            </div>
+
+            <!-- Hasil -->
+            <div class="result-container" id="resultContainerPdf2word">
+                <h3 id="resultTitlePdf2word">Berhasil Dikonversi! 📝</h3>
+                <div class="result-stats" id="resultStatsPdf2word"></div>
+                <button class="btn btn-download" id="downloadBtnPdf2word"><i class="fas fa-download"></i> Unduh File Word</button>
+                <button class="btn btn-reset" onclick="resetPdf2wordApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF TO POWERPOINT TOOL -->
+    <div class="tool-section" id="pdf2pptSection">
+        <div class="container">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Dashboard</a> / 
+                <span>PDF to PowerPoint</span>
+            </div>
+
+            <div class="tool-header">
+                <button class="btn-close-tool" onclick="goToDashboard()" title="Tutup"><i class="fas fa-times"></i></button>
+                <h2>🎯 Konversi PDF ke PowerPoint</h2>
+                <p class="subtitle">Setiap halaman PDF dijadikan satu slide presentasi</p>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZonePdf2ppt">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 style="color: var(--text-main); margin-bottom: 5px;">Pilih File PDF</h3>
+                <p class="info-note">atau tarik dan jatuhkan file PDF di sini</p>
+                <input type="file" id="fileInputPdf2ppt" accept=".pdf">
+            </div>
+
+            <div id="pdf2pptInfo" class="file-info" style="display: none;">
+                <div class="file-details">
+                    <span class="file-name" id="fileNamePdf2ppt">dokumen.pdf</span>
+                    <span class="file-size" id="fileSizePdf2ppt">0 KB</span>
+                </div>
+
+                <div class="settings-group">
+                    <label for="pdf2pptPages">Halaman yang Dikonversi:</label>
+                    <input type="text" id="pdf2pptPages" placeholder="Kosongkan untuk semua halaman. Contoh: 1-5 atau 1,3,5">
+                    <p class="info-note" id="pdf2pptPagesInfo">Total halaman tersedia: -</p>
+                </div>
+
+                <div class="settings-group">
+                    <label for="pdf2pptQuality">Kualitas Gambar Slide:</label>
+                    <select id="pdf2pptQuality">
+                        <option value="high">🔵 Tinggi (rekomendasi)</option>
+                        <option value="medium" selected>🟢 Sedang</option>
+                        <option value="low">🔴 Rendah (file lebih kecil)</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-secondary" id="pdf2pptBtn"><i class="fas fa-file-powerpoint"></i> Konversi ke PPTX</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainerPdf2ppt">
+                <div class="progress-text">
+                    <span id="statusTextPdf2ppt">Mengkonversi...</span>
+                    <span id="percentTextPdf2ppt">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarPdf2ppt"></div>
+                </div>
+            </div>
+
+            <!-- Hasil -->
+            <div class="result-container" id="resultContainerPdf2ppt">
+                <h3 id="resultTitlePdf2ppt">Berhasil Dikonversi! 🎯</h3>
+                <div class="result-stats" id="resultStatsPdf2ppt"></div>
+                <button class="btn btn-download" id="downloadBtnPdf2ppt"><i class="fas fa-download"></i> Unduh File PPTX</button>
+                <button class="btn btn-reset" onclick="resetPdf2pptApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF TO EXCEL TOOL -->
+    <div class="tool-section" id="pdf2excelSection">
+        <div class="container">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Dashboard</a> / 
+                <span>PDF to Excel</span>
+            </div>
+
+            <div class="tool-header">
+                <button class="btn-close-tool" onclick="goToDashboard()" title="Tutup"><i class="fas fa-times"></i></button>
+                <h2>📊 Konversi PDF ke Excel</h2>
+                <p class="subtitle">Ekstrak teks dari PDF dan susun sebagai data tabular XLSX</p>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZonePdf2excel">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 style="color: var(--text-main); margin-bottom: 5px;">Pilih File PDF</h3>
+                <p class="info-note">atau tarik dan jatuhkan file PDF di sini</p>
+                <input type="file" id="fileInputPdf2excel" accept=".pdf">
+            </div>
+
+            <div id="pdf2excelInfo" class="file-info" style="display: none;">
+                <div class="file-details">
+                    <span class="file-name" id="fileNamePdf2excel">dokumen.pdf</span>
+                    <span class="file-size" id="fileSizePdf2excel">0 KB</span>
+                </div>
+
+                <div class="settings-group">
+                    <label for="pdf2excelMode">Mode Ekstraksi:</label>
+                    <select id="pdf2excelMode">
+                        <option value="perpage" selected>📄 Satu sheet per halaman PDF</option>
+                        <option value="single">📋 Semua teks dalam satu sheet</option>
+                        <option value="split">📊 Coba deteksi tabel (split per baris)</option>
+                    </select>
+                    <p class="info-note">Catatan: Ekstraksi tabel dari PDF memiliki keterbatasan. Untuk PDF yang berisi tabel terstruktur, mode "Coba deteksi tabel" memberi hasil terbaik.</p>
+                </div>
+
+                <button class="btn btn-secondary" id="pdf2excelBtn"><i class="fas fa-file-excel"></i> Konversi ke Excel</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainerPdf2excel">
+                <div class="progress-text">
+                    <span id="statusTextPdf2excel">Mengkonversi...</span>
+                    <span id="percentTextPdf2excel">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarPdf2excel"></div>
+                </div>
+            </div>
+
+            <!-- Hasil -->
+            <div class="result-container" id="resultContainerPdf2excel">
+                <h3 id="resultTitlePdf2excel">Berhasil Dikonversi! 📊</h3>
+                <div class="result-stats" id="resultStatsPdf2excel"></div>
+                <button class="btn btn-download" id="downloadBtnPdf2excel"><i class="fas fa-download"></i> Unduh File XLSX</button>
+                <button class="btn btn-reset" onclick="resetPdf2excelApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT PDF TOOL -->
+    <div class="tool-section" id="editSection">
+        <div class="container">
+            <div class="breadcrumb">
+                <a onclick="goToDashboard()">Dashboard</a> / 
+                <span>Edit PDF</span>
+            </div>
+
+            <div class="tool-header">
+                <button class="btn-close-tool" onclick="goToDashboard()" title="Tutup"><i class="fas fa-times"></i></button>
+                <h2>✏️ Edit PDF</h2>
+                <p class="subtitle">Tambahkan teks dan anotasi langsung pada halaman PDF</p>
+            </div>
+
+            <!-- Area Drag & Drop -->
+            <div class="drop-zone" id="dropZoneEdit">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3.5 10v-3.5h-2L12 11l4.5 4.5h-2V19h-5z"/>
+                </svg>
+                <h3 style="color: var(--text-main); margin-bottom: 5px;">Pilih File PDF</h3>
+                <p class="info-note">atau tarik dan jatuhkan file PDF di sini</p>
+                <input type="file" id="fileInputEdit" accept=".pdf">
+            </div>
+
+            <div id="editInfo" class="file-info" style="display: none;">
+                <div class="file-details">
+                    <span class="file-name" id="fileNameEdit">dokumen.pdf</span>
+                    <span class="file-size" id="fileSizeEdit">0 KB</span>
+                </div>
+
+                <div class="edit-toolbar">
+                    <button id="editAddTextBtn" title="Tambah Teks"><i class="fas fa-font"></i> Tambah Teks</button>
+                    <button id="editAddImageBtn" title="Tambah Gambar"><i class="fas fa-image"></i> Tambah Gambar</button>
+                    <input type="file" id="editImageInput" accept="image/*" style="display: none;">
+                    <div class="toolbar-divider"></div>
+                    <label style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">Warna: <input type="color" id="editTextColor" value="#ff0000"></label>
+                    <label style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">Ukuran: <input type="range" id="editFontSize" min="10" max="48" value="16"></label>
+                    <div class="toolbar-divider"></div>
+                    <button id="editDeleteSelectedBtn" title="Hapus Elemen Terpilih"><i class="fas fa-trash"></i> Hapus</button>
+                    <button id="editClearAllBtn" title="Hapus Semua"><i class="fas fa-eraser"></i> Bersihkan</button>
+                </div>
+
+                <div class="pdf-edit-container" id="pdfEditContainer">
+                    <div class="pdf-edit-canvas-wrapper" id="pdfEditCanvasWrapper">
+                        <canvas id="pdfEditCanvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="edit-page-nav">
+                    <button id="editPrevPageBtn"><i class="fas fa-chevron-left"></i> Sebelumnya</button>
+                    <span class="edit-page-info">Halaman: <span id="editCurrentPage">1</span> / <span id="editTotalPages">1</span></span>
+                    <button id="editNextPageBtn">Berikutnya <i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <button class="btn btn-secondary" id="editSaveBtn"><i class="fas fa-save"></i> Simpan PDF</button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainerEdit">
+                <div class="progress-text">
+                    <span id="statusTextEdit">Menyimpan PDF...</span>
+                    <span id="percentTextEdit">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBarEdit"></div>
+                </div>
+            </div>
+
+            <!-- Hasil -->
+            <div class="result-container" id="resultContainerEdit">
+                <h3 id="resultTitleEdit">PDF Berhasil Diedit! ✏️</h3>
+                <div class="result-stats" id="resultStatsEdit"></div>
+                <button class="btn btn-download" id="downloadBtnEdit"><i class="fas fa-download"></i> Unduh File PDF</button>
+                <button class="btn btn-reset" onclick="resetEditApp()"><i class="fas fa-redo"></i> Kelola File Lain</button>
+            </div>
+        </div>
+    </div>
+
     <!-- COMING SOON TOOLS -->
     <div class="tool-section" id="comingSoonSection">
         <div class="container">
@@ -1308,7 +2110,14 @@
                 'merge': 'mergeSection',
                 'rotate': 'rotateSection',
                 'pdf2jpg': 'pdf2jpgSection',
-                'word2pdf': 'word2pdfSection'
+                'jpg2pdf': 'jpg2pdfSection',
+                'word2pdf': 'word2pdfSection',
+                'pdf2word': 'pdf2wordSection',
+                'pdf2ppt': 'pdf2pptSection',
+                'pdf2excel': 'pdf2excelSection',
+                'edit': 'editSection',
+                'properties': 'propertiesSection',
+                'unlock': 'unlockSection'
             };
 
             const sectionId = toolMap[toolName];
@@ -1318,22 +2127,7 @@
                 document.getElementById(sectionId).classList.add('active');
                 currentTool = toolName;
             } else {
-                const toolNames = {
-                    'pdf2word': { name: 'PDF to Word', desc: 'Konversi PDF ke dokumen Word yang dapat diedit' },
-                    'pdf2ppt': { name: 'PDF to PowerPoint', desc: 'Ubah PDF menjadi slide presentasi' },
-                    'pdf2excel': { name: 'PDF to Excel', desc: 'Ekstrak data tabel dari PDF ke Excel' },
-                    'edit': { name: 'Edit PDF', desc: 'Tambahkan teks, gambar, dan anotasi ke PDF' },
-                    'properties': { name: 'PDF Properties', desc: 'Lihat dan edit metadata dokumen PDF' },
-                    'unlock': { name: 'Unlock PDF', desc: 'Hapus proteksi atau password dari PDF' }
-                };
-
-                const tool = toolNames[toolName];
-                if (tool) {
-                    document.getElementById('comingSoonTitle').textContent = tool.name;
-                    document.getElementById('comingSoonName').textContent = tool.name;
-                    document.getElementById('comingSoonDesc').textContent = tool.desc;
-                }
-
+                // Fallback untuk tool yang tidak dikenali
                 document.getElementById('comingSoonSection').style.display = 'block';
                 document.getElementById('comingSoonSection').classList.add('active');
                 currentTool = toolName;
@@ -2203,32 +2997,149 @@
 
             document.getElementById('word2pdfFileInfo').style.display = 'none';
             progressContainer.style.display = 'block';
-            statusText.textContent = "Mempersiapkan konversi...";
-            progressBar.style.width = '20%';
-            percentText.textContent = '20%';
+            statusText.textContent = "Membaca file Word...";
+            progressBar.style.width = '10%';
+            percentText.textContent = '10%';
 
             try {
-                // Untuk DOCX/DOC, konversi sederhana ke PDF dengan rendering teks
                 const arrayBuffer = await word2pdfState.file.arrayBuffer();
-                const { jsPDF } = window.jspdf;
-                
-                // Baca file sebagai text (simplified approach)
-                const text = new TextDecoder().decode(arrayBuffer);
+                const fileName = word2pdfState.file.name.toLowerCase();
                 const orientation = document.getElementById('word2pdfOrientation').value === 'landscape' ? 'l' : 'p';
-                const doc = new jsPDF({ orientation: orientation });
+                const { jsPDF } = window.jspdf;
 
-                statusText.textContent = "Mengkonversi dokumen...";
-                progressBar.style.width = '60%';
-                percentText.textContent = '60%';
+                let htmlContent = '';
 
-                // Buat pesan informatif
-                doc.setFontSize(12);
-                doc.text("Konversi Word ke PDF (Simplified)", 10, 10);
-                doc.setFontSize(10);
-                doc.text(`File: ${word2pdfState.file.name}`, 10, 20);
-                doc.text(`Ukuran: ${formatBytes(word2pdfState.file.size)}`, 10, 30);
-                doc.text(`Tanggal Konversi: ${new Date().toLocaleString('id-ID')}`, 10, 40);
-                doc.text("Catatan: Untuk konversi akurat, silakan gunakan tools profesional seperti LibreOffice.", 10, 60);
+                if (fileName.endsWith('.docx')) {
+                    // DOCX: gunakan Mammoth.js untuk ekstrak HTML
+                    statusText.textContent = "Memproses DOCX dengan Mammoth...";
+                    progressBar.style.width = '30%';
+                    percentText.textContent = '30%';
+
+                    const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+                    htmlContent = result.value || '<p>(Dokumen kosong)</p>';
+                } else if (fileName.endsWith('.doc')) {
+                    // DOC (legacy binary) - extract readable text
+                    statusText.textContent = "Memproses DOC (format lama)...";
+                    progressBar.style.width = '30%';
+                    percentText.textContent = '30%';
+
+                    const text = new TextDecoder('utf-8').decode(arrayBuffer).replace(/[^\x20-\x7E\n\r]+/g, ' ').trim();
+                    const cleanText = text.split(/[\n\r]+/).filter(l => l.trim().length > 2).join('</p><p>');
+                    htmlContent = `<p>${cleanText || '(Format DOC lama tidak dapat diparse sepenuhnya - gunakan DOCX untuk hasil terbaik)'}</p>`;
+                } else {
+                    throw new Error("Format file tidak didukung. Gunakan .docx atau .doc");
+                }
+
+                statusText.textContent = "Membuat PDF...";
+                progressBar.style.width = '50%';
+                percentText.textContent = '50%';
+
+                // Parse HTML menjadi array of structured text blocks
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+
+                const blocks = [];
+                function walk(node, depth = 0) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const text = node.textContent.trim();
+                        if (text) blocks.push({ type: 'text', text: text, depth: depth });
+                        return;
+                    }
+                    if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+                    const tag = node.tagName.toLowerCase();
+                    if (['h1','h2','h3','h4','h5','h6'].includes(tag)) {
+                        blocks.push({ type: 'heading', level: parseInt(tag.substring(1)), text: node.textContent.trim() });
+                    } else if (tag === 'p') {
+                        blocks.push({ type: 'paragraph', text: node.textContent.trim() });
+                    } else if (tag === 'li') {
+                        blocks.push({ type: 'listitem', text: node.textContent.trim(), depth: depth });
+                    } else if (tag === 'br') {
+                        blocks.push({ type: 'break' });
+                    } else if (['ul','ol'].includes(tag)) {
+                        Array.from(node.children).forEach(child => walk(child, depth + 1));
+                        return;
+                    } else {
+                        // Generic: walk children
+                        Array.from(node.childNodes).forEach(child => walk(child, depth));
+                        return;
+                    }
+                }
+                Array.from(tempDiv.childNodes).forEach(child => walk(child));
+
+                // Buat PDF dan render text blocks
+                const pageW = orientation === 'l' ? 841.89 : 595.28;
+                const pageH = orientation === 'l' ? 595.28 : 841.89;
+                const margin = 40;
+                const contentW = pageW - (margin * 2);
+                const lineHeight = 14;
+
+                const doc = new jsPDF({
+                    orientation: orientation,
+                    unit: 'pt',
+                    format: [pageW, pageH],
+                    compress: true
+                });
+
+                let y = margin + 14;
+
+                for (const block of blocks) {
+                    if (y > pageH - margin) {
+                        doc.addPage();
+                        y = margin + 14;
+                    }
+
+                    if (block.type === 'heading') {
+                        const sizes = { 1: 18, 2: 16, 3: 14, 4: 13, 5: 12, 6: 11 };
+                        const size = sizes[block.level] || 12;
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(size);
+                        y += 6; // spacing before heading
+                        const lines = doc.splitTextToSize(block.text, contentW);
+                        for (const line of lines) {
+                            if (y > pageH - margin) {
+                                doc.addPage();
+                                y = margin + 14;
+                            }
+                            doc.text(line, margin, y);
+                            y += size + 4;
+                        }
+                        y += 4;
+                    } else if (block.type === 'paragraph' || block.type === 'text') {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(11);
+                        const lines = doc.splitTextToSize(block.text, contentW);
+                        for (const line of lines) {
+                            if (y > pageH - margin) {
+                                doc.addPage();
+                                y = margin + 14;
+                            }
+                            doc.text(line, margin, y);
+                            y += lineHeight;
+                        }
+                        y += 4;
+                    } else if (block.type === 'listitem') {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(11);
+                        const indent = margin + (block.depth || 0) * 20;
+                        const lines = doc.splitTextToSize('• ' + block.text, contentW - (block.depth || 0) * 20);
+                        for (const line of lines) {
+                            if (y > pageH - margin) {
+                                doc.addPage();
+                                y = margin + 14;
+                            }
+                            doc.text(line, indent, y);
+                            y += lineHeight;
+                        }
+                        y += 2;
+                    } else if (block.type === 'break') {
+                        y += lineHeight / 2;
+                    }
+                }
+
+                statusText.textContent = "Menyimpan PDF...";
+                progressBar.style.width = '90%';
+                percentText.textContent = '90%';
 
                 const pdfBlob = doc.output('blob');
                 prepareDownloadWord2pdf(pdfBlob, word2pdfState.file.name.replace(/\.(docx|doc)$/i, '.pdf'));
@@ -2248,7 +3159,7 @@
 
             } catch (error) {
                 console.error(error);
-                alert("Gagal mengkonversi ke PDF");
+                alert("Gagal mengkonversi ke PDF: " + error.message);
                 resetWord2pdfApp();
             }
         });
@@ -2273,6 +3184,1506 @@
             document.getElementById('progressContainerWord2pdf').style.display = 'none';
             document.getElementById('progressBarWord2pdf').style.width = '0%';
             document.getElementById('fileInputWord2pdf').value = '';
+        }
+
+        // ===== JPG TO PDF LOGIC =====
+        let jpg2pdfState = {
+            images: [],
+            processedBlobUrl: null
+        };
+
+        const dropZoneJpg2pdf = document.getElementById('dropZoneJpg2pdf');
+        const fileInputJpg2pdf = document.getElementById('fileInputJpg2pdf');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZoneJpg2pdf.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZoneJpg2pdf.addEventListener(eventName, () => dropZoneJpg2pdf.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZoneJpg2pdf.addEventListener(eventName, () => dropZoneJpg2pdf.classList.remove('dragover'), false);
+        });
+
+        dropZoneJpg2pdf.addEventListener('drop', (e) => handleFilesJpg2pdf(e.dataTransfer.files));
+        fileInputJpg2pdf.addEventListener('change', function() { handleFilesJpg2pdf(this.files); });
+
+        async function handleFilesJpg2pdf(files) {
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
+            const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.bmp'];
+            const newImages = Array.from(files).filter(f =>
+                validTypes.includes(f.type) || validExtensions.some(ext => f.name.toLowerCase().endsWith(ext))
+            );
+
+            if (newImages.length === 0) {
+                alert("Silakan unggah file gambar yang valid (JPG, PNG, WEBP, BMP)");
+                return;
+            }
+
+            for (const file of newImages) {
+                const dataUrl = await readFileAsDataURL(file);
+                jpg2pdfState.images.push({
+                    name: file.name,
+                    dataUrl: dataUrl,
+                    size: file.size
+                });
+            }
+
+            dropZoneJpg2pdf.style.display = 'none';
+            document.getElementById('jpg2pdfInfo').style.display = 'block';
+            updateJpg2pdfUI();
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updateJpg2pdfUI() {
+            document.getElementById('fileNameJpg2pdf').textContent = jpg2pdfState.images.length > 0
+                ? `${jpg2pdfState.images.length} gambar dipilih`
+                : 'Belum ada gambar';
+            document.getElementById('fileSizeJpg2pdf').textContent = `${jpg2pdfState.images.length} gambar`;
+
+            const thumbList = document.getElementById('jpg2pdfThumbList');
+            thumbList.innerHTML = '';
+
+            jpg2pdfState.images.forEach((img, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'image-thumb';
+                thumb.innerHTML = `
+                    <img src="${img.dataUrl}" alt="${img.name}">
+                    <div class="thumb-order">${index + 1}</div>
+                    <div class="thumb-actions">
+                        <button class="move-btn" onclick="moveJpg2pdfImage(${index}, -1)" title="Geser kiri"><i class="fas fa-chevron-left"></i></button>
+                        <button class="move-btn" onclick="moveJpg2pdfImage(${index}, 1)" title="Geser kanan"><i class="fas fa-chevron-right"></i></button>
+                        <button onclick="removeJpg2pdfImage(${index})" title="Hapus"><i class="fas fa-times"></i></button>
+                    </div>
+                `;
+                thumbList.appendChild(thumb);
+            });
+
+            document.getElementById('jpg2pdfBtn').disabled = jpg2pdfState.images.length === 0;
+        }
+
+        function moveJpg2pdfImage(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= jpg2pdfState.images.length) return;
+            const [removed] = jpg2pdfState.images.splice(index, 1);
+            jpg2pdfState.images.splice(newIndex, 0, removed);
+            updateJpg2pdfUI();
+        }
+
+        function removeJpg2pdfImage(index) {
+            jpg2pdfState.images.splice(index, 1);
+            updateJpg2pdfUI();
+            if (jpg2pdfState.images.length === 0) {
+                dropZoneJpg2pdf.style.display = 'block';
+                document.getElementById('jpg2pdfInfo').style.display = 'none';
+            }
+        }
+
+        document.getElementById('jpg2pdfBtn').addEventListener('click', async () => {
+            if (jpg2pdfState.images.length === 0) return;
+
+            const progressContainer = document.getElementById('progressContainerJpg2pdf');
+            const progressBar = document.getElementById('progressBarJpg2pdf');
+            const statusText = document.getElementById('statusTextJpg2pdf');
+            const percentText = document.getElementById('percentTextJpg2pdf');
+
+            document.getElementById('jpg2pdfInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Memproses gambar...";
+            progressBar.style.width = '10%';
+            percentText.textContent = '10%';
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const orientation = document.getElementById('jpg2pdfOrientation').value;
+                const pageSize = document.getElementById('jpg2pdfPageSize').value;
+                const margin = parseInt(document.getElementById('jpg2pdfMargin').value);
+
+                let pdf = null;
+                let processedCount = 0;
+                const total = jpg2pdfState.images.length;
+
+                for (const img of jpg2pdfState.images) {
+                    processedCount++;
+                    statusText.textContent = `Menambahkan gambar ${processedCount} dari ${total}...`;
+                    const progress = Math.round((processedCount / total) * 80) + 10;
+                    progressBar.style.width = progress + '%';
+                    percentText.textContent = progress + '%';
+
+                    // Get image dimensions
+                    const imgEl = new Image();
+                    imgEl.src = img.dataUrl;
+                    await new Promise(resolve => { imgEl.onload = resolve; imgEl.onerror = resolve; });
+
+                    const imgW = imgEl.naturalWidth || 595;
+                    const imgH = imgEl.naturalHeight || 842;
+
+                    // Determine format
+                    let format = 'JPEG';
+                    if (img.dataUrl.startsWith('data:image/png')) format = 'PNG';
+                    else if (img.dataUrl.startsWith('data:image/webp')) format = 'WEBP';
+
+                    let pageW, pageH, pageOrientation;
+
+                    if (pageSize === 'fit') {
+                        pageW = imgW + (margin * 2);
+                        pageH = imgH + (margin * 2);
+                        pageOrientation = pageW > pageH ? 'l' : 'p';
+                    } else if (pageSize === 'a4') {
+                        pageW = orientation === 'landscape' ? 841.89 : 595.28;
+                        pageH = orientation === 'landscape' ? 595.28 : 841.89;
+                        if (orientation === 'auto') {
+                            pageOrientation = imgW > imgH ? 'l' : 'p';
+                            if (pageOrientation === 'l') { pageW = 841.89; pageH = 595.28; }
+                            else { pageW = 595.28; pageH = 841.89; }
+                        } else {
+                            pageOrientation = orientation === 'landscape' ? 'l' : 'p';
+                        }
+                    } else { // letter
+                        pageW = orientation === 'landscape' ? 792 : 612;
+                        pageH = orientation === 'landscape' ? 612 : 792;
+                        if (orientation === 'auto') {
+                            pageOrientation = imgW > imgH ? 'l' : 'p';
+                            if (pageOrientation === 'l') { pageW = 792; pageH = 612; }
+                            else { pageW = 612; pageH = 792; }
+                        } else {
+                            pageOrientation = orientation === 'landscape' ? 'l' : 'p';
+                        }
+                    }
+
+                    if (pdf === null) {
+                        pdf = new jsPDF({
+                            orientation: pageOrientation,
+                            unit: 'pt',
+                            format: [pageW, pageH],
+                            compress: true
+                        });
+                    } else {
+                        pdf.addPage([pageW, pageH], pageOrientation);
+                    }
+
+                    // Fit image within page considering margin
+                    const availW = pageW - (margin * 2);
+                    const availH = pageH - (margin * 2);
+                    const scale = Math.min(availW / imgW, availH / imgH, 1);
+                    const drawW = imgW * scale;
+                    const drawH = imgH * scale;
+                    const offsetX = (pageW - drawW) / 2;
+                    const offsetY = (pageH - drawH) / 2;
+
+                    pdf.addImage(img.dataUrl, format, offsetX, offsetY, drawW, drawH, undefined, 'FAST');
+                }
+
+                const pdfBlob = pdf.output('blob');
+                prepareDownloadJpg2pdf(pdfBlob, 'images_combined.pdf');
+
+                document.getElementById('resultStatsJpg2pdf').innerHTML = `
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Total Gambar</span><br><strong>${jpg2pdfState.images.length}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Total Halaman</span><br><strong>${jpg2pdfState.images.length}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Ukuran PDF</span><br><strong>${formatBytes(pdfBlob.size)}</strong></div>
+                `;
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    document.getElementById('resultContainerJpg2pdf').style.display = 'block';
+                }, 500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Gagal membuat PDF: " + error.message);
+                resetJpg2pdfApp();
+            }
+        });
+
+        function prepareDownloadJpg2pdf(blob, outputName) {
+            if (jpg2pdfState.processedBlobUrl) URL.revokeObjectURL(jpg2pdfState.processedBlobUrl);
+            jpg2pdfState.processedBlobUrl = URL.createObjectURL(blob);
+            document.getElementById('downloadBtnJpg2pdf').onclick = () => {
+                const a = document.createElement('a');
+                a.href = jpg2pdfState.processedBlobUrl;
+                a.download = outputName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        function resetJpg2pdfApp() {
+            jpg2pdfState = { images: [], processedBlobUrl: null };
+            dropZoneJpg2pdf.style.display = 'block';
+            document.getElementById('jpg2pdfInfo').style.display = 'none';
+            document.getElementById('resultContainerJpg2pdf').style.display = 'none';
+            document.getElementById('progressContainerJpg2pdf').style.display = 'none';
+            document.getElementById('progressBarJpg2pdf').style.width = '0%';
+            fileInputJpg2pdf.value = '';
+            document.getElementById('jpg2pdfThumbList').innerHTML = '';
+        }
+
+        // ===== PDF PROPERTIES LOGIC =====
+        let propertiesState = {
+            file: null,
+            pdfDoc: null,
+            processedBlobUrl: null
+        };
+
+        const dropZoneProperties = document.getElementById('dropZoneProperties');
+        const fileInputProperties = document.getElementById('fileInputProperties');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZoneProperties.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZoneProperties.addEventListener(eventName, () => dropZoneProperties.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZoneProperties.addEventListener(eventName, () => dropZoneProperties.classList.remove('dragover'), false);
+        });
+
+        dropZoneProperties.addEventListener('drop', (e) => handleFilesProperties(e.dataTransfer.files));
+        fileInputProperties.addEventListener('change', function() { handleFilesProperties(this.files); });
+
+        async function handleFilesProperties(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            if (file.type !== "application/pdf" && !file.name.endsWith('.pdf')) {
+                alert("Silakan unggah file PDF yang valid");
+                return;
+            }
+
+            propertiesState.file = file;
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                propertiesState.pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+
+                dropZoneProperties.style.display = 'none';
+                document.getElementById('propertiesInfo').style.display = 'block';
+                document.getElementById('fileNameProperties').textContent = file.name;
+                document.getElementById('fileSizeProperties').textContent = formatBytes(file.size);
+
+                // Populate info grid
+                document.getElementById('propPages').textContent = propertiesState.pdfDoc.getPageCount();
+                document.getElementById('propSize').textContent = formatBytes(file.size);
+                document.getElementById('propVersion').textContent = propertiesState.pdfDoc.context.header.version;
+                document.getElementById('propEncrypted').textContent = propertiesState.pdfDoc.isEncrypted ? 'Ya (Terproteksi)' : 'Tidak';
+
+                // Populate metadata fields
+                const title = propertiesState.pdfDoc.getTitle() || '';
+                const author = propertiesState.pdfDoc.getAuthor() || '';
+                const subject = propertiesState.pdfDoc.getSubject() || '';
+                const keywords = propertiesState.pdfDoc.getKeywords() || '';
+                const creator = propertiesState.pdfDoc.getCreator() || '';
+                const producer = propertiesState.pdfDoc.getProducer() || '';
+
+                document.getElementById('metaTitle').value = title;
+                document.getElementById('metaAuthor').value = author;
+                document.getElementById('metaSubject').value = subject;
+                document.getElementById('metaKeywords').value = keywords;
+                document.getElementById('metaCreator').value = creator;
+                document.getElementById('metaProducer').value = producer;
+
+            } catch (error) {
+                console.error(error);
+                alert("Gagal membaca file PDF: " + error.message);
+                propertiesState.file = null;
+            }
+        }
+
+        document.getElementById('propertiesBtn').addEventListener('click', async () => {
+            if (!propertiesState.pdfDoc) return;
+
+            const progressContainer = document.getElementById('progressContainerProperties');
+            const progressBar = document.getElementById('progressBarProperties');
+            const statusText = document.getElementById('statusTextProperties');
+            const percentText = document.getElementById('percentTextProperties');
+
+            document.getElementById('propertiesInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Memperbarui metadata...";
+            progressBar.style.width = '30%';
+            percentText.textContent = '30%';
+
+            try {
+                propertiesState.pdfDoc.setTitle(document.getElementById('metaTitle').value);
+                propertiesState.pdfDoc.setAuthor(document.getElementById('metaAuthor').value);
+                propertiesState.pdfDoc.setSubject(document.getElementById('metaSubject').value);
+                propertiesState.pdfDoc.setKeywords(document.getElementById('metaKeywords').value.split(',').map(k => k.trim()).filter(k => k));
+                propertiesState.pdfDoc.setCreator(document.getElementById('metaCreator').value);
+                propertiesState.pdfDoc.setProducer(document.getElementById('metaProducer').value);
+                propertiesState.pdfDoc.setModificationDate(new Date());
+
+                progressBar.style.width = '70%';
+                percentText.textContent = '70%';
+                statusText.textContent = "Menyimpan PDF...";
+
+                const pdfBytes = await propertiesState.pdfDoc.save();
+                const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+                prepareDownloadProperties(pdfBlob, 'metadata_' + propertiesState.file.name);
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+
+                document.getElementById('resultStatsProperties').innerHTML = `
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">File</span><br><strong>${propertiesState.file.name}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Ukuran</span><br><strong>${formatBytes(pdfBlob.size)}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Status</span><br><strong style="color:var(--success)">Metadata Diperbarui</strong></div>
+                `;
+
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    document.getElementById('resultContainerProperties').style.display = 'block';
+                }, 500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Gagal menyimpan metadata: " + error.message);
+                resetPropertiesApp();
+            }
+        });
+
+        function prepareDownloadProperties(blob, outputName) {
+            if (propertiesState.processedBlobUrl) URL.revokeObjectURL(propertiesState.processedBlobUrl);
+            propertiesState.processedBlobUrl = URL.createObjectURL(blob);
+            document.getElementById('downloadBtnProperties').onclick = () => {
+                const a = document.createElement('a');
+                a.href = propertiesState.processedBlobUrl;
+                a.download = outputName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        function resetPropertiesApp() {
+            propertiesState = { file: null, pdfDoc: null, processedBlobUrl: null };
+            dropZoneProperties.style.display = 'block';
+            document.getElementById('propertiesInfo').style.display = 'none';
+            document.getElementById('resultContainerProperties').style.display = 'none';
+            document.getElementById('progressContainerProperties').style.display = 'none';
+            document.getElementById('progressBarProperties').style.width = '0%';
+            fileInputProperties.value = '';
+        }
+
+        // ===== UNLOCK PDF LOGIC =====
+        let unlockState = {
+            file: null,
+            processedBlobUrl: null
+        };
+
+        const dropZoneUnlock = document.getElementById('dropZoneUnlock');
+        const fileInputUnlock = document.getElementById('fileInputUnlock');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZoneUnlock.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZoneUnlock.addEventListener(eventName, () => dropZoneUnlock.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZoneUnlock.addEventListener(eventName, () => dropZoneUnlock.classList.remove('dragover'), false);
+        });
+
+        dropZoneUnlock.addEventListener('drop', (e) => handleFilesUnlock(e.dataTransfer.files));
+        fileInputUnlock.addEventListener('change', function() { handleFilesUnlock(this.files); });
+
+        async function handleFilesUnlock(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            if (file.type !== "application/pdf" && !file.name.endsWith('.pdf')) {
+                alert("Silakan unggah file PDF yang valid");
+                return;
+            }
+
+            unlockState.file = file;
+            dropZoneUnlock.style.display = 'none';
+            document.getElementById('unlockInfo').style.display = 'block';
+            document.getElementById('fileNameUnlock').textContent = file.name;
+            document.getElementById('fileSizeUnlock').textContent = formatBytes(file.size);
+        }
+
+        document.getElementById('unlockBtn').addEventListener('click', async () => {
+            if (!unlockState.file) return;
+
+            const progressContainer = document.getElementById('progressContainerUnlock');
+            const progressBar = document.getElementById('progressBarUnlock');
+            const statusText = document.getElementById('statusTextUnlock');
+            const percentText = document.getElementById('percentTextUnlock');
+
+            document.getElementById('unlockInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Membaca file PDF...";
+            progressBar.style.width = '20%';
+            percentText.textContent = '20%';
+
+            try {
+                const arrayBuffer = await unlockState.file.arrayBuffer();
+                const password = document.getElementById('unlockPassword').value;
+
+                statusText.textContent = "Menghapus proteksi...";
+                progressBar.style.width = '50%';
+                percentText.textContent = '50%';
+
+                // PDFLib dengan ignoreEncryption akan menghapus permission restrictions
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, {
+                    ignoreEncryption: true,
+                    password: password || undefined
+                });
+
+                // Clear encryption flag with save options
+                const pdfBytes = await pdfDoc.save({ useObjectStreams: false });
+                const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+                prepareDownloadUnlock(pdfBlob, 'unlocked_' + unlockState.file.name);
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+
+                document.getElementById('resultStatsUnlock').innerHTML = `
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">File Asli</span><br><strong>${formatBytes(unlockState.file.size)}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">File Hasil</span><br><strong>${formatBytes(pdfBlob.size)}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Status</span><br><strong style="color:var(--success)">Proteksi Dihapus</strong></div>
+                `;
+
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    document.getElementById('resultContainerUnlock').style.display = 'block';
+                }, 500);
+
+            } catch (error) {
+                console.error(error);
+                let msg = "Gagal membuka kunci PDF. ";
+                if (error.message && error.message.includes('password')) {
+                    msg += "Password salah atau PDF memerlukan password yang benar.";
+                } else {
+                    msg += error.message || "Terjadi kesalahan.";
+                }
+                alert(msg);
+                resetUnlockApp();
+            }
+        });
+
+        function prepareDownloadUnlock(blob, outputName) {
+            if (unlockState.processedBlobUrl) URL.revokeObjectURL(unlockState.processedBlobUrl);
+            unlockState.processedBlobUrl = URL.createObjectURL(blob);
+            document.getElementById('downloadBtnUnlock').onclick = () => {
+                const a = document.createElement('a');
+                a.href = unlockState.processedBlobUrl;
+                a.download = outputName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        function resetUnlockApp() {
+            unlockState = { file: null, processedBlobUrl: null };
+            dropZoneUnlock.style.display = 'block';
+            document.getElementById('unlockInfo').style.display = 'none';
+            document.getElementById('resultContainerUnlock').style.display = 'none';
+            document.getElementById('progressContainerUnlock').style.display = 'none';
+            document.getElementById('progressBarUnlock').style.width = '0%';
+            fileInputUnlock.value = '';
+            document.getElementById('unlockPassword').value = '';
+        }
+
+        // ===== PDF TO WORD LOGIC =====
+        let pdf2wordState = {
+            file: null,
+            processedBlobUrl: null
+        };
+
+        const dropZonePdf2word = document.getElementById('dropZonePdf2word');
+        const fileInputPdf2word = document.getElementById('fileInputPdf2word');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZonePdf2word.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZonePdf2word.addEventListener(eventName, () => dropZonePdf2word.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZonePdf2word.addEventListener(eventName, () => dropZonePdf2word.classList.remove('dragover'), false);
+        });
+
+        dropZonePdf2word.addEventListener('drop', (e) => handleFilesPdf2word(e.dataTransfer.files));
+        fileInputPdf2word.addEventListener('change', function() { handleFilesPdf2word(this.files); });
+
+        async function handleFilesPdf2word(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            if (file.type !== "application/pdf" && !file.name.endsWith('.pdf')) {
+                alert("Silakan unggah file PDF yang valid");
+                return;
+            }
+
+            pdf2wordState.file = file;
+            dropZonePdf2word.style.display = 'none';
+            document.getElementById('pdf2wordInfo').style.display = 'block';
+            document.getElementById('fileNamePdf2word').textContent = file.name;
+            document.getElementById('fileSizePdf2word').textContent = formatBytes(file.size);
+        }
+
+        document.getElementById('pdf2wordBtn').addEventListener('click', async () => {
+            if (!pdf2wordState.file) return;
+
+            const progressContainer = document.getElementById('progressContainerPdf2word');
+            const progressBar = document.getElementById('progressBarPdf2word');
+            const statusText = document.getElementById('statusTextPdf2word');
+            const percentText = document.getElementById('percentTextPdf2word');
+
+            document.getElementById('pdf2wordInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Membaca file PDF...";
+            progressBar.style.width = '10%';
+            percentText.textContent = '10%';
+
+            try {
+                const arrayBuffer = await pdf2wordState.file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdf.numPages;
+                const mode = document.getElementById('pdf2wordMode').value;
+                const format = document.getElementById('pdf2wordFormat').value;
+
+                let allText = [];
+                let paragraphs = [];
+
+                for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                    statusText.textContent = `Mengekstrak teks halaman ${pageNum} dari ${totalPages}...`;
+                    const progress = Math.round((pageNum / totalPages) * 80) + 10;
+                    progressBar.style.width = progress + '%';
+                    percentText.textContent = progress + '%';
+
+                    const page = await pdf.getPage(pageNum);
+                    const textContent = await page.getTextContent();
+
+                    if (mode === 'layout') {
+                        // Pertahankan layout per baris
+                        let lines = {};
+                        textContent.items.forEach(item => {
+                            const y = Math.round(item.transform[5]);
+                            if (!lines[y]) lines[y] = [];
+                            lines[y].push({
+                                x: item.transform[4],
+                                text: item.str
+                            });
+                        });
+
+                        const sortedY = Object.keys(lines).sort((a, b) => parseFloat(b) - parseFloat(a));
+                        sortedY.forEach(y => {
+                            const lineItems = lines[y].sort((a, b) => a.x - b.x);
+                            const lineText = lineItems.map(i => i.text).join(' ').trim();
+                            if (lineText) {
+                                paragraphs.push(`<p style="margin:0 0 6pt 0;">${escapeHtml(lineText)}</p>`);
+                            }
+                        });
+                        paragraphs.push('<p style="page-break-after: always;"></p>');
+                    } else {
+                        // Teks saja - gabungkan semua item
+                        let pageText = textContent.items.map(item => item.str).join(' ');
+                        paragraphs.push(`<p style="margin:0 0 8pt 0;">${escapeHtml(pageText)}</p>`);
+                        paragraphs.push('<p style="page-break-after: always;"></p>');
+                    }
+                }
+
+                statusText.textContent = "Membuat dokumen Word...";
+                progressBar.style.width = '95%';
+                percentText.textContent = '95%';
+
+                const htmlContent = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>${escapeHtml(pdf2wordState.file.name)}</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument><w:View>Print</w:View></w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page { size: A4; margin: 1in; }
+body { font-family: 'Calibri', 'Times New Roman', sans-serif; font-size: 11pt; line-height: 1.5; }
+</style>
+</head>
+<body>
+${paragraphs.join('\n')}
+</body>
+</html>`;
+
+                let blob, fileName;
+                if (format === 'docx') {
+                    // DOCX is essentially a ZIP file - simple .doc approach with .docx extension still works with Word
+                    blob = new Blob(['\ufeff', htmlContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                    fileName = pdf2wordState.file.name.replace('.pdf', '.docx');
+                } else {
+                    blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+                    fileName = pdf2wordState.file.name.replace('.pdf', '.doc');
+                }
+
+                prepareDownloadPdf2word(blob, fileName);
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+
+                document.getElementById('resultStatsPdf2word').innerHTML = `
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">File Asli</span><br><strong>${pdf2wordState.file.name}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Halaman Diproses</span><br><strong>${totalPages}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Format</span><br><strong>${format.toUpperCase()}</strong></div>
+                `;
+
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    document.getElementById('resultContainerPdf2word').style.display = 'block';
+                }, 500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Gagal mengkonversi ke Word: " + error.message);
+                resetPdf2wordApp();
+            }
+        });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function prepareDownloadPdf2word(blob, outputName) {
+            if (pdf2wordState.processedBlobUrl) URL.revokeObjectURL(pdf2wordState.processedBlobUrl);
+            pdf2wordState.processedBlobUrl = URL.createObjectURL(blob);
+            document.getElementById('downloadBtnPdf2word').onclick = () => {
+                const a = document.createElement('a');
+                a.href = pdf2wordState.processedBlobUrl;
+                a.download = outputName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        function resetPdf2wordApp() {
+            pdf2wordState = { file: null, processedBlobUrl: null };
+            dropZonePdf2word.style.display = 'block';
+            document.getElementById('pdf2wordInfo').style.display = 'none';
+            document.getElementById('resultContainerPdf2word').style.display = 'none';
+            document.getElementById('progressContainerPdf2word').style.display = 'none';
+            document.getElementById('progressBarPdf2word').style.width = '0%';
+            fileInputPdf2word.value = '';
+        }
+
+        // ===== PDF TO POWERPOINT LOGIC =====
+        let pdf2pptState = {
+            file: null,
+            processedBlobUrl: null
+        };
+
+        const dropZonePdf2ppt = document.getElementById('dropZonePdf2ppt');
+        const fileInputPdf2ppt = document.getElementById('fileInputPdf2ppt');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZonePdf2ppt.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZonePdf2ppt.addEventListener(eventName, () => dropZonePdf2ppt.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZonePdf2ppt.addEventListener(eventName, () => dropZonePdf2ppt.classList.remove('dragover'), false);
+        });
+
+        dropZonePdf2ppt.addEventListener('drop', (e) => handleFilesPdf2ppt(e.dataTransfer.files));
+        fileInputPdf2ppt.addEventListener('change', function() { handleFilesPdf2ppt(this.files); });
+
+        async function handleFilesPdf2ppt(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            if (file.type !== "application/pdf" && !file.name.endsWith('.pdf')) {
+                alert("Silakan unggah file PDF yang valid");
+                return;
+            }
+
+            pdf2pptState.file = file;
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                pdf2pptState.totalPages = pdf.numPages;
+
+                dropZonePdf2ppt.style.display = 'none';
+                document.getElementById('pdf2pptInfo').style.display = 'block';
+                document.getElementById('fileNamePdf2ppt').textContent = file.name;
+                document.getElementById('fileSizePdf2ppt').textContent = formatBytes(file.size);
+                document.getElementById('pdf2pptPagesInfo').textContent = `Total halaman tersedia: ${pdf2pptState.totalPages}`;
+            } catch (error) {
+                alert("Gagal membaca PDF: " + error.message);
+                pdf2pptState.file = null;
+            }
+        }
+
+        document.getElementById('pdf2pptBtn').addEventListener('click', async () => {
+            if (!pdf2pptState.file) return;
+
+            const progressContainer = document.getElementById('progressContainerPdf2ppt');
+            const progressBar = document.getElementById('progressBarPdf2ppt');
+            const statusText = document.getElementById('statusTextPdf2ppt');
+            const percentText = document.getElementById('percentTextPdf2ppt');
+
+            document.getElementById('pdf2pptInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Mempersiapkan konversi...";
+            progressBar.style.width = '5%';
+            percentText.textContent = '5%';
+
+            try {
+                const arrayBuffer = await pdf2pptState.file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdf.numPages;
+
+                // Parse page range
+                const rangeInput = document.getElementById('pdf2pptPages').value.trim();
+                let pagesToConvert = [];
+                if (rangeInput) {
+                    pagesToConvert = parsePageRange(rangeInput, totalPages);
+                    if (pagesToConvert.length === 0) {
+                        alert("Format rentang halaman salah");
+                        resetPdf2pptApp();
+                        return;
+                    }
+                } else {
+                    pagesToConvert = Array.from({ length: totalPages }, (_, i) => i + 1);
+                }
+
+                const quality = document.getElementById('pdf2pptQuality').value;
+                let scale = 2;
+                if (quality === 'high') scale = 2.5;
+                else if (quality === 'low') scale = 1.2;
+
+                // Initialize PptxGenJS
+                const pptx = new PptxGenJS();
+                pptx.defineLayout({ name: 'PDF_CUSTOM', width: 13.33, height: 7.5 });
+                pptx.layout = 'LAYOUT_WIDE';
+
+                let processed = 0;
+                for (const pageNum of pagesToConvert) {
+                    processed++;
+                    statusText.textContent = `Konversi halaman ${pageNum}... (${processed}/${pagesToConvert.length})`;
+                    const progress = Math.round((processed / pagesToConvert.length) * 90) + 5;
+                    progressBar.style.width = progress + '%';
+                    percentText.textContent = progress + '%';
+
+                    const page = await pdf.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: scale });
+
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+                    // Add slide
+                    const slide = pptx.addSlide();
+                    slide.addImage({ data: imgData, x: 0, y: 0, w: 13.33, h: 7.5 });
+                }
+
+                statusText.textContent = "Menyimpan file PPTX...";
+                progressBar.style.width = '98%';
+                percentText.textContent = '98%';
+
+                const pptxBlob = await pptx.write({ outputType: 'blob' });
+                const fileName = pdf2pptState.file.name.replace('.pdf', '.pptx');
+                prepareDownloadPdf2ppt(pptxBlob, fileName);
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+
+                document.getElementById('resultStatsPdf2ppt').innerHTML = `
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Total Halaman</span><br><strong>${pagesToConvert.length}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Slide Dibuat</span><br><strong style="color:var(--tool-primary);">${pagesToConvert.length}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Format</span><br><strong>PPTX</strong></div>
+                `;
+
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    document.getElementById('resultContainerPdf2ppt').style.display = 'block';
+                }, 500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Gagal mengkonversi ke PowerPoint: " + error.message);
+                resetPdf2pptApp();
+            }
+        });
+
+        function prepareDownloadPdf2ppt(blob, outputName) {
+            if (pdf2pptState.processedBlobUrl) URL.revokeObjectURL(pdf2pptState.processedBlobUrl);
+            pdf2pptState.processedBlobUrl = URL.createObjectURL(blob);
+            document.getElementById('downloadBtnPdf2ppt').onclick = () => {
+                const a = document.createElement('a');
+                a.href = pdf2pptState.processedBlobUrl;
+                a.download = outputName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        function resetPdf2pptApp() {
+            pdf2pptState = { file: null, processedBlobUrl: null, totalPages: 0 };
+            dropZonePdf2ppt.style.display = 'block';
+            document.getElementById('pdf2pptInfo').style.display = 'none';
+            document.getElementById('resultContainerPdf2ppt').style.display = 'none';
+            document.getElementById('progressContainerPdf2ppt').style.display = 'none';
+            document.getElementById('progressBarPdf2ppt').style.width = '0%';
+            fileInputPdf2ppt.value = '';
+            document.getElementById('pdf2pptPages').value = '';
+        }
+
+        // ===== PDF TO EXCEL LOGIC =====
+        let pdf2excelState = {
+            file: null,
+            processedBlobUrl: null
+        };
+
+        const dropZonePdf2excel = document.getElementById('dropZonePdf2excel');
+        const fileInputPdf2excel = document.getElementById('fileInputPdf2excel');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZonePdf2excel.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZonePdf2excel.addEventListener(eventName, () => dropZonePdf2excel.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZonePdf2excel.addEventListener(eventName, () => dropZonePdf2excel.classList.remove('dragover'), false);
+        });
+
+        dropZonePdf2excel.addEventListener('drop', (e) => handleFilesPdf2excel(e.dataTransfer.files));
+        fileInputPdf2excel.addEventListener('change', function() { handleFilesPdf2excel(this.files); });
+
+        async function handleFilesPdf2excel(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            if (file.type !== "application/pdf" && !file.name.endsWith('.pdf')) {
+                alert("Silakan unggah file PDF yang valid");
+                return;
+            }
+
+            pdf2excelState.file = file;
+            dropZonePdf2excel.style.display = 'none';
+            document.getElementById('pdf2excelInfo').style.display = 'block';
+            document.getElementById('fileNamePdf2excel').textContent = file.name;
+            document.getElementById('fileSizePdf2excel').textContent = formatBytes(file.size);
+        }
+
+        document.getElementById('pdf2excelBtn').addEventListener('click', async () => {
+            if (!pdf2excelState.file) return;
+
+            const progressContainer = document.getElementById('progressContainerPdf2excel');
+            const progressBar = document.getElementById('progressBarPdf2excel');
+            const statusText = document.getElementById('statusTextPdf2excel');
+            const percentText = document.getElementById('percentTextPdf2excel');
+
+            document.getElementById('pdf2excelInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Membaca PDF...";
+            progressBar.style.width = '10%';
+            percentText.textContent = '10%';
+
+            try {
+                const arrayBuffer = await pdf2excelState.file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdf.numPages;
+                const mode = document.getElementById('pdf2excelMode').value;
+
+                const wb = XLSX.utils.book_new();
+
+                if (mode === 'single') {
+                    // Semua teks dalam satu sheet
+                    let allRows = [];
+                    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                        statusText.textContent = `Ekstrak halaman ${pageNum} dari ${totalPages}...`;
+                        const progress = Math.round((pageNum / totalPages) * 80) + 10;
+                        progressBar.style.width = progress + '%';
+                        percentText.textContent = progress + '%';
+
+                        const page = await pdf.getPage(pageNum);
+                        const textContent = await page.getTextContent();
+
+                        // Group by line (y-coordinate)
+                        let lines = {};
+                        textContent.items.forEach(item => {
+                            const y = Math.round(item.transform[5]);
+                            if (!lines[y]) lines[y] = [];
+                            lines[y].push({
+                                x: item.transform[4],
+                                text: item.str
+                            });
+                        });
+
+                        allRows.push([`=== HALAMAN ${pageNum} ===`]);
+                        const sortedY = Object.keys(lines).sort((a, b) => parseFloat(b) - parseFloat(a));
+                        sortedY.forEach(y => {
+                            const lineItems = lines[y].sort((a, b) => a.x - b.x);
+                            allRows.push([lineItems.map(i => i.text).join(' ')]);
+                        });
+                        allRows.push(['']);
+                    }
+                    const ws = XLSX.utils.aoa_to_sheet(allRows);
+                    XLSX.utils.book_append_sheet(wb, ws, 'Semua Teks');
+
+                } else if (mode === 'perpage') {
+                    // Satu sheet per halaman
+                    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                        statusText.textContent = `Ekstrak halaman ${pageNum} dari ${totalPages}...`;
+                        const progress = Math.round((pageNum / totalPages) * 80) + 10;
+                        progressBar.style.width = progress + '%';
+                        percentText.textContent = progress + '%';
+
+                        const page = await pdf.getPage(pageNum);
+                        const textContent = await page.getTextContent();
+
+                        let lines = {};
+                        textContent.items.forEach(item => {
+                            const y = Math.round(item.transform[5]);
+                            if (!lines[y]) lines[y] = [];
+                            lines[y].push({
+                                x: item.transform[4],
+                                text: item.str
+                            });
+                        });
+
+                        let rows = [];
+                        const sortedY = Object.keys(lines).sort((a, b) => parseFloat(b) - parseFloat(a));
+                        sortedY.forEach(y => {
+                            const lineItems = lines[y].sort((a, b) => a.x - b.x);
+                            // Coba deteksi kolom berdasarkan jarak x
+                            const cells = detectColumns(lineItems);
+                            rows.push(cells);
+                        });
+
+                        const ws = XLSX.utils.aoa_to_sheet(rows);
+                        const sheetName = `Halaman ${pageNum}`.substring(0, 31);
+                        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                    }
+
+                } else if (mode === 'split') {
+                    // Coba deteksi tabel
+                    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                        statusText.textContent = `Ekstrak & deteksi tabel halaman ${pageNum}...`;
+                        const progress = Math.round((pageNum / totalPages) * 80) + 10;
+                        progressBar.style.width = progress + '%';
+                        percentText.textContent = progress + '%';
+
+                        const page = await pdf.getPage(pageNum);
+                        const textContent = await page.getTextContent();
+
+                        let lines = {};
+                        textContent.items.forEach(item => {
+                            const y = Math.round(item.transform[5]);
+                            if (!lines[y]) lines[y] = [];
+                            lines[y].push({
+                                x: item.transform[4],
+                                text: item.str
+                            });
+                        });
+
+                        let rows = [];
+                        const sortedY = Object.keys(lines).sort((a, b) => parseFloat(b) - parseFloat(a));
+                        sortedY.forEach(y => {
+                            const lineItems = lines[y].sort((a, b) => a.x - b.x);
+                            const cells = detectColumns(lineItems);
+                            rows.push(cells);
+                        });
+
+                        const ws = XLSX.utils.aoa_to_sheet(rows);
+                        const sheetName = `Halaman ${pageNum}`.substring(0, 31);
+                        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                    }
+                }
+
+                statusText.textContent = "Menyimpan file Excel...";
+                progressBar.style.width = '95%';
+                percentText.textContent = '95%';
+
+                const xlsxArray = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const xlsxBlob = new Blob([xlsxArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const fileName = pdf2excelState.file.name.replace('.pdf', '.xlsx');
+                prepareDownloadPdf2excel(xlsxBlob, fileName);
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+
+                document.getElementById('resultStatsPdf2excel').innerHTML = `
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Halaman Diproses</span><br><strong>${totalPages}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Jumlah Sheet</span><br><strong style="color:var(--tool-primary);">${wb.SheetNames.length}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Format</span><br><strong>XLSX</strong></div>
+                `;
+
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    document.getElementById('resultContainerPdf2excel').style.display = 'block';
+                }, 500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Gagal mengkonversi ke Excel: " + error.message);
+                resetPdf2excelApp();
+            }
+        });
+
+        // Helper: deteksi kolom berdasarkan jarak x
+        function detectColumns(items) {
+            if (items.length === 0) return [];
+
+            // Threshold untuk gap antar kolom
+            const gaps = [];
+            for (let i = 1; i < items.length; i++) {
+                const prevEnd = items[i-1].x + (items[i-1].text.length * 5);
+                const currStart = items[i].x;
+                gaps.push(currStart - prevEnd);
+            }
+
+            const avgGap = gaps.length > 0 ? gaps.reduce((a,b) => a+b, 0) / gaps.length : 0;
+            const threshold = Math.max(20, avgGap * 2);
+
+            const cells = [items[0].text];
+            for (let i = 1; i < items.length; i++) {
+                const prevEnd = items[i-1].x + (items[i-1].text.length * 5);
+                const currStart = items[i].x;
+                if (currStart - prevEnd > threshold) {
+                    cells.push(items[i].text);
+                } else {
+                    cells[cells.length - 1] += ' ' + items[i].text;
+                }
+            }
+
+            return cells;
+        }
+
+        function prepareDownloadPdf2excel(blob, outputName) {
+            if (pdf2excelState.processedBlobUrl) URL.revokeObjectURL(pdf2excelState.processedBlobUrl);
+            pdf2excelState.processedBlobUrl = URL.createObjectURL(blob);
+            document.getElementById('downloadBtnPdf2excel').onclick = () => {
+                const a = document.createElement('a');
+                a.href = pdf2excelState.processedBlobUrl;
+                a.download = outputName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        function resetPdf2excelApp() {
+            pdf2excelState = { file: null, processedBlobUrl: null };
+            dropZonePdf2excel.style.display = 'block';
+            document.getElementById('pdf2excelInfo').style.display = 'none';
+            document.getElementById('resultContainerPdf2excel').style.display = 'none';
+            document.getElementById('progressContainerPdf2excel').style.display = 'none';
+            document.getElementById('progressBarPdf2excel').style.width = '0%';
+            fileInputPdf2excel.value = '';
+        }
+
+        // ===== EDIT PDF LOGIC =====
+        let editState = {
+            file: null,
+            pdfDoc: null,
+            currentPage: 1,
+            totalPages: 0,
+            pageAnnotations: {},  // { pageNum: [{ type: 'text'|'image', x, y, content, color, fontSize }] }
+            selectedAnnotation: null,
+            selectedElement: null,
+            processedBlobUrl: null
+        };
+
+        const dropZoneEdit = document.getElementById('dropZoneEdit');
+        const fileInputEdit = document.getElementById('fileInputEdit');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZoneEdit.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZoneEdit.addEventListener(eventName, () => dropZoneEdit.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZoneEdit.addEventListener(eventName, () => dropZoneEdit.classList.remove('dragover'), false);
+        });
+
+        dropZoneEdit.addEventListener('drop', (e) => handleFilesEdit(e.dataTransfer.files));
+        fileInputEdit.addEventListener('change', function() { handleFilesEdit(this.files); });
+
+        async function handleFilesEdit(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            if (file.type !== "application/pdf" && !file.name.endsWith('.pdf')) {
+                alert("Silakan unggah file PDF yang valid");
+                return;
+            }
+
+            editState.file = file;
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                editState.pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                editState.totalPages = editState.pdfDoc.numPages;
+                editState.currentPage = 1;
+                editState.pageAnnotations = {};
+
+                dropZoneEdit.style.display = 'none';
+                document.getElementById('editInfo').style.display = 'block';
+                document.getElementById('fileNameEdit').textContent = file.name;
+                document.getElementById('fileSizeEdit').textContent = formatBytes(file.size);
+                document.getElementById('editTotalPages').textContent = editState.totalPages;
+
+                await renderEditPage();
+            } catch (error) {
+                alert("Gagal membaca PDF: " + error.message);
+                editState.file = null;
+            }
+        }
+
+        async function renderEditPage() {
+            const canvas = document.getElementById('pdfEditCanvas');
+            const ctx = canvas.getContext('2d');
+            const page = await editState.pdfDoc.getPage(editState.currentPage);
+            const viewport = page.getViewport({ scale: 1.5 });
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+            document.getElementById('editCurrentPage').textContent = editState.currentPage;
+            document.getElementById('editPrevPageBtn').disabled = editState.currentPage <= 1;
+            document.getElementById('editNextPageBtn').disabled = editState.currentPage >= editState.totalPages;
+
+            // Render existing annotations for this page
+            renderEditAnnotations();
+        }
+
+        function renderEditAnnotations() {
+            const wrapper = document.getElementById('pdfEditCanvasWrapper');
+            // Remove existing overlays
+            wrapper.querySelectorAll('.edit-text-overlay, .edit-image-overlay').forEach(el => el.remove());
+
+            const canvas = document.getElementById('pdfEditCanvas');
+            const annotations = editState.pageAnnotations[editState.currentPage] || [];
+
+            annotations.forEach((ann, idx) => {
+                if (ann.type === 'text') {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'edit-text-overlay';
+                    overlay.textContent = ann.content;
+                    overlay.style.left = (ann.x * 1.5) + 'px';
+                    overlay.style.top = (ann.y * 1.5) + 'px';
+                    overlay.style.color = ann.color;
+                    overlay.style.fontSize = (ann.fontSize * 1.5) + 'px';
+                    overlay.dataset.idx = idx;
+                    setupAnnotationDrag(overlay, idx);
+                    wrapper.appendChild(overlay);
+                } else if (ann.type === 'image') {
+                    const overlay = document.createElement('img');
+                    overlay.className = 'edit-text-overlay edit-image-overlay';
+                    overlay.src = ann.content;
+                    overlay.style.position = 'absolute';
+                    overlay.style.left = (ann.x * 1.5) + 'px';
+                    overlay.style.top = (ann.y * 1.5) + 'px';
+                    overlay.style.width = (ann.width * 1.5) + 'px';
+                    overlay.style.height = 'auto';
+                    overlay.dataset.idx = idx;
+                    setupAnnotationDrag(overlay, idx);
+                    wrapper.appendChild(overlay);
+                }
+            });
+        }
+
+        function setupAnnotationDrag(element, idx) {
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
+
+            element.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Select this annotation
+                document.querySelectorAll('.edit-text-overlay').forEach(el => el.classList.remove('selected'));
+                element.classList.add('selected');
+                editState.selectedAnnotation = idx;
+                editState.selectedElement = element;
+
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = parseFloat(element.style.left);
+                startTop = parseFloat(element.style.top);
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                element.style.left = (startLeft + dx) + 'px';
+                element.style.top = (startTop + dy) + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    // Update annotation position in state (convert back to PDF coords)
+                    const annotations = editState.pageAnnotations[editState.currentPage] || [];
+                    if (annotations[idx]) {
+                        annotations[idx].x = parseFloat(element.style.left) / 1.5;
+                        annotations[idx].y = parseFloat(element.style.top) / 1.5;
+                    }
+                }
+            });
+
+            // Double-click to edit text
+            if (element.tagName === 'DIV') {
+                element.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    const newText = prompt('Edit teks:', element.textContent);
+                    if (newText !== null) {
+                        element.textContent = newText;
+                        const annotations = editState.pageAnnotations[editState.currentPage] || [];
+                        if (annotations[idx]) {
+                            annotations[idx].content = newText;
+                        }
+                    }
+                });
+            }
+        }
+
+        document.getElementById('editAddTextBtn').addEventListener('click', () => {
+            if (!editState.pdfDoc) return;
+            const text = prompt('Masukkan teks:');
+            if (!text) return;
+
+            const color = document.getElementById('editTextColor').value;
+            const fontSize = parseInt(document.getElementById('editFontSize').value);
+
+            if (!editState.pageAnnotations[editState.currentPage]) {
+                editState.pageAnnotations[editState.currentPage] = [];
+            }
+
+            editState.pageAnnotations[editState.currentPage].push({
+                type: 'text',
+                x: 50,
+                y: 50,
+                content: text,
+                color: color,
+                fontSize: fontSize
+            });
+
+            renderEditAnnotations();
+        });
+
+        document.getElementById('editAddImageBtn').addEventListener('click', () => {
+            if (!editState.pdfDoc) return;
+            document.getElementById('editImageInput').click();
+        });
+
+        document.getElementById('editImageInput').addEventListener('change', async function() {
+            if (this.files.length === 0) return;
+            const file = this.files[0];
+            const dataUrl = await readFileAsDataURL(file);
+
+            if (!editState.pageAnnotations[editState.currentPage]) {
+                editState.pageAnnotations[editState.currentPage] = [];
+            }
+
+            editState.pageAnnotations[editState.currentPage].push({
+                type: 'image',
+                x: 50,
+                y: 50,
+                content: dataUrl,
+                width: 150
+            });
+
+            renderEditAnnotations();
+            this.value = '';
+        });
+
+        document.getElementById('editDeleteSelectedBtn').addEventListener('click', () => {
+            if (editState.selectedAnnotation === null) {
+                alert("Pilih elemen terlebih dahulu dengan mengkliknya");
+                return;
+            }
+            const annotations = editState.pageAnnotations[editState.currentPage] || [];
+            annotations.splice(editState.selectedAnnotation, 1);
+            editState.selectedAnnotation = null;
+            renderEditAnnotations();
+        });
+
+        document.getElementById('editClearAllBtn').addEventListener('click', () => {
+            if (!confirm('Hapus semua anotasi di halaman ini?')) return;
+            editState.pageAnnotations[editState.currentPage] = [];
+            editState.selectedAnnotation = null;
+            renderEditAnnotations();
+        });
+
+        document.getElementById('editPrevPageBtn').addEventListener('click', async () => {
+            if (editState.currentPage > 1) {
+                editState.currentPage--;
+                editState.selectedAnnotation = null;
+                await renderEditPage();
+            }
+        });
+
+        document.getElementById('editNextPageBtn').addEventListener('click', async () => {
+            if (editState.currentPage < editState.totalPages) {
+                editState.currentPage++;
+                editState.selectedAnnotation = null;
+                await renderEditPage();
+            }
+        });
+
+        // Deselect on canvas click
+        document.getElementById('pdfEditCanvas').addEventListener('click', () => {
+            document.querySelectorAll('.edit-text-overlay').forEach(el => el.classList.remove('selected'));
+            editState.selectedAnnotation = null;
+        });
+
+        document.getElementById('editSaveBtn').addEventListener('click', async () => {
+            if (!editState.file) return;
+
+            const progressContainer = document.getElementById('progressContainerEdit');
+            const progressBar = document.getElementById('progressBarEdit');
+            const statusText = document.getElementById('statusTextEdit');
+            const percentText = document.getElementById('percentTextEdit');
+
+            document.getElementById('editInfo').style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Memproses PDF...";
+            progressBar.style.width = '10%';
+            percentText.textContent = '10%';
+
+            try {
+                // Load original PDF with PDFLib
+                const arrayBuffer = await editState.file.arrayBuffer();
+                const pdfDocLib = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+                const pages = pdfDocLib.getPages();
+
+                let annotationCount = 0;
+                let pageNum = 0;
+
+                for (const page of pages) {
+                    pageNum++;
+                    const annotations = editState.pageAnnotations[pageNum] || [];
+                    const { width, height } = page.getSize();
+
+                    for (const ann of annotations) {
+                        if (ann.type === 'text') {
+                            // PDF y-coordinate origin is bottom-left, but our y is from top
+                            const pdfY = height - ann.y - ann.fontSize;
+                            page.drawText(ann.content, {
+                                x: ann.x,
+                                y: pdfY,
+                                size: ann.fontSize,
+                                color: PDFLib.rgb(
+                                    parseInt(ann.color.slice(1,3), 16) / 255,
+                                    parseInt(ann.color.slice(3,5), 16) / 255,
+                                    parseInt(ann.color.slice(5,7), 16) / 255
+                                )
+                            });
+                            annotationCount++;
+                        } else if (ann.type === 'image') {
+                            // Embed image
+                            const base64Data = ann.content.split(',')[1];
+                            const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+                            let img;
+                            if (ann.content.startsWith('data:image/png')) {
+                                img = await pdfDocLib.embedPng(imageBytes);
+                            } else {
+                                img = await pdfDocLib.embedJpg(imageBytes);
+                            }
+                            const pdfY = height - ann.y - (img.height * (ann.width / img.width));
+                            page.drawImage(img, {
+                                x: ann.x,
+                                y: pdfY,
+                                width: ann.width,
+                                height: img.height * (ann.width / img.width)
+                            });
+                            annotationCount++;
+                        }
+                    }
+
+                    const progress = Math.round((pageNum / pages.length) * 80) + 10;
+                    progressBar.style.width = progress + '%';
+                    percentText.textContent = progress + '%';
+                    statusText.textContent = `Memproses halaman ${pageNum} dari ${pages.length}...`;
+                }
+
+                statusText.textContent = "Menyimpan PDF...";
+                progressBar.style.width = '95%';
+                percentText.textContent = '95%';
+
+                const pdfBytes = await pdfDocLib.save();
+                const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+                prepareDownloadEdit(pdfBlob, 'edited_' + editState.file.name);
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+
+                document.getElementById('resultStatsEdit').innerHTML = `
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Total Halaman</span><br><strong>${editState.totalPages}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Anotasi Ditambahkan</span><br><strong style="color:var(--tool-primary);">${annotationCount}</strong></div>
+                    <div class="result-stat"><span style="color:var(--text-muted); font-size:0.8rem;">Ukuran PDF</span><br><strong>${formatBytes(pdfBlob.size)}</strong></div>
+                `;
+
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    document.getElementById('resultContainerEdit').style.display = 'block';
+                }, 500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Gagal menyimpan PDF: " + error.message);
+                resetEditApp();
+            }
+        });
+
+        function prepareDownloadEdit(blob, outputName) {
+            if (editState.processedBlobUrl) URL.revokeObjectURL(editState.processedBlobUrl);
+            editState.processedBlobUrl = URL.createObjectURL(blob);
+            document.getElementById('downloadBtnEdit').onclick = () => {
+                const a = document.createElement('a');
+                a.href = editState.processedBlobUrl;
+                a.download = outputName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        function resetEditApp() {
+            editState = {
+                file: null,
+                pdfDoc: null,
+                currentPage: 1,
+                totalPages: 0,
+                pageAnnotations: {},
+                selectedAnnotation: null,
+                selectedElement: null,
+                processedBlobUrl: null
+            };
+            dropZoneEdit.style.display = 'block';
+            document.getElementById('editInfo').style.display = 'none';
+            document.getElementById('resultContainerEdit').style.display = 'none';
+            document.getElementById('progressContainerEdit').style.display = 'none';
+            document.getElementById('progressBarEdit').style.width = '0%';
+            fileInputEdit.value = '';
         }
 
         // Initialize dashboard on load
